@@ -10,6 +10,18 @@
  * [ 6:0,       7:0,       8:1      ]
  */
 
+bool ZMatrix::operator==(const ZMatrix& other) const {
+    for (int i = 0; i < 9; ++i) {
+        // 考虑到浮点数精度，这里也可以用 fabsf(a-b) < 1e-6f
+        if (this->fMat[i] != other.fMat[i]) return false;
+    }
+    return true;
+}
+
+bool ZMatrix::operator!=(const ZMatrix& other) const {
+    return !(*this == other);
+}
+
 void ZMatrix::setIdentity() {
     fMat[0] = 1.0f;
     fMat[1] = 0.0f;

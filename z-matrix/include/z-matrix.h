@@ -6,6 +6,10 @@ public:
         setIdentity();
     }
 
+    bool operator==(const ZMatrix& other) const;
+    bool operator!=(const ZMatrix& other) const;
+
+public:
     void setIdentity();
     void setTranslate(float dx, float dy);
     void setScale(float sx, float sy);

@@ -13,8 +13,12 @@ ZGuid ZGuid::MakeGuid() {
 ZGuid::ZGuid(size_t s, size_t c) : zSessionId(s), zClientId(c) {
 }
 
-bool ZGuid::operator!=(const ZGuid& guid) {
+bool ZGuid::operator!=(const ZGuid& guid) const {
     return zSessionId != guid.zSessionId || zClientId != guid.zClientId;
+}
+
+bool ZGuid::operator==(const ZGuid& other) const {
+    return !(*this != other);
 }
 
 const size_t ZGuid::toNumber() const {
