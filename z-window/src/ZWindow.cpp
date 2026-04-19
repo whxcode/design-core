@@ -19,66 +19,21 @@
 #include "z-engine/include/z-vgengine.h"
 
 // 构造函数：初始化指针和基础数值
-ZWindow::ZWindow()
-    : sWindow(nullptr),
-      zGlContext(nullptr),
-      zEngine(nullptr),
-      zWidth(800),
-      zHeight(600),
-      zDpr(1.0f) {
+ZWindow::ZWindow() : zEngine(nullptr), zWidth(800), zHeight(600), zDpr(1.0f) {
 }
+
 void ZWindow::init() {
-    // 删掉那个 sleep_for，没用的，这是链接库的问题
+    // 2. 同步尺寸
+#ifdef __EMSCRIPTEN__
+    zDpr = emscripten_get_device_pixel_ratio();
+    emscripten_get_canvas_element_size("#canvas", &zWidth, &zHeight);
+#endif
 
-    SDL_Init(SDL_INIT_VIDEO);
-
-    // 顺序非常关键！
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-
-    // 增加这些容错配置
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-
-    // ... 获取宽高的代码 ...
-
-    sWindow =
-        SDL_CreateWindow("DesignCore", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, zWidth,
-                         zHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
-
-    zGlContext = SDL_GL_CreateContext(sWindow);
-
-    // 核心动作：必须激活上下文
-    SDL_GL_MakeCurrent(sWindow, zGlContext);
-
-    printf("C++: GL Context created. Testing Native GL...\n");
-
-    // 如果 CMake 没加 -s FULL_ES3=1，下面这一行百分之百报错
-    GLuint testShader = glCreateShader(GL_VERTEX_SHADER);
-    printf("Native GL Test - Shader ID: %u\n", testShader);
-
-    // 在 SDL_GL_MakeCurrent(sWindow, zGlContext); 之后执行
-
-    // 获取渲染器信息
-    const GLubyte* zRenderer = glGetString(GL_RENDERER);
-    const GLubyte* zVendor = glGetString(GL_VENDOR);
-    const GLubyte* zVersion = glGetString(GL_VERSION);
-    const GLubyte* zGlslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
-
-    printf("--- GPU Hardware Report ---\n");
-    printf("zRenderer: %s\n", zRenderer);
-    printf("zVendor:   %s\n", zVendor);
-    printf("zVersion:  %s\n", zVersion);
-    printf("zGLSL:     %s\n", zGlslVersion);
-    printf("---------------------------\n");
-
-    zEngine = new ZVgEngine();
+    zEngine = new ZVgEngine(zWidth, zHeight, zDpr);
 }
 
 // 1. 定义一个全局或静态函数供浏览器调用
-void main_loop_callback(void* arg) {
+static void main_loop_callback(void* arg) {
     ZWindow* window = (ZWindow*)arg;
     window->testRender();  // 把你刚才 lambda 里的逻辑搬到这个函数
 }
@@ -102,12 +57,6 @@ void ZWindow::testRender() {
         zIsInitialized = true;
         printf("C++: Stress test data precomputed internally.\n");
     }
-
-    // 2. 同步尺寸
-#ifdef __EMSCRIPTEN__
-    zDpr = emscripten_get_device_pixel_ratio();
-    emscripten_get_canvas_element_size("#canvas", &zWidth, &zHeight);
-#endif
 
     // 3. 清屏
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -134,8 +83,8 @@ void ZWindow::testRender() {
         nvgFill(vg);
     }
 
-    zEngine->endFrame();
-    SDL_GL_SwapWindow(sWindow);
+    // zEngine->endFrame();
+    // SDL_GL_SwapWindow(sWindow);
 }
 
 void ZWindow::draw() {
@@ -143,7 +92,7 @@ void ZWindow::draw() {
 #ifdef __EMSCRIPTEN__
     // 0 表示使用浏览器默认的 60FPS
     // true 表示模拟无限循环
-    emscripten_set_main_loop_arg(main_loop_callback, this, 0, true);
+    // emscripten_set_main_loop_arg(main_loop_callback, this, 0, true);
 #else
     // 原生环境（Windows/Linux）可以保留类似的循环
     while (true) {
@@ -151,6 +100,16 @@ void ZWindow::draw() {
         SDL_Delay(16);  // 约 60 FPS
     }
 #endif
+    if (!zEngine) {
+        init();
+    }
+
+    // 开启新渲染
+
+    zEngine->beginFrame((float)zWidth, (float)zHeight, zDpr);
+    zEngine->drawRect(0, 0, 50, 100, {.zFillColor = 0X00ff00});
+    zEngine->endFrame();
+    zEngine->flush();
 }
 
 void ZWindow::setTitle() {
