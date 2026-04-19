@@ -15,7 +15,7 @@ public:
     void draw();
     void setTitle();
 
-    void render();
+    void testRender();
 
 private:
     void init();

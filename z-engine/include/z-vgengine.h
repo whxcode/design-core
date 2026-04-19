@@ -17,6 +17,10 @@ public:
     void beginFrame(float zWidth, float zHeight, float zDpr) override;
     void endFrame() override;
 
+    void* getContext() override {
+        return zVg;
+    };
+
 private:
     NVGcontext* zVg{nullptr};
 };
