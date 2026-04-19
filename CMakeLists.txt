@@ -37,6 +37,7 @@ else()
 endif()
 
 # --- 4. 添加子模块 (确保它们也遵循 BUILD_TYPE) ---
+add_subdirectory(z-engine)
 add_subdirectory(z-window)
 add_subdirectory(z-document)
 add_subdirectory(z-app)
@@ -55,7 +56,7 @@ target_include_directories(DesignCore SYSTEM PRIVATE
 )
 
 # --- 7. 链接与输出配置 ---
-target_link_libraries(DesignCore PRIVATE webapi_lib app_lib)
+target_link_libraries(DesignCore PRIVATE webapi_lib app_lib engine_lib)
 
 # target_link_libraries(DesignCore PRIVATE document_lib window_lib)
 target_compile_options(DesignCore PRIVATE ${COMMON_COMPILE_OPTIONS})
