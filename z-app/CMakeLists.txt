@@ -1,6 +1,6 @@
 # app/CMakeLists.txt
 
-add_library(app_lib STATIC src/App.cpp)
+add_library(app_lib STATIC src/ZApp.cpp)
 
 target_include_directories(app_lib
     PUBLIC

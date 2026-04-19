@@ -37,10 +37,10 @@ else()
 endif()
 
 # --- 4. 添加子模块 (确保它们也遵循 BUILD_TYPE) ---
-add_subdirectory(window)
-add_subdirectory(document)
-add_subdirectory(app)
-add_subdirectory(webapi)
+add_subdirectory(z-window)
+add_subdirectory(z-document)
+add_subdirectory(z-app)
+add_subdirectory(z-webapi)
 
 # --- 5. 创建主程序目标 ---
 add_executable(DesignCore main.cpp)
@@ -48,8 +48,8 @@ add_executable(DesignCore main.cpp)
 # --- 6. 配置包含路径 (解决 LSP 和编译器的路径矛盾) ---
 target_include_directories(DesignCore SYSTEM PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}"
-    "${CMAKE_CURRENT_SOURCE_DIR}/document/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/window/include"
+    # "${CMAKE_CURRENT_SOURCE_DIR}/z-document/include"
+    # "${CMAKE_CURRENT_SOURCE_DIR}/z-window/include"
     "${EM_SYSROOT}/include"
     "${EM_SYSROOT}/include/SDL2"
 )

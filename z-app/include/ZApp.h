@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
 
-#include "document/include/Document.h"
-#include "window/include/Window.h"
+#include "z-document/include/ZDocument.h"
+#include "z-window/include/ZWindow.h"
 
 // #include "document/include/Document.h"
 // #include "window/include/Window.h"

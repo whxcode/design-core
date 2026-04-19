@@ -1,6 +1,6 @@
 #include <emscripten/bind.h>
 
-#include "app/include/App.h"
+#include "z-app/include/ZApp.h"
 
 // 在文件末尾或开头添加一个空函数
 extern "C" {

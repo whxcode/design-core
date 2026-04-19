@@ -1,4 +1,4 @@
-#include "document/include/Document.h"
+#include "z-document/include/ZDocument.h"
 
 #include <cstdio>
 #include <iostream>

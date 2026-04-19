@@ -1,4 +1,4 @@
-#include "app/include/App.h"
+#include "z-app/include/ZApp.h"
 
 #include <SDL2/SDL.h>
 
@@ -6,8 +6,8 @@
 #include <thread>
 #include <vector>
 
-#include "document/include/Document.h"
-#include "window/include/Window.h"
+#include "z-document/include/ZDocument.h"
+#include "z-window/include/ZWindow.h"
 
 ZApp::ZApp() {
     // 掌握生命周期：在这里创建实例

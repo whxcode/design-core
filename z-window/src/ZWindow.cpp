@@ -1,4 +1,4 @@
-#include "window/include/Window.h"
+#include "z-window/include/ZWindow.h"
 
 #include <SDL2/SDL.h>
 
