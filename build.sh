@@ -1,0 +1,64 @@
+#!/bin/bash
+set -e
+
+# --- 1. 路径自动定位 ---
+CORE_DIR=$(
+  cd "$(dirname "${BASH_SOURCE[0]}")"
+  pwd
+)
+BUILD_DIR="$CORE_DIR/build_wasm"
+
+# Web 产物输出路径
+WEB_DIST_DIR="$CORE_DIR/../design-web/public/wasm"
+
+# --- 2. 模式判断 ---
+# 默认 Release，传入 "debug" 参数则开启调试模式
+BUILD_TYPE="Release"
+if [ "$1" == "debug" ]; then
+  BUILD_TYPE="Debug"
+fi
+
+echo ">>>> 模式: ${BUILD_TYPE} | 源码: $CORE_DIR <<<<"
+
+# --- 3. 准备构建环境 ---
+# 不再暴力删除整个目录，而是清理上次的缓存，这样增量编译会快一点
+if [ -d "$BUILD_DIR" ]; then
+  echo "清理旧缓存..."
+  rm -rf "$BUILD_DIR/CMakeCache.txt"
+fi
+mkdir -p "$BUILD_DIR"
+
+# --- 4. 运行 CMake 编译 ---
+cd "$BUILD_DIR"
+
+# 注入 CMAKE_BUILD_TYPE，并生成 LSP 用的 JSON
+emcmake cmake "$CORE_DIR" \
+  -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+# 多线程并行编译
+echo "编译中..."
+make -j$(nproc)
+
+# --- 5. 同步产物至前端 ---
+if [ -d "$WEB_DIST_DIR" ]; then
+  echo "检测到前端仓库，正在同步产物..."
+  mkdir -p "$WEB_DIST_DIR"
+
+  # 清空前端旧产物，防止残留旧版本的 .map 或 .wasm
+  rm -f "$WEB_DIST_DIR"/DesignCore.*
+
+  # 拷贝所有产物 (js, wasm, worker.js, 以及 debug 模式下的 map)
+  cp -v "$BUILD_DIR"/DesignCore.* "$WEB_DIST_DIR/"
+
+  # 更新根目录的 LSP 配置文件
+  ln -sf "$BUILD_DIR/compile_commands.json" "$CORE_DIR/compile_commands.json"
+
+  echo "---------------------------------------"
+  echo "✅ 构建并同步完成！"
+  echo "模式: $BUILD_TYPE"
+  echo "产物目录内容:"
+  ls -F "$WEB_DIST_DIR"
+else
+  echo "⚠️ 未检测到前端目录 $WEB_DIST_DIR，产物保留在 $BUILD_DIR"
+fi

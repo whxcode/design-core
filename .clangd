@@ -1,0 +1,20 @@
+CompileFlags:
+  # 1. 踢掉干扰项，但不开启 QueryDriverDatabase，防止它弄丢系统头文件
+  Remove: [-s*, -m*, -f*, --sysroot*]
+
+  Add: [
+      "-xc++",
+      "-D__EMSCRIPTEN__",
+      # 2. 精准补丁：只把 emscripten.h 所在的路径喂给它
+      # 这个路径是给 LSP 看的，不会影响你的编译（build.sh 不看这里）
+      "-isystem",
+
+      "/home/whx/emsdk/upstream/emscripten/system/include",
+      # 3. 屏蔽假报错
+      "-Wno-nullability-completeness",
+      "-Wno-unknown-argument",
+    ]
+
+Diagnostics:
+  Suppress:
+    ["drv_unknown_argument", "nullability-completeness", "unused-includes"]
