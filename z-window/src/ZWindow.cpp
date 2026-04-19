@@ -1,48 +1,128 @@
 #include "z-window/include/ZWindow.h"
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>  // 建议加上，确保 GL 宏定义完整
+#include <SDL2/SDL_video.h>   // 必须加上这个，它定义了 GLContext 和相关的操作函数
 
 #include <iostream>
 #include <thread>
 
-#include "z-engine/include/z-vgengine.h"
-
 #ifdef __EMSCRIPTEN__
+#include <GLES3/gl3.h>
 #include <emscripten/html5.h>
+#else
+#include <GL/glew.h>
 #endif
 
-ZWindow::ZWindow() : zEngine(new ZVgEngine()) {
+#include "z-engine/include/z-vgengine.h"
+
+// 构造函数：初始化指针和基础数值
+ZWindow::ZWindow()
+    : sWindow(nullptr),
+      zGlContext(nullptr),
+      zEngine(nullptr),
+      zWidth(800),
+      zHeight(600),
+      zDpr(1.0f) {
+}
+void ZWindow::init() {
+    // 删掉那个 sleep_for，没用的，这是链接库的问题
+
+    SDL_Init(SDL_INIT_VIDEO);
+
+    // 顺序非常关键！
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+
+    // 增加这些容错配置
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
+    // ... 获取宽高的代码 ...
+
+    sWindow =
+        SDL_CreateWindow("DesignCore", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, zWidth,
+                         zHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
+
+    zGlContext = SDL_GL_CreateContext(sWindow);
+
+    // 核心动作：必须激活上下文
+    SDL_GL_MakeCurrent(sWindow, zGlContext);
+
+    printf("C++: GL Context created. Testing Native GL...\n");
+
+    // 如果 CMake 没加 -s FULL_ES3=1，下面这一行百分之百报错
+    GLuint testShader = glCreateShader(GL_VERTEX_SHADER);
+    printf("Native GL Test - Shader ID: %u\n", testShader);
+
+    // 在 SDL_GL_MakeCurrent(sWindow, zGlContext); 之后执行
+
+    // 获取渲染器信息
+    const GLubyte* zRenderer = glGetString(GL_RENDERER);
+    const GLubyte* zVendor = glGetString(GL_VENDOR);
+    const GLubyte* zVersion = glGetString(GL_VERSION);
+    const GLubyte* zGlslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+    printf("--- GPU Hardware Report ---\n");
+    printf("zRenderer: %s\n", zRenderer);
+    printf("zVendor:   %s\n", zVendor);
+    printf("zVersion:  %s\n", zVersion);
+    printf("zGLSL:     %s\n", zGlslVersion);
+    printf("---------------------------\n");
+
+    zEngine = new ZVgEngine();
+}
+
+// 1. 定义一个全局或静态函数供浏览器调用
+void main_loop_callback(void* arg) {
+    ZWindow* window = (ZWindow*)arg;
+    window->render();  // 把你刚才 lambda 里的逻辑搬到这个函数
+}
+
+void ZWindow::render() {
+    if (!zEngine) {
+        init();
+    }
+
+    // 同步尺寸
+#ifdef __EMSCRIPTEN__
+    zDpr = emscripten_get_device_pixel_ratio();
+    emscripten_get_canvas_element_size("#canvas", &zWidth, &zHeight);
+#endif
+
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    zEngine->beginFrame((float)zWidth, (float)zHeight, zDpr);
+
+    // 2万个矩形，960 应该能跑出明显的 3D 曲线
+    for (int i = 0; i < 20000; i++) {
+        float x = (float)(rand() % zWidth);
+        float y = (float)(rand() % zHeight);
+        zEngine->drawRect(x, y, 20, 20, {.zFillColor = 0xFF0000});
+    }
+
+    zEngine->endFrame();
+    SDL_GL_SwapWindow(sWindow);
 }
 
 void ZWindow::draw() {
-    // 1. 变量定义对齐规范
-    int zWidth = 0;
-    int zHeight = 0;
-    float zDpr = 1.0f;
-
+// Emscripten 环境下，使用这个函数代替 while(true)
 #ifdef __EMSCRIPTEN__
-    // 获取设备像素比 (Device Pixel Ratio)，保证渲染清晰度
-    zDpr = emscripten_get_device_pixel_ratio();
-    // 获取 canvas 逻辑宽高
-    emscripten_get_canvas_element_size("#canvas", &zWidth, &zHeight);
+    // 0 表示使用浏览器默认的 60FPS
+    // true 表示模拟无限循环
+    emscripten_set_main_loop_arg(main_loop_callback, this, 0, true);
 #else
-    // 原生环境直接拿窗口大小
-    SDL_GetWindowSize(zWindow, &zWidth, &zHeight);
+    // 原生环境（Windows/Linux）可以保留类似的循环
+    while (true) {
+        render_frame();
+        SDL_Delay(16);  // 约 60 FPS
+    }
 #endif
-    printf("canvas[%dx%d]\n", zWidth, zHeight);
-
-    // 2. 开启渲染上下文（必须在绘图前）
-    // 注意：传入的是逻辑宽高 zWidth/zHeight 和 像素比 zDpr
-    zEngine->beginFrame((float)zWidth, (float)zHeight, zDpr);
-
-    // 3. 执行绘图指令
-    // 这里是你定义的 z-style 传参方式
-    zEngine->drawRect(0.0f, 0.0f, 100.0f, 100.0f, {.zFillColor = 0xFF0000});
-
-    // 4. 暴力收尾（核心：没有这一行绝对不显示！）
-    zEngine->endFrame();
 }
 
 void ZWindow::setTitle() {
     printf("call setTitle\n");
-};
+}

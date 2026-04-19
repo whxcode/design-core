@@ -13,13 +13,16 @@ set(EM_SYSROOT "${EM_PATH}/cache/sysroot")
 set(COMMON_COMPILE_OPTIONS "-pthread" "-sUSE_SDL=2")
 set(COMMON_LINK_OPTIONS
     "-pthread"
-    "-sPTHREAD_POOL_SIZE=10"        # 预创建线程，防止 startup 时现开 Worker 导致卡顿
-    "-sALLOW_MEMORY_GROWTH=1"       # 线程模式下通常需要开启内存增长
+    "-sPTHREAD_POOL_SIZE=10"
+    "-sALLOW_MEMORY_GROWTH=1"
     "-sUSE_PTHREADS=1"
     "-sUSE_SDL=2"
     "-sMODULARIZE=1"
     "-sEXPORT_NAME='createCore'"
-    "-sALLOW_MEMORY_GROWTH=1"
+    "-sFULL_ES3=1"              # 修正：去掉了空格
+    "-sUSE_WEBGL2=1"            # 修正：去掉了空格
+    "-sMAX_WEBGL_VERSION=2"     # 修正：去掉了空格
+    "-sMIN_WEBGL_VERSION=2"     # 修正：去掉了空格
     "--bind"
 )
 
