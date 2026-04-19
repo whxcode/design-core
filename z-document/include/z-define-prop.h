@@ -16,7 +16,7 @@
  */
 #define DEFINE_READONLY_PROP(Type, Name) \
 private:                                 \
-    Type z##Name{};                      \
+    const Type z##Name{};                \
                                          \
 public:                                  \
     const Type& get##Name() const {      \
