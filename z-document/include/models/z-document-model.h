@@ -6,7 +6,8 @@
 
 class ZDocumentModel : public ZModel {
 public:
-    ZDocumentModel() : ZModel(ZGuid::zDocumentID, ZModelType::zDocument) {
+    ZDocumentModel(ZGuid _id, const ZModelType _type)
+        : ZModel(ZGuid::zDocumentID, ZModelType::zDocument) {
         setParentId(ZGuid::zInvalidId);
     }
 };

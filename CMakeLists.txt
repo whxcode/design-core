@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 project(DesignCoreProject)
 
 # 自动导出编译命令，方便 LSP (clangd) 识别
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # --- 1. 路径定义 ---
 set(EM_PATH "/home/whx/emsdk/upstream/emscripten")

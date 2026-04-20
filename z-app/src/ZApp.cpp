@@ -6,6 +6,8 @@
 #include <thread>
 #include <vector>
 
+#include "z-app/include/z-test-doc.h"
+#include "z-document/include/creator/loader.h"
 #include "z-window/include/ZWindow.h"
 
 ZApp::ZApp() {
@@ -24,6 +26,8 @@ ZDocument& ZApp::document() const {
 }
 
 void ZApp::startup() {
+    zDocument = ZLoader::MakeDocument(ZTestDoc::MakeDoc());
+
     std::cout << "App: Starting up..." << std::endl;
     std::vector<std::thread> threads{};
     for (size_t i = 0; i < 10; i++) {
