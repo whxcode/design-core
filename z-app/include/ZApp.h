@@ -24,13 +24,14 @@ public:
     ZApp& operator=(const ZApp&) = delete;
 
 public:
-    // 暴露给外部获取子模块的入口
-    ZWindow& window() const;
-
-    ZDocument& document() const;
-
     // 核心生命周期函数
     void startup();
+    void onHandleEvent();
+
+public:
+    // 暴露给外部获取子模块的入口
+    ZWindow& getWindow() const;
+    ZDocument& getDocument() const;
 
 private:
     ZApp();  // 构造函数私有化

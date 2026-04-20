@@ -26,8 +26,14 @@ EMSCRIPTEN_BINDINGS(core_api) {
 
     // 绑定 App：返回的是引用，符合你“掌握生命周期”的要求
     class_<ZApp>("App")
-        .function("window", &ZApp::window, allow_raw_pointers())
-        .function("document", &ZApp::document, allow_raw_pointers());
+        .function("window", optional_override([](ZApp& self) {
+                      return &self.getWindow();
+                  }),
+                  allow_raw_pointers())
+        .function("document", optional_override([](ZApp& self) {
+                      return &self.getDocument();
+                  }),
+                  allow_raw_pointers());
 
     // 暴力入口
     // 修改这里：调用辅助函数返回指针

@@ -17,11 +17,11 @@ ZApp::ZApp() {
     zWindow = std::make_unique<ZWindow>();
 }
 
-ZWindow& ZApp::window() const {
+ZWindow& ZApp::getWindow() const {
     return *zWindow;
 }
 
-ZDocument& ZApp::document() const {
+ZDocument& ZApp::getDocument() const {
     return *zDocument;
 }
 
