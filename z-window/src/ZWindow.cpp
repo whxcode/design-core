@@ -8,6 +8,7 @@
 #include <thread>
 
 #include "z-engine/libs/nanovg/nanovg.h"
+#include "z-paint/include/z-paint.h"
 
 #ifdef __EMSCRIPTEN__
 #include <GLES3/gl3.h>
@@ -20,6 +21,7 @@
 
 // 构造函数：初始化指针和基础数值
 ZWindow::ZWindow() : zEngine(nullptr), zWidth(800), zHeight(600), zDpr(1.0f) {
+    init();
 }
 
 void ZWindow::init() {
@@ -30,6 +32,7 @@ void ZWindow::init() {
 #endif
 
     zEngine = new ZVgEngine(zWidth, zHeight, zDpr);
+    zPaint = new ZPaint(zEngine);
 }
 
 void ZWindow::draw() {
@@ -45,16 +48,16 @@ void ZWindow::draw() {
         SDL_Delay(16);  // 约 60 FPS
     }
 #endif
-    if (!zEngine) {
-        init();
-    }
-
-    // 开启新渲染
 
     zEngine->beginFrame((float)zWidth, (float)zHeight, zDpr);
-    zEngine->drawRect(0, 0, 50, 100, {.zFillColor = 0X00ff00});
+    zPaint->draw();
+    // zEngine->drawRect(0, 0, 50, 100, {.zFillColor = 0X00ff00});
     zEngine->endFrame();
     zEngine->flush();
+}
+
+void ZWindow::setComponent(const z_sp<ZLayerBase>& comp) {
+    zPaint->setComponent(comp);
 }
 
 void ZWindow::setTitle() {

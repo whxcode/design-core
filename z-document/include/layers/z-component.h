@@ -1,11 +1,12 @@
 #pragma once
 
+#include <ranges>
 #include <vector>
 
 #include "z-document/include/models/z-model.h"
 #include "z-tools/include/z-type.h"
 
-class alignas(16) ZComponent : public std::enable_shared_from_this<ZComponent> {
+class ZComponent : public std::enable_shared_from_this<ZComponent> {
 public:
     ZComponent(z_sp<ZModel> model);
 
@@ -28,12 +29,25 @@ public:
         return getModel<ZModel>();
     }
 
+    template <typename T>
+        requires std::derived_from<T, ZComponent>
+    std::vector<z_sp<T>> getChildren() {
+        return zLayers | std::ranges::views::transform([](const z_sp<ZComponent>& comp) {
+                   return comp->as<T>();
+               }) |
+               std::ranges::to<std::vector>();
+    }
+
 public:
-    void addChild(const z_sp<ZComponent>& comp);
+    virtual void addChild(const z_sp<ZComponent>& comp);
 
 public:
     inline size_t getUnique() const {
         return zRuntimeId;
+    };
+
+    inline ZModelType getType() const {
+        return zModel->getType();
     };
 
     inline size_t getParentUnique() const {

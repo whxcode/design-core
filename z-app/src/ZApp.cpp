@@ -33,5 +33,10 @@ void ZApp::startup() {
     zDocument = futureR.get();
     std::cout << "document_ptr:" << zDocument << std::endl;
 
+    auto page = zDocument->getActivePage();
+
+    std::cout << "page_ptr:" << page << std::endl;
+
+    this->zWindow->setComponent(page);
     this->zWindow->draw();
 }

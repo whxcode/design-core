@@ -7,7 +7,7 @@
 
 ZComponent::ZComponent(z_sp<ZModel> model) : zModel(model) {
     zRuntimeId = model->getId().toNumber();
-    zParentRuntimeId = model->getId().toNumber();
+    zParentRuntimeId = model->getParentId().toNumber();
 }
 
 void ZComponent::addChild(const z_sp<ZComponent>& comp) {

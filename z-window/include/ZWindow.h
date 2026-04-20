@@ -1,12 +1,17 @@
 #pragma once
 
+#include "z-tools/include/z-type.h"
+
 class IZEngine;
+class ZPaint;
+class ZLayerBase;
 
 class ZWindow {
 public:
     ZWindow();
     void draw();
     void setTitle();
+    void setComponent(const z_sp<ZLayerBase>& comp);
 
 private:
     void init();
@@ -17,4 +22,5 @@ private:
     float zDpr{0};
 
     IZEngine* zEngine{nullptr};
+    ZPaint* zPaint{nullptr};
 };

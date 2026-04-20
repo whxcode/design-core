@@ -2,6 +2,6 @@
 
 enum class ZModelType {
     zDocument = 0,  //
-    zPage,
-    zRectangle
+    zPage = 1,
+    zRectangle = 2,
 };

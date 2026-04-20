@@ -1,3 +1,4 @@
+#pragma once
 #include "z-engine/include/z-vgengine.h"
 
 #define NANOVG_GLES3_IMPLEMENTATION
@@ -60,7 +61,6 @@ void ZVgEngine::init() {
     const GLubyte* zVersion = glGetString(GL_VERSION);
     const GLubyte* zGlslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
 
-    /*
     printf("--- GPU Hardware Report ---\n");
     printf("zRenderer: %s\n", zRenderer);
     printf("zVendor:   %s\n", zVendor);
@@ -69,13 +69,8 @@ void ZVgEngine::init() {
     printf("---------------------------\n");
 
     printf("size[%d x %d],dpr[%f]\n", zWidth, zHeight, zDpr);
-  */
 
     zVg = nvgCreateGLES3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
-}
-
-void ZVgEngine::save() {
-    nvgSave(zVg);
 }
 
 void ZVgEngine::drawRect(float zX, float zY, float zW, float zH, const ZStyle& zStyle) {
@@ -88,13 +83,51 @@ void ZVgEngine::drawRect(float zX, float zY, float zW, float zH, const ZStyle& z
     nvgFillColor(vg, nvgRGBA((zStyle.zFillColor >> 16) & 0xFF, (zStyle.zFillColor >> 8) & 0xFF,
                              zStyle.zFillColor & 0xFF, 255));
     nvgFill(vg);
+
+    // 2. 处理边框 (Stroke)
+    // 假设 zStyle 里有边框颜色和宽度的定义
+    if (zStyle.zStrokeWidth > 0) {
+        // 设置边框颜色（比如黑色）
+        nvgStrokeColor(
+            vg, nvgRGBA((zStyle.zStrokeColor >> 16) & 0xFF, (zStyle.zStrokeColor >> 8) & 0xFF,
+                        zStyle.zStrokeColor & 0xFF, 255));
+
+        // 设置边框宽度
+        nvgStrokeWidth(vg, zStyle.zStrokeWidth);
+
+        // 执行描边
+        nvgStroke(vg);
+    }
 };
 
-void ZVgEngine::transform() {
+void ZVgEngine::drawRect(float zW, float zH, const ZStyle& zStyle) {
+    drawRect(0, 0, zW, zH, zStyle);
+};
+
+void ZVgEngine::save() {
+    nvgSave(zVg);
 }
 
 void ZVgEngine::restore() {
     nvgRestore(zVg);
+}
+
+void ZVgEngine::transform(const ZMatrix& matrix) {
+    // 基础检查：确保 NanoVG 上下文已经初始化
+    if (!zVg) return;
+
+    // 直接透传给 NanoVG
+    // 严格对应 NanoVG 的 a, b, c, d, e, f 布局
+    nvgTransform(zVg,
+                 matrix.get(0),  // a (scaleX)
+                 matrix.get(3),  // b (skewY)
+                 matrix.get(1),  // c (skewX)
+                 matrix.get(4),  // d (scaleY)
+                 matrix.get(2),  // e (transX)
+                 matrix.get(5)   // f (transY)
+    );
+
+    // nvgRestore(zVg);
 }
 
 void ZVgEngine::beginFrame(float zWidth, float zHeight, float zDpr) {

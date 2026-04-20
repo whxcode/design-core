@@ -8,6 +8,7 @@
 #include <unordered_map>
 
 #include "z-document/include/creator/create-layer.h"
+#include "z-tools/include/z-assert.h"
 #include "z-tools/include/z-guid.h"
 
 z_sp<ZDocument> ZLoader::MakeDocument(ZModelArray&& models) {
@@ -28,13 +29,17 @@ z_sp<ZDocument> ZLoader::MakeDocument(ZModelArray&& models) {
 
     std::for_each(view.begin(), view.end(),
                   [&treeMap, &func, &result](const z_sp<ZComponent>& layer) {
+                      printf("type[%d],id[%d]\n", layer->getType(), layer->getUnique());
+
+                      Z_ASSERT(treeMap.find(layer->getUnique()) == treeMap.end(),
+                               "error repeat unique id: " + std::to_string(layer->getUnique()));
+
                       treeMap[layer->getUnique()] = layer;
 
-                      printf("model(%d)\n", layer->getModel().get());
+                      // printf("model(%d)\n", layer->getModel().get());
 
                       if (layer->getModel()->getId() == ZGuid::zDocumentID) {
                           result = layer->as<ZDocument>();
-                          printf("documentName[%s]\n", result->getModel()->getName().c_str());
                       }
 
                       func.push_back([&treeMap, layer]() {
@@ -47,6 +52,8 @@ z_sp<ZDocument> ZLoader::MakeDocument(ZModelArray&& models) {
                           }
                       });
                   });
+
+    // printf("treeMap[%d],[%d]\n", treeMap.size(), func.size());
 
     for (const auto& f : func) {
         f();

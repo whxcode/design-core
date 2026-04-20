@@ -10,7 +10,7 @@
 #include "z-tools/include/z-guid.h"
 #include "z-tools/include/z-type.h"
 
-class alignas(16) ZModel : public std::enable_shared_from_this<ZModel> {
+class ZModel : public std::enable_shared_from_this<ZModel> {
 public:
     ZModel(ZGuid id, const ZModelType type);
 

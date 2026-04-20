@@ -5,7 +5,7 @@ file(GLOB_RECURSE WINDOW_SOURCES "src/*.cpp")
 add_library(window_lib STATIC ${WINDOW_SOURCES})
 
 # 2. 直接链接（不需要再 add_subdirectory 了，因为顶级 CMake 已经加载过了）
-target_link_libraries(window_lib PRIVATE z_matrix)
+target_link_libraries(window_lib PRIVATE z_matrix z_paint)
 
 # 3. 指定头文件搜索路径
 # 这里直接用 CMAKE_SOURCE_DIR（指向项目根目录），非常稳

@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-size_t ZGuid::zCounter{1};
+size_t ZGuid::zCounter{5};
 ZGuid ZGuid::zInvalidId{0, 0};
 ZGuid ZGuid::zDocumentID{0, 1};
 
@@ -22,7 +22,7 @@ bool ZGuid::operator==(const ZGuid& other) const {
 }
 
 const size_t ZGuid::toNumber() const {
-    return zClientId + zClientId;
+    return zSessionId + zClientId;
 }
 
 const std::string ZGuid::toString() const {

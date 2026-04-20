@@ -1,6 +1,8 @@
 #pragma once
 #include <cstdint>
 
+#include "z-matrix/include/z-matrix.h"
+
 struct ZStyle {
     uint32_t zFillColor = 0xFFFFFFFF;
     uint32_t zStrokeColor = 0x000000FF;
@@ -11,8 +13,11 @@ struct ZStyle {
 class IZEngine {
 public:
     virtual void drawRect(float zX, float zY, float zW, float zH, const ZStyle& zStyle) = 0;
+    virtual void drawRect(float zW, float zH, const ZStyle& zStyle) = 0;
+
+public:
     virtual void save() = 0;
-    virtual void transform() = 0;
+    virtual void transform(const ZMatrix& matrix) = 0;
     virtual void restore() = 0;
 
     virtual void beginFrame(float zWidth, float zHeight, float zDpr) = 0;
