@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 
-#include "z-document/include/ZDocument.h"
+#include "z-document/include/layers/z-document.h"
 #include "z-window/include/ZWindow.h"
 
 // #include "document/include/Document.h"

@@ -6,13 +6,13 @@
 #include <thread>
 #include <vector>
 
-#include "z-document/include/ZDocument.h"
 #include "z-window/include/ZWindow.h"
 
 ZApp::ZApp() {
     // 掌握生命周期：在这里创建实例
     zWindow = std::make_unique<ZWindow>();
-    zDocument = std::make_unique<ZDocument>();
+    printf("必须获取document\n");
+    // zDocument = std::make_unique<ZDocument>();
 }
 
 ZWindow& ZApp::window() const {

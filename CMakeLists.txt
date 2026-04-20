@@ -26,6 +26,7 @@ set(COMMON_LINK_OPTIONS
     "--bind"
 )
 
+
 # --- 3. 区分 Debug 和 Release 的标志 ---
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   message(STATUS "Configuring for DEBUG mode...")
@@ -38,6 +39,11 @@ else()
   list(APPEND COMMON_COMPILE_OPTIONS "-O3")
   list(APPEND COMMON_LINK_OPTIONS "-O3" "--closure=1")
 endif()
+
+
+# === 添加这两行，将参数作用于本项目下的所有 target (包括各种 lib) ===
+add_compile_options(${COMMON_COMPILE_OPTIONS})
+add_link_options(${COMMON_LINK_OPTIONS})
 
 # --- 4. 添加子模块 (确保它们也遵循 BUILD_TYPE) ---
 add_subdirectory(z-tools)

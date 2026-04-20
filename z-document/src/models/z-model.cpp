@@ -2,7 +2,7 @@
 
 #include "z-tools/include/z-guid.h"
 
-ZModel::ZModel(ZGuid id) : zId(id) {
+ZModel::ZModel(ZGuid id, const ZModelType type) : zId(id), zType(type) {
 }
 
 void ZModel::triggerUpdate(ZProp prop, void* oldVal, void* newVal) {

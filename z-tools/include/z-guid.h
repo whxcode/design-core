@@ -7,7 +7,7 @@
 class ZGuid {
 public:
     static ZGuid zDocumentID;
-    static ZGuid zInvalid;
+    static ZGuid zInvalidId;
     static size_t zCounter;
 
 public:

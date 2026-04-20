@@ -1,6 +1,8 @@
+#pragma once
 #include <emscripten/bind.h>
 
 #include "z-app/include/ZApp.h"
+#include "z-document/include/layers/z-document.h"
 
 // 在文件末尾或开头添加一个空函数
 extern "C" {
@@ -20,7 +22,7 @@ EMSCRIPTEN_BINDINGS(core_api) {
     class_<ZWindow>("Window").function("setTitle", &ZWindow::setTitle);
 
     // 绑定 Document
-    class_<ZDocument>("Document").function("updatePosition", &ZDocument::setName);
+    class_<ZDocument>("Document").function("setName", &ZDocument::setName);
 
     // 绑定 App：返回的是引用，符合你“掌握生命周期”的要求
     class_<ZApp>("App")

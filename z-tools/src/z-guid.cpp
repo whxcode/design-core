@@ -3,7 +3,7 @@
 #include <cstddef>
 
 size_t ZGuid::zCounter{1};
-ZGuid ZGuid::zInvalid{0, 0};
+ZGuid ZGuid::zInvalidId{0, 0};
 ZGuid ZGuid::zDocumentID{0, 1};
 
 ZGuid ZGuid::MakeGuid() {
@@ -30,5 +30,5 @@ const std::string ZGuid::toString() const {
 }
 
 const bool ZGuid::isInvalid() {
-    return !(*this != zInvalid);
+    return !(*this != zInvalidId);
 }

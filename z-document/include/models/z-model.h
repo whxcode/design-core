@@ -10,7 +10,7 @@
 
 class ZModel {
 public:
-    ZModel(ZGuid id);
+    ZModel(ZGuid id, const ZModelType type);
 
     virtual ~ZModel() = default;
 
@@ -26,6 +26,4 @@ public:
 
     DEFINE_PROP(ZGuid, ParentId)
     DEFINE_PROP(std::string, Name)
-    DEFINE_PROP(ZSize, Size)
-    DEFINE_PROP(ZMatrix, Transform)
 };
