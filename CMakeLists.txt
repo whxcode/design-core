@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 project(DesignCoreProject)
 
 # 自动导出编译命令，方便 LSP (clangd) 识别
-set(CMAKE_CXX_STANDARD 20)
+# 找到设置标准的地方，改成 23
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # --- 1. 路径定义 ---
@@ -10,7 +11,11 @@ set(EM_PATH "/home/whx/emsdk/upstream/emscripten")
 set(EM_SYSROOT "${EM_PATH}/cache/sysroot")
 
 # --- 2. 基础编译选项 (公共部分) ---
-set(COMMON_COMPILE_OPTIONS "-pthread" "-sUSE_SDL=2")
+set(COMMON_COMPILE_OPTIONS
+"-pthread"
+"-sUSE_SDL=2"
+)
+
 set(COMMON_LINK_OPTIONS
     "-pthread"
     "-sPTHREAD_POOL_SIZE=10"
@@ -18,6 +23,9 @@ set(COMMON_LINK_OPTIONS
     "-sUSE_PTHREADS=1"
     "-sUSE_SDL=2"
     "-sMODULARIZE=1"
+
+
+
     "-sEXPORT_NAME='createCore'"
     "-sFULL_ES3=1"              # 修正：去掉了空格
     "-sUSE_WEBGL2=1"            # 修正：去掉了空格

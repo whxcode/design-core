@@ -4,5 +4,4 @@
 #include <cstdio>
 #include <iostream>
 
-ZLayerBase::ZLayerBase(z_sp<ZDocumentModel> model) : ZComponent(model) {
-}
+// ZLayerBase::ZLayerBase(z_sp<ZDocumentModel> model) : ZComponent(model) { }

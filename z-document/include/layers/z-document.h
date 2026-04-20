@@ -7,7 +7,7 @@
 
 class ZDocument : public ZComponent {
 public:
-    ZDocument(std::shared_ptr<ZDocumentModel> model);
+    ZDocument(z_sp<ZDocumentModel> model);
 
 public:
     void setName() {};

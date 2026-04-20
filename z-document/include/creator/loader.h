@@ -8,5 +8,5 @@ class ZDocument;
 
 class ZLoader {
 public:
-    static std::unique_ptr<ZDocument> MakeDocument(ZModelArray&& models);
+    static z_sp<ZDocument> MakeDocument(ZModelArray&& models);
 };

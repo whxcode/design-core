@@ -3,7 +3,8 @@ CompileFlags:
   Remove: [-s*, -m*, -f*, --sysroot*]
 
   Add: [
-      "-std=c++20",
+      "-std=c++23",
+      # "-stdlib=libc++",
       "-xc++",
       "-D__EMSCRIPTEN__",
       # 2. 精准补丁：只把 emscripten.h 所在的路径喂给它

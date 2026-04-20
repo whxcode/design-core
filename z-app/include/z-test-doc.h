@@ -16,6 +16,7 @@ public:
 
         rect1->setParentId(pageModel->getParentId());
         rect1->setSize({100.f, 100.f});
+        docModel->setName("Test Doc A");
 
         pageModel->setParentId(docModel->getParentId());
 

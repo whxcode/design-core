@@ -37,5 +37,5 @@ private:
 
 private:
     std::unique_ptr<ZWindow> zWindow{nullptr};
-    std::unique_ptr<ZDocument> zDocument{nullptr};
+    z_sp<ZDocument> zDocument{nullptr};
 };
