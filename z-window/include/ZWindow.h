@@ -8,8 +8,6 @@ public:
     void draw();
     void setTitle();
 
-    void testRender();
-
 private:
     void init();
 

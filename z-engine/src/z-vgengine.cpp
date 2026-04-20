@@ -60,6 +60,7 @@ void ZVgEngine::init() {
     const GLubyte* zVersion = glGetString(GL_VERSION);
     const GLubyte* zGlslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
 
+    /*
     printf("--- GPU Hardware Report ---\n");
     printf("zRenderer: %s\n", zRenderer);
     printf("zVendor:   %s\n", zVendor);
@@ -68,6 +69,7 @@ void ZVgEngine::init() {
     printf("---------------------------\n");
 
     printf("size[%d x %d],dpr[%f]\n", zWidth, zHeight, zDpr);
+  */
 
     zVg = nvgCreateGLES3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
 }
