@@ -59,6 +59,9 @@ void ZWindow::draw() {
 void ZWindow::setComponent(const z_sp<ZLayerBase>& comp) {
     zPaint->setComponent(comp);
 }
+void ZWindow::dump() const {
+    printf("window[%d]\n", this);
+}
 
 void ZWindow::setTitle() {
     printf("call setTitle\n");

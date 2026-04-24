@@ -19,7 +19,9 @@ static ZApp* getAppInstance() {
 
 EMSCRIPTEN_BINDINGS(core_api) {
     // 绑定 Window
-    class_<ZWindow>("Window").function("setTitle", &ZWindow::setTitle);
+    class_<ZWindow>("Window")
+        .function("setTitle", &ZWindow::setTitle)
+        .function("dump", &ZWindow::dump);
 
     // 绑定 Document
     class_<ZDocument>("Document").function("setName", &ZDocument::setName);

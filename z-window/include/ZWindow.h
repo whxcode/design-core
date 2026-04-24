@@ -12,6 +12,7 @@ public:
     void draw();
     void setTitle();
     void setComponent(const z_sp<ZLayerBase>& comp);
+    void dump() const;
 
 private:
     void init();
