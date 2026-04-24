@@ -29,7 +29,7 @@ z_sp<ZDocument> ZLoader::MakeDocument(ZModelArray&& models) {
 
     std::for_each(view.begin(), view.end(),
                   [&treeMap, &func, &result](const z_sp<ZComponent>& layer) {
-                      printf("type[%d],id[%d]\n", layer->getType(), layer->getUnique());
+                      // printf("type[%d],id[%d]\n", layer->getType(), layer->getUnique());
 
                       Z_ASSERT(treeMap.find(layer->getUnique()) == treeMap.end(),
                                "error repeat unique id: " + std::to_string(layer->getUnique()));

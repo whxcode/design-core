@@ -30,6 +30,8 @@ void ZApp::startup() {
         return ZLoader::MakeDocument(ZTestDoc::MakeDoc());
     });
 
+    printf("ZApp::startup\n");
+
     zDocument = futureR.get();
     std::cout << "document_ptr:" << zDocument << std::endl;
 

@@ -34,6 +34,12 @@ set(COMMON_LINK_OPTIONS
     "--bind"
 )
 
+set(WASM_EXPORT_FLAGS
+    # "-sEXPORTED_FUNCTIONS=_malloc,_free"
+    # 先暂时去掉 FS 和 ccall，只留最基础的
+    "-sEXPORTED_RUNTIME_METHODS=HEAPU8"
+)
+
 
 # --- 3. 区分 Debug 和 Release 的标志 ---
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -82,5 +88,8 @@ target_link_libraries(DesignCore PRIVATE webapi_lib app_lib engine_lib)
 target_compile_options(DesignCore PRIVATE ${COMMON_COMPILE_OPTIONS})
 
 # 强制输出后缀为 .js，Emscripten 会自动生成同名的 .wasm 和 .worker.js
-target_link_options(DesignCore PRIVATE ${COMMON_LINK_OPTIONS} "-o" "DesignCore.js")
+target_link_options(DesignCore PRIVATE
+${COMMON_LINK_OPTIONS}
+${WASM_EXPORT_FLAGS}
+"-o" "DesignCore.js")
 
