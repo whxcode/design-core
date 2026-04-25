@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "z-tools/include/z-type.h"
 
 class IZEngine;
@@ -8,10 +10,13 @@ class ZLayerBase;
 
 class ZWindow {
 public:
+    using OverlayDrawer = std::function<void(IZEngine*)>;
+
     ZWindow();
     void draw();
     void setTitle();
     void setComponent(const z_sp<ZLayerBase>& comp);
+    void setOverlayDrawer(OverlayDrawer overlayDrawer);
     void dump() const;
 
 private:
@@ -24,4 +29,5 @@ private:
 
     IZEngine* zEngine{nullptr};
     ZPaint* zPaint{nullptr};
+    OverlayDrawer zOverlayDrawer{nullptr};
 };

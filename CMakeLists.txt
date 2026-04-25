@@ -35,7 +35,7 @@ set(COMMON_LINK_OPTIONS
 )
 
 set(WASM_EXPORT_FLAGS
-    # "-sEXPORTED_FUNCTIONS=_malloc,_free"
+    "-sEXPORTED_FUNCTIONS=_malloc,_free,_main"
     # 先暂时去掉 FS 和 ccall，只留最基础的
     "-sEXPORTED_RUNTIME_METHODS=HEAPU8"
 )

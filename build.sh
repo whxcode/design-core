@@ -10,6 +10,8 @@ BUILD_DIR="$CORE_DIR/build_wasm"
 
 # Web 产物输出路径
 WEB_DIST_DIR="$CORE_DIR/../design-web/public/wasm"
+WEB_TYPES_DIR="$CORE_DIR/../design-web/src/types/design-core"
+CORE_TYPES_DIR="$CORE_DIR/z-types"
 
 # --- 2. 模式判断 ---
 # 默认 Release，传入 "debug" 参数则开启调试模式
@@ -51,6 +53,13 @@ if [ -d "$WEB_DIST_DIR" ]; then
   # 拷贝所有产物 (js, wasm, worker.js, 以及 debug 模式下的 map)
   cp -v "$BUILD_DIR"/DesignCore.* "$WEB_DIST_DIR/"
 
+  # 同步 z-types 到前端类型目录
+  if [ -d "$CORE_TYPES_DIR" ]; then
+    mkdir -p "$WEB_TYPES_DIR"
+    find "$WEB_TYPES_DIR" -maxdepth 1 -type f \( -name "*.ts" -o -name "*.d.ts" \) -delete
+    find "$CORE_TYPES_DIR" -maxdepth 1 -type f \( -name "*.ts" -o -name "*.d.ts" \) -exec cp -v {} "$WEB_TYPES_DIR/" \;
+  fi
+
   # 更新根目录的 LSP 配置文件
   ln -sf "$BUILD_DIR/compile_commands.json" "$CORE_DIR/compile_commands.json"
 
@@ -59,6 +68,10 @@ if [ -d "$WEB_DIST_DIR" ]; then
   echo "模式: $BUILD_TYPE"
   echo "产物目录内容:"
   ls -F "$WEB_DIST_DIR"
+  if [ -d "$WEB_TYPES_DIR" ]; then
+    echo "类型目录内容:"
+    ls -F "$WEB_TYPES_DIR"
+  fi
 else
   echo "⚠️ 未检测到前端目录 $WEB_DIST_DIR，产物保留在 $BUILD_DIR"
 fi

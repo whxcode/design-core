@@ -1,7 +1,11 @@
 #pragma once
+#include <cstddef>
+#include <cstdint>
 #include <memory>
+#include <vector>
 
 #include "z-document/include/layers/z-document.h"
+#include "z-engine/include/z-engine.h"
 #include "z-window/include/ZWindow.h"
 
 // #include "document/include/Document.h"
@@ -9,6 +13,15 @@
 
 class ZWindow;
 class ZDocument;
+
+struct ZImagePayload {
+    uintptr_t ptr{0};
+    size_t size{0};
+    float x{0.0f};
+    float y{0.0f};
+    float width{0.0f};
+    float height{0.0f};
+};
 
 class ZApp {
 public:
@@ -33,10 +46,19 @@ public:
     ZWindow& getWindow() const;
     ZDocument& getDocument() const;
 
+public:
+    void addImage(uintptr_t ptr, size_t size, float x = 0.0f, float y = 0.0f, float width = 0.0f,
+                  float height = 0.0f);
+    void clearImages();
+    const std::vector<ZImagePayload>& getImages() const;
+    void renderImages(IZEngine* engine) const;
+    void requestRedraw();
+
 private:
     ZApp();  // 构造函数私有化
 
 private:
     std::unique_ptr<ZWindow> zWindow{nullptr};
     z_sp<ZDocument> zDocument{nullptr};
+    std::vector<ZImagePayload> zImages;
 };

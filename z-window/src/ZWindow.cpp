@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <thread>
+#include <utility>
 
 #include "z-engine/libs/nanovg/nanovg.h"
 #include "z-paint/include/z-paint.h"
@@ -51,6 +52,11 @@ void ZWindow::draw() {
 
     zEngine->beginFrame((float)zWidth, (float)zHeight, zDpr);
     zPaint->draw();
+
+    // 绘制图片.
+    if (zOverlayDrawer) {
+        zOverlayDrawer(zEngine);
+    }
     // zEngine->drawRect(0, 0, 50, 100, {.zFillColor = 0X00ff00});
     zEngine->endFrame();
     zEngine->flush();
@@ -59,6 +65,11 @@ void ZWindow::draw() {
 void ZWindow::setComponent(const z_sp<ZLayerBase>& comp) {
     zPaint->setComponent(comp);
 }
+
+void ZWindow::setOverlayDrawer(OverlayDrawer overlayDrawer) {
+    zOverlayDrawer = std::move(overlayDrawer);
+}
+
 void ZWindow::dump() const {
     printf("window[%d]\n", this);
 }

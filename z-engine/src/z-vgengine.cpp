@@ -106,6 +106,34 @@ void ZVgEngine::drawRect(float zW, float zH, const ZStyle& zStyle) {
     drawRect(0, 0, zW, zH, zStyle);
 };
 
+void ZVgEngine::drawImage(const uint8_t* bytes, size_t size, float zX, float zY, float zW,
+                          float zH) {
+    if (!zVg || !bytes || size == 0) {
+        return;
+    }
+
+    const int image = nvgCreateImageMem(zVg, 0, const_cast<unsigned char*>(bytes), (int)size);
+    if (image <= 0) {
+        printf("drawImage: decode failed, size=%zu\n", size);
+        return;
+    }
+
+    int imageW = 0;
+    int imageH = 0;
+    nvgImageSize(zVg, image, &imageW, &imageH);
+
+    const float drawW = zW > 0 ? zW : (float)imageW;
+    const float drawH = zH > 0 ? zH : (float)imageH;
+
+    nvgBeginPath(zVg);
+    nvgRect(zVg, zX, zY, drawW, drawH);
+    const NVGpaint paint = nvgImagePattern(zVg, zX, zY, drawW, drawH, 0.0f, image, 1.0f);
+    nvgFillPaint(zVg, paint);
+    nvgFill(zVg);
+
+    nvgDeleteImage(zVg, image);
+}
+
 void ZVgEngine::save() {
     nvgSave(zVg);
 }

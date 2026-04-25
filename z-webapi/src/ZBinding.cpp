@@ -47,6 +47,14 @@ EMSCRIPTEN_BINDINGS(core_api) {
                       printf("putImage2[%d],[%d]\n", ptr, len);
                   }))
 
+        .function("free", optional_override([](ZApp& self, uintptr_t ptr) -> void {
+                      std::free(reinterpret_cast<void*>(ptr));
+                  }))
+
+        .function("putImage2", optional_override([](ZApp& self, uintptr_t ptr, size_t len) -> void {
+                      printf("putImage2[%d],[%d]\n", ptr, len);
+                  }))
+
         .function("window", optional_override([](ZApp& self) {
                       return &self.getWindow();
                   }),

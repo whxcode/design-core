@@ -1,4 +1,5 @@
 #pragma once
+#include <cstddef>
 #include <cstdint>
 
 #include "z-matrix/include/z-matrix.h"
@@ -14,6 +15,8 @@ class IZEngine {
 public:
     virtual void drawRect(float zX, float zY, float zW, float zH, const ZStyle& zStyle) = 0;
     virtual void drawRect(float zW, float zH, const ZStyle& zStyle) = 0;
+    virtual void drawImage(const uint8_t* bytes, size_t size, float zX, float zY, float zW,
+                           float zH) = 0;
 
 public:
     virtual void save() = 0;
