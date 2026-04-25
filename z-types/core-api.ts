@@ -1,4 +1,5 @@
 export type WasmPtr = number;
+export type SizeT = number;
 
 export interface CoreWindow {
   setTitle(): void;
@@ -10,10 +11,8 @@ export interface CoreDocument {
 }
 
 export interface CoreApp {
-  calloc(size: number): WasmPtr;
-  free(ptr: WasmPtr): void;
-  putImage1(buffer: Uint8Array): void;
-  putImage2(ptr: WasmPtr, len: number): void;
+  putImage(size: SizeT, width: SizeT, height: SizeT): WasmPtr;
+  draw(): void;
   window(): CoreWindow;
   document(): CoreDocument;
 }
@@ -32,4 +31,6 @@ export interface CoreModule {
   getApp(): CoreApp;
 }
 
-export type CreateCoreFactory = (options: CreateCoreOptions) => Promise<CoreModule>;
+export type CreateCoreFactory = (
+  options: CreateCoreOptions,
+) => Promise<CoreModule>;

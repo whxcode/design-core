@@ -112,7 +112,21 @@ void ZVgEngine::drawImage(const uint8_t* bytes, size_t size, float zX, float zY,
         return;
     }
 
-    const int image = nvgCreateImageMem(zVg, 0, const_cast<unsigned char*>(bytes), (int)size);
+    const uintptr_t key = reinterpret_cast<uintptr_t>(bytes);
+    auto& cacheItem = zImageCache[key];
+
+    if (cacheItem.imageHandle != 0 && cacheItem.size != size) {
+        nvgDeleteImage(zVg, cacheItem.imageHandle);
+        cacheItem.imageHandle = 0;
+    }
+
+    if (cacheItem.imageHandle == 0) {
+        cacheItem.imageHandle =
+            nvgCreateImageMem(zVg, 0, const_cast<unsigned char*>(bytes), (int)size);
+        cacheItem.size = size;
+    }
+
+    const int image = cacheItem.imageHandle;
     if (image <= 0) {
         printf("drawImage: decode failed, size=%zu\n", size);
         return;
@@ -130,8 +144,6 @@ void ZVgEngine::drawImage(const uint8_t* bytes, size_t size, float zX, float zY,
     const NVGpaint paint = nvgImagePattern(zVg, zX, zY, drawW, drawH, 0.0f, image, 1.0f);
     nvgFillPaint(zVg, paint);
     nvgFill(zVg);
-
-    nvgDeleteImage(zVg, image);
 }
 
 void ZVgEngine::save() {

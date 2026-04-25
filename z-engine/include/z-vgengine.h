@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 #include "z-engine/include/z-engine.h"
 
 class NVGcontext;
@@ -39,6 +41,11 @@ public:
     };
 
 private:
+    struct ZImageCacheItem {
+        int imageHandle{0};
+        size_t size{0};
+    };
+
     int zWidth{800};
     int zHeight{800};
     float zDpr{0};
@@ -46,4 +53,5 @@ private:
     NVGcontext* zVg{nullptr};
     SDL_Window* sWindow{nullptr};
     SDL_GLContext zGlContext{nullptr};
+    std::unordered_map<uintptr_t, ZImageCacheItem> zImageCache;
 };

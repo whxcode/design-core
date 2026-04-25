@@ -9,6 +9,7 @@
 
 #include "z-app/include/z-test-doc.h"
 #include "z-document/include/creator/loader.h"
+#include "z-matrix/include/z-matrix.h"
 #include "z-tools/include/z-task.h"
 #include "z-window/include/ZWindow.h"
 
@@ -52,8 +53,6 @@ void ZApp::addImage(uintptr_t ptr, size_t size, float x, float y, float width, f
     }
 
     zImages.push_back({.ptr = ptr, .size = size, .x = x, .y = y, .width = width, .height = height});
-
-    requestRedraw();
 }
 
 void ZApp::clearImages() {
@@ -69,14 +68,21 @@ void ZApp::renderImages(IZEngine* engine) const {
         return;
     }
 
+    engine->save();
+    ZMatrix m;
+
     for (const auto& image : zImages) {
         if (image.ptr == 0 || image.size == 0) {
             continue;
         }
 
+        engine->transform(m.preTranslate(50, 50).preScale(200 / image.width, 100 / image.height));
         const auto* bytes = reinterpret_cast<const uint8_t*>(image.ptr);
+
         engine->drawImage(bytes, image.size, image.x, image.y, image.width, image.height);
     }
+
+    engine->restore();
 }
 
 void ZApp::requestRedraw() {
