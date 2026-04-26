@@ -2,6 +2,7 @@
 
 #include <any>
 #include <future>
+#include <memory>
 #include <unordered_map>
 
 #include "z-document/include/prop/z-default-value.h"
@@ -15,11 +16,12 @@ class SparseProps {
 public:
     template <ZPropKey P>
     const typename PropTraits<P>::Type& get() const {
-        auto it = values->find(P);
+        if (values != nullptr) {
+            auto it = values->find(P);
 
-        if (it != values->end()) {
-            // return std::get<typename PropTraits<P>::Type>(it->second);
-            return std::any_cast<const typename PropTraits<P>::Type&>(it->second);
+            if (it != values->end()) {
+                return std::any_cast<const typename PropTraits<P>::Type&>(it->second);
+            }
         }
 
         return PropTraits<P>::def();
@@ -28,7 +30,7 @@ public:
     template <ZPropKey P>
     void set(const typename PropTraits<P>::Type& v) {
         if (!values) {
-            values = std::make_shared<Storages>();
+            values = std::make_unique<Storages>();
         }
 
         if (PropTraits<P>::def() == v) {
@@ -41,5 +43,5 @@ public:
 private:
     using Storages = std::unordered_map<ZPropKey, PropValue, ZPropKeyHash>;
 
-    std::shared_ptr<Storages> values{nullptr};
+    std::unique_ptr<Storages> values{nullptr};
 };

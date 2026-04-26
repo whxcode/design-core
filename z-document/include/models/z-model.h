@@ -50,15 +50,16 @@ protected:
 
     template <ZPropKey P>
     void setProp(const typename PropTraits<P>::Type& value) {
-        auto oldVal = zProps.get<P>();
+        const auto& oldVal = zProps.get<P>();
 
         if (oldVal == value) {
             return;
         }
 
-        zProps.set<P>(value);
+        auto v = oldVal;
 
-        triggerUpdate(P, (void*)&oldVal, (void*)&value);
+        zProps.set<P>(value);
+        triggerUpdate(P, (void*)&v, (void*)&value);
     }
 
 private:

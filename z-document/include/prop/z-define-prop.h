@@ -48,7 +48,7 @@ public:                                                                         
         return this->z##Name;                                                            \
     }
 
-#define DEFINED_SPARSE_PRO(Type, Name)                      \
+#define DEFINED_SPARSE_PROP(Type, Name)                     \
     const Type& get##Name() const {                         \
         return this->template getProp<ZPropKey::z##Name>(); \
     }                                                       \

@@ -9,6 +9,6 @@ public:
     using ZModel::ZModel;
 
 public:
-    DEFINED_SPARSE_PRO(ZSize, Size)
-    DEFINED_SPARSE_PRO(ZMatrix, Transform)
+    DEFINED_SPARSE_PROP(ZSize, Size)
+    DEFINED_SPARSE_PROP(ZMatrix, Transform)
 };

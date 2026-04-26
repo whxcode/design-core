@@ -24,6 +24,5 @@ struct PropTraits;
         }                                        \
     }
 
-DEFINE_DEFAULT_VALUE(std::string, Name);
 DEFINE_DEFAULT_VALUE(ZSize, Size);
 DEFINE_DEFAULT_VALUE(ZMatrix, Transform);
