@@ -50,6 +50,7 @@ void ZWindow::draw() {
     }
 #endif
 
+    zEngine->save();
     zEngine->beginFrame((float)zWidth, (float)zHeight, zDpr);
     zPaint->draw();
 
@@ -57,7 +58,6 @@ void ZWindow::draw() {
     if (zOverlayDrawer) {
         zOverlayDrawer(zEngine);
     }
-    // zEngine->drawRect(0, 0, 50, 100, {.zFillColor = 0X00ff00});
     zEngine->endFrame();
     zEngine->flush();
 }

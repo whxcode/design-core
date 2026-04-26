@@ -14,6 +14,15 @@ void ZUIHandleEvent::onUIEvent(const ZUIEvent& event) {
         case ZUIEventType::zMouseUp:
             onMouseUp(event);
             break;
+        case ZUIEventType::zMouseWheel:
+            onMouseWheel(event);
+            break;
+        case ZUIEventType::zKeyDown:
+            onKeyDown(event);
+            break;
+        case ZUIEventType::zKeyUp:
+            onKeyUp(event);
+            break;
         case ZUIEventType::zUnknown:
             break;
     }
@@ -29,6 +38,18 @@ void ZUICommonHandle::onMouseMove(const ZUIEvent& event) {
 
 void ZUICommonHandle::onMouseUp(const ZUIEvent& event) {
     std::cout << "MouseUp: " << event.x << ", " << event.y << std::endl;
+}
+
+void ZUICommonHandle::onMouseWheel(const ZUIEvent& event) {
+    std::cout << "MouseWheel: " << event.deltaX << ", " << event.deltaY << std::endl;
+}
+
+void ZUICommonHandle::onKeyDown(const ZUIEvent& event) {
+    std::cout << "KeyDown: " << static_cast<int>(event.keyCode) << std::endl;
+}
+
+void ZUICommonHandle::onKeyUp(const ZUIEvent& event) {
+    std::cout << "KeyUp: " << static_cast<int>(event.keyCode) << std::endl;
 }
 
 ZUIHandle::ZUIHandle() : fZHandle(std::make_shared<ZUICommonHandle>()) {

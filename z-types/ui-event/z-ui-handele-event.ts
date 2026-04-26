@@ -5,11 +5,75 @@ export enum ZUIEventType {
   MouseDown = 0,
   MouseMove = 1,
   MouseUp = 2,
-  Unknown = 3,
+  MouseWheel = 3,
+  KeyDown = 4,
+  KeyUp = 5,
+  Unknown = 6,
+}
+
+export enum KeyCode {
+  Unknown = 0,
+  A = 1,
+  B = 2,
+  C = 3,
+  D = 4,
+  E = 5,
+  F = 6,
+  G = 7,
+  H = 8,
+  I = 9,
+  J = 10,
+  K = 11,
+  L = 12,
+  M = 13,
+  N = 14,
+  O = 15,
+  P = 16,
+  Q = 17,
+  R = 18,
+  S = 19,
+  T = 20,
+  U = 21,
+  V = 22,
+  W = 23,
+  X = 24,
+  Y = 25,
+  Z = 26,
+  Digit0 = 27,
+  Digit1 = 28,
+  Digit2 = 29,
+  Digit3 = 30,
+  Digit4 = 31,
+  Digit5 = 32,
+  Digit6 = 33,
+  Digit7 = 34,
+  Digit8 = 35,
+  Digit9 = 36,
+  Escape = 37,
+  Enter = 38,
+  Space = 39,
+  Backspace = 40,
+  Tab = 41,
+  Shift = 42,
+  Control = 43,
+  Alt = 44,
+  Meta = 45,
+  ArrowLeft = 46,
+  ArrowRight = 47,
+  ArrowUp = 48,
+  ArrowDown = 49,
+  Delete = 50,
 }
 
 export interface ZUIEvent {
   type: ZUIEventType;
   x: number;
   y: number;
+  deltaX: number;
+  deltaY: number;
+  keyCode: KeyCode;
+  metaKey: boolean;
+  ctrlKey: boolean;
+  altKey: boolean;
+  shiftKey: boolean;
 }

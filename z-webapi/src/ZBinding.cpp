@@ -1,4 +1,3 @@
-#pragma once
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 

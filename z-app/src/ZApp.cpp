@@ -80,7 +80,7 @@ void ZApp::renderImages(IZEngine* engine) const {
             continue;
         }
 
-        engine->transform(m.preTranslate(50, 50).preScale(200 / image.width, 100 / image.height));
+        engine->transform(m.preTranslate(50, 50).preScale(300 / image.width, 100 / image.height));
         const auto* bytes = reinterpret_cast<const uint8_t*>(image.ptr);
 
         engine->drawImage(bytes, image.size, image.x, image.y, image.width, image.height);
