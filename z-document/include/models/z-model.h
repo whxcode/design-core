@@ -42,6 +42,25 @@ public:
     DEFINE_PROP(ZGuid, ParentId)
     DEFINE_PROP(std::string, Name)
 
+protected:
+    template <ZPropKey P>
+    const typename PropTraits<P>::Type& getProp() const {
+        return zProps.get<P>();
+    }
+
+    template <ZPropKey P>
+    void setProp(const typename PropTraits<P>::Type& value) {
+        auto oldVal = zProps.get<P>();
+
+        if (oldVal == value) {
+            return;
+        }
+
+        zProps.set<P>(value);
+
+        triggerUpdate(P, (void*)&oldVal, (void*)&value);
+    }
+
 private:
     SparseProps zProps;
 };

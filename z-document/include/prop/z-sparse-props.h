@@ -3,8 +3,8 @@
 #include <future>
 #include <unordered_map>
 
+#include "z-document/include/prop/z-default-value.h"
 #include "z-document/include/prop/z-define-prop.h"
-#include "z-document/include/prop/z-defualt-value.h"
 #include "z-document/include/prop/z-prop-key.h"
 
 using PropValue = std::variant<std::string, ZSize>;
