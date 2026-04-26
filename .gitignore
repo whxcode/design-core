@@ -1,1 +1,3 @@
 build_wasm
+addon/build
+compile_commands.json
