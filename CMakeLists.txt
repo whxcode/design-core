@@ -66,6 +66,8 @@ add_subdirectory(z-engine)
 add_subdirectory(z-paint)
 add_subdirectory(z-window)
 add_subdirectory(z-document)
+add_subdirectory(z-editor)
+add_subdirectory(z-wasm)
 add_subdirectory(z-app)
 add_subdirectory(z-webapi)
 
@@ -92,4 +94,3 @@ target_link_options(DesignCore PRIVATE
 ${COMMON_LINK_OPTIONS}
 ${WASM_EXPORT_FLAGS}
 "-o" "DesignCore.js")
-

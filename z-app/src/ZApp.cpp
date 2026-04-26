@@ -16,6 +16,7 @@
 ZApp::ZApp() {
     // 掌握生命周期：在这里创建实例
     zWindow = std::make_unique<ZWindow>();
+    zUIHandle = std::make_unique<ZUIHandle>();
     zWindow->setOverlayDrawer([this](IZEngine* engine) {
         renderImages(engine);
     });
@@ -34,17 +35,20 @@ void ZApp::startup() {
         return ZLoader::MakeDocument(ZTestDoc::MakeDoc());
     });
 
-    printf("ZApp::startup\n");
-
     zDocument = futureR.get();
-    std::cout << "document_ptr:" << zDocument << std::endl;
 
     auto page = zDocument->getActivePage();
 
-    std::cout << "page_ptr:" << page << std::endl;
-
     this->zWindow->setComponent(page);
     this->zWindow->draw();
+}
+
+void ZApp::onUIEvent(const ZUIEvent& event) {
+    if (!zUIHandle) {
+        return;
+    }
+
+    zUIHandle->onUIEvent(event);
 }
 
 void ZApp::addImage(uintptr_t ptr, size_t size, float x, float y, float width, float height) {

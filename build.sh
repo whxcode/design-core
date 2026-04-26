@@ -22,7 +22,10 @@ fi
 
 echo ">>>> 模式: ${BUILD_TYPE} | 源码: $CORE_DIR <<<<"
 
-# --- 3. 准备构建环境 ---
+# --- 3. 生成 TypeScript 类型 ---
+node "$CORE_DIR/scripts/gen-ts-types.js"
+
+# --- 4. 准备构建环境 ---
 # 不再暴力删除整个目录，而是清理上次的缓存，这样增量编译会快一点
 if [ -d "$BUILD_DIR" ]; then
   echo "清理旧缓存..."
@@ -30,7 +33,7 @@ if [ -d "$BUILD_DIR" ]; then
 fi
 mkdir -p "$BUILD_DIR"
 
-# --- 4. 运行 CMake 编译 ---
+# --- 5. 运行 CMake 编译 ---
 cd "$BUILD_DIR"
 
 # 注入 CMAKE_BUILD_TYPE，并生成 LSP 用的 JSON
@@ -42,7 +45,7 @@ emcmake cmake "$CORE_DIR" \
 echo "编译中..."
 make -j$(nproc)
 
-# --- 5. 同步产物至前端 ---
+# --- 6. 同步产物至前端 ---
 if [ -d "$WEB_DIST_DIR" ]; then
   echo "检测到前端仓库，正在同步产物..."
   mkdir -p "$WEB_DIST_DIR"
@@ -55,9 +58,9 @@ if [ -d "$WEB_DIST_DIR" ]; then
 
   # 同步 z-types 到前端类型目录
   if [ -d "$CORE_TYPES_DIR" ]; then
+    rm -rf "$WEB_TYPES_DIR"
     mkdir -p "$WEB_TYPES_DIR"
-    find "$WEB_TYPES_DIR" -maxdepth 1 -type f \( -name "*.ts" -o -name "*.d.ts" \) -delete
-    find "$CORE_TYPES_DIR" -maxdepth 1 -type f \( -name "*.ts" -o -name "*.d.ts" \) -exec cp -v {} "$WEB_TYPES_DIR/" \;
+    cp -rv "$CORE_TYPES_DIR"/. "$WEB_TYPES_DIR"/
   fi
 
   # 更新根目录的 LSP 配置文件

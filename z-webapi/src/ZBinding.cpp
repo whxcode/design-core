@@ -8,6 +8,7 @@
 
 #include "z-app/include/ZApp.h"
 #include "z-document/include/layers/z-document.h"
+#include "z-wasm/include/z-wasm/z-js-value.h"
 
 // 在文件末尾或开头添加一个空函数
 extern "C" {
@@ -44,6 +45,10 @@ EMSCRIPTEN_BINDINGS(core_api) {
 
         .function("draw", optional_override([](ZApp& self) -> void {
                       self.requestRedraw();
+                  }))
+
+        .function("onUIEvent", optional_override([](ZApp& self, const val& event) -> void {
+                      self.onUIEvent(wasm::cpp::GetValue(event, static_cast<ZUIEvent*>(nullptr)));
                   }))
 
         .function("window", optional_override([](ZApp& self) {

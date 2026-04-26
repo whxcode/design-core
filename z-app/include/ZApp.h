@@ -6,6 +6,7 @@
 
 #include "z-document/include/layers/z-document.h"
 #include "z-engine/include/z-engine.h"
+#include "z-editor/include/ui-event/z-ui-handle.h"
 #include "z-window/include/ZWindow.h"
 
 // #include "document/include/Document.h"
@@ -40,6 +41,7 @@ public:
     // 核心生命周期函数
     void startup();
     void onHandleEvent();
+    void onUIEvent(const ZUIEvent& event);
 
 public:
     // 暴露给外部获取子模块的入口
@@ -59,6 +61,7 @@ private:
 
 private:
     std::unique_ptr<ZWindow> zWindow{nullptr};
+    std::unique_ptr<ZUIHandle> zUIHandle{nullptr};
     z_sp<ZDocument> zDocument{nullptr};
     std::vector<ZImagePayload> zImages;
 };

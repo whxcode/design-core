@@ -1,3 +1,8 @@
+import type { ZUIEvent } from "./ui-event/z-ui-handele-event";
+
+export { ZUIEventType } from "./ui-event/z-ui-handele-event";
+export type { ZUIEvent } from "./ui-event/z-ui-handele-event";
+
 export type WasmPtr = number;
 export type SizeT = number;
 
@@ -13,6 +18,7 @@ export interface CoreDocument {
 export interface CoreApp {
   putImage(size: SizeT, width: SizeT, height: SizeT): WasmPtr;
   draw(): void;
+  onUIEvent(event: ZUIEvent): void;
   window(): CoreWindow;
   document(): CoreDocument;
 }
