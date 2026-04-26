@@ -5,7 +5,9 @@
 #include <vector>
 
 #include "z-document/include/layers/z-document.h"
+#include "z-document/include/viewport/z-viewport.h"
 #include "z-engine/include/z-engine.h"
+#include "z-editor/include/z-editor-context.h"
 #include "z-editor/include/ui-event/z-ui-handle.h"
 #include "z-window/include/ZWindow.h"
 
@@ -47,6 +49,7 @@ public:
     // 暴露给外部获取子模块的入口
     ZWindow& getWindow() const;
     ZDocument& getDocument() const;
+    ViewportData getViewportData() const;
 
 public:
     void addImage(uintptr_t ptr, size_t size, float x = 0.0f, float y = 0.0f, float width = 0.0f,
@@ -61,6 +64,7 @@ private:
 
 private:
     std::unique_ptr<ZWindow> zWindow{nullptr};
+    std::unique_ptr<ZEditorContext> zEditorContext{nullptr};
     std::unique_ptr<ZUIHandle> zUIHandle{nullptr};
     z_sp<ZDocument> zDocument{nullptr};
     std::vector<ZImagePayload> zImages;

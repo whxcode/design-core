@@ -1,12 +1,16 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 
 #include "z-tools/include/z-type.h"
 
 class IZEngine;
-class ZPaint;
-class ZLayerBase;
+class ZDocumentPainter;
+class ZEditorContext;
+class ZOverlayPainter;
+class ZPage;
+class ZShape;
 
 class ZWindow {
 public:
@@ -15,7 +19,9 @@ public:
     ZWindow();
     void draw();
     void setTitle();
-    void setComponent(const z_sp<ZLayerBase>& comp);
+    void setPage(const z_sp<ZPage>& page);
+    void setEditorContext(ZEditorContext* context);
+    void setOverlayRoot(std::shared_ptr<ZShape> root);
     void setOverlayDrawer(OverlayDrawer overlayDrawer);
     void dump() const;
 
@@ -28,6 +34,8 @@ private:
     float zDpr{0};
 
     IZEngine* zEngine{nullptr};
-    ZPaint* zPaint{nullptr};
+    std::shared_ptr<ZDocumentPainter> zDocumentPainter{nullptr};
+    std::shared_ptr<ZOverlayPainter> zOverlayPainter{nullptr};
+    ZEditorContext* zEditorContext{nullptr};
     OverlayDrawer zOverlayDrawer{nullptr};
 };

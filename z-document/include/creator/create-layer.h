@@ -7,6 +7,7 @@
 #include "z-document/include/layers/z-component.h"
 #include "z-document/include/layers/z-document.h"
 #include "z-document/include/layers/z-layerbase.h"
+#include "z-document/include/layers/z-page.h"
 #include "z-document/include/models/z-document-model.h"
 #include "z-document/include/models/z-model.h"
 #include "z-document/include/z-model-type.h"
@@ -20,7 +21,7 @@ public:
                 return std::make_shared<ZDocument>(model->as<ZDocumentModel>());
 
             case ZModelType::zPage:
-                return std::make_shared<ZLayerBase>(model->as<ZLayerModel>());
+                return std::make_shared<ZPage>(model->as<ZLayerModel>());
 
             case ZModelType::zRectangle:
                 return std::make_shared<ZLayerBase>(model->as<ZLayerModel>());

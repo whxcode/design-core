@@ -1,26 +1,49 @@
 #include "z-editor/include/ui-event/z-ui-handle-event.h"
 
-void ZUIHandleEvent::onUIEvent(const ZUIEvent& event) {
+ZUIHandleEvent::ZUIHandleEvent(ZEditorContext* context) : zContext(context) {
+}
+
+bool ZUIHandleEvent::onUIEvent(const ZUIEvent& event) {
     switch (event.type) {
         case ZUIEventType::zMouseDown:
-            onMouseDown(event);
-            break;
+            return onMouseDown(event);
         case ZUIEventType::zMouseMove:
-            onMouseMove(event);
-            break;
+            return onMouseMove(event);
         case ZUIEventType::zMouseUp:
-            onMouseUp(event);
-            break;
+            return onMouseUp(event);
         case ZUIEventType::zMouseWheel:
-            onMouseWheel(event);
-            break;
+            return onMouseWheel(event);
         case ZUIEventType::zKeyDown:
-            onKeyDown(event);
-            break;
+            return onKeyDown(event);
         case ZUIEventType::zKeyUp:
-            onKeyUp(event);
-            break;
+            return onKeyUp(event);
         case ZUIEventType::zUnknown:
             break;
     }
+
+    return false;
+}
+
+bool ZUIHandleEvent::onMouseDown(const ZUIEvent&) {
+    return false;
+}
+
+bool ZUIHandleEvent::onMouseMove(const ZUIEvent&) {
+    return false;
+}
+
+bool ZUIHandleEvent::onMouseUp(const ZUIEvent&) {
+    return false;
+}
+
+bool ZUIHandleEvent::onMouseWheel(const ZUIEvent&) {
+    return false;
+}
+
+bool ZUIHandleEvent::onKeyDown(const ZUIEvent&) {
+    return false;
+}
+
+bool ZUIHandleEvent::onKeyUp(const ZUIEvent&) {
+    return false;
 }

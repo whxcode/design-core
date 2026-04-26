@@ -4,10 +4,12 @@
 
 class ZUICommonHandle : public ZUIHandleEvent {
 public:
-    void onMouseDown(const ZUIEvent& event) override;
-    void onMouseMove(const ZUIEvent& event) override;
-    void onMouseUp(const ZUIEvent& event) override;
-    void onMouseWheel(const ZUIEvent& event) override;
-    void onKeyDown(const ZUIEvent& event) override;
-    void onKeyUp(const ZUIEvent& event) override;
+    using ZUIHandleEvent::ZUIHandleEvent;
+
+    bool onMouseDown(const ZUIEvent& event) override;
+    bool onMouseMove(const ZUIEvent& event) override;
+    bool onMouseUp(const ZUIEvent& event) override;
+    bool onMouseWheel(const ZUIEvent& event) override;
+    bool onKeyDown(const ZUIEvent& event) override;
+    bool onKeyUp(const ZUIEvent& event) override;
 };

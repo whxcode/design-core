@@ -9,7 +9,8 @@
 #include <utility>
 
 #include "z-engine/libs/nanovg/nanovg.h"
-#include "z-paint/include/z-paint.h"
+#include "z-paint/include/z-document-painter.h"
+#include "z-paint/include/z-overlay-painter.h"
 
 #ifdef __EMSCRIPTEN__
 #include <GLES3/gl3.h>
@@ -33,7 +34,8 @@ void ZWindow::init() {
 #endif
 
     zEngine = new ZVgEngine(zWidth, zHeight, zDpr);
-    zPaint = new ZPaint(zEngine);
+    zDocumentPainter = std::make_shared<ZDocumentPainter>();
+    zOverlayPainter = std::make_shared<ZOverlayPainter>(zEditorContext);
 }
 
 void ZWindow::draw() {
@@ -54,7 +56,8 @@ void ZWindow::draw() {
 
     zEngine->save();
     zEngine->beginFrame((float)zWidth / zDpr, (float)zHeight / zDpr, zDpr);
-    zPaint->draw();
+    zDocumentPainter->draw(zEngine);
+    zOverlayPainter->draw(zEngine);
 
     // 绘制图片.
     if (zOverlayDrawer) {
@@ -64,8 +67,17 @@ void ZWindow::draw() {
     zEngine->flush();
 }
 
-void ZWindow::setComponent(const z_sp<ZLayerBase>& comp) {
-    zPaint->setComponent(comp);
+void ZWindow::setPage(const z_sp<ZPage>& page) {
+    zDocumentPainter->setPage(page);
+}
+
+void ZWindow::setEditorContext(ZEditorContext* context) {
+    zEditorContext = context;
+    zOverlayPainter = std::make_shared<ZOverlayPainter>(zEditorContext);
+}
+
+void ZWindow::setOverlayRoot(std::shared_ptr<ZShape> root) {
+    zOverlayPainter->setRoot(std::move(root));
 }
 
 void ZWindow::setOverlayDrawer(OverlayDrawer overlayDrawer) {
@@ -73,7 +85,7 @@ void ZWindow::setOverlayDrawer(OverlayDrawer overlayDrawer) {
 }
 
 void ZWindow::dump() const {
-    printf("window[%d]\n", this);
+    printf("window[%p]\n", this);
 }
 
 void ZWindow::setTitle() {

@@ -1,16 +1,21 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 #include "z-editor/include/ui-event/z-ui-handle-event.h"
 
+class ZEditorContext;
+
 class ZUIHandle {
 public:
-    ZUIHandle();
+    explicit ZUIHandle(ZEditorContext* context);
 
     void onUIEvent(const ZUIEvent& event);
-    void setHandleEvent(std::shared_ptr<ZUIHandleEvent> handleEvent);
+    void addEffectHandler(std::shared_ptr<ZUIHandleEvent> handleEvent);
+    void setActiveHandler(std::shared_ptr<ZUIHandleEvent> handleEvent);
 
 private:
-    std::shared_ptr<ZUIHandleEvent> fZHandle{nullptr};
+    std::vector<std::shared_ptr<ZUIHandleEvent>> zEffectHandlers;
+    std::shared_ptr<ZUIHandleEvent> zActiveHandler{nullptr};
 };

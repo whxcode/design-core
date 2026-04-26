@@ -10,13 +10,13 @@
 #include "z-app/include/z-test-doc.h"
 #include "z-document/include/creator/loader.h"
 #include "z-matrix/include/z-matrix.h"
+#include "z-paint/include/z-shape.h"
 #include "z-tools/include/z-task.h"
 #include "z-window/include/ZWindow.h"
 
 ZApp::ZApp() {
     // 掌握生命周期：在这里创建实例
     zWindow = std::make_unique<ZWindow>();
-    zUIHandle = std::make_unique<ZUIHandle>();
     zWindow->setOverlayDrawer([this](IZEngine* engine) {
         renderImages(engine);
     });
@@ -30,6 +30,14 @@ ZDocument& ZApp::getDocument() const {
     return *zDocument;
 }
 
+ViewportData ZApp::getViewportData() const {
+    if (!zEditorContext) {
+        return {};
+    }
+
+    return zEditorContext->getViewportData();
+}
+
 void ZApp::startup() {
     auto futureR = DoTask([]() {
         return ZLoader::MakeDocument(ZTestDoc::MakeDoc());
@@ -39,7 +47,12 @@ void ZApp::startup() {
 
     auto page = zDocument->getActivePage();
 
-    this->zWindow->setComponent(page);
+    zEditorContext = std::make_unique<ZEditorContext>(zDocument.get(), zWindow.get());
+    zUIHandle = std::make_unique<ZUIHandle>(zEditorContext.get());
+
+    this->zWindow->setEditorContext(zEditorContext.get());
+    this->zWindow->setOverlayRoot(std::make_shared<ZShape>());
+    this->zWindow->setPage(page);
     this->zWindow->draw();
 }
 

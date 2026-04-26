@@ -23,6 +23,11 @@ static ZApp* getAppInstance() {
 }
 
 EMSCRIPTEN_BINDINGS(core_api) {
+    value_object<ViewportData>("ViewportData")
+        .field("offsetX", &ViewportData::offsetX)
+        .field("offsetY", &ViewportData::offsetY)
+        .field("scale", &ViewportData::scale);
+
     // 绑定 Window
     class_<ZWindow>("Window")
         .function("setTitle", &ZWindow::setTitle)
@@ -44,6 +49,10 @@ EMSCRIPTEN_BINDINGS(core_api) {
 
         .function("draw", optional_override([](ZApp& self) -> void {
                       self.requestRedraw();
+                  }))
+
+        .function("viewport", optional_override([](ZApp& self) -> ViewportData {
+                      return self.getViewportData();
                   }))
 
         .function("onUIEvent", optional_override([](ZApp& self, const val& event) -> void {

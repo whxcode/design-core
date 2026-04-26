@@ -2,26 +2,32 @@
 
 #include <iostream>
 
-void ZUICommonHandle::onMouseDown(const ZUIEvent& event) {
+bool ZUICommonHandle::onMouseDown(const ZUIEvent& event) {
     std::cout << "MouseDown: " << event.x << ", " << event.y << std::endl;
+    return false;
 }
 
-void ZUICommonHandle::onMouseMove(const ZUIEvent& event) {
+bool ZUICommonHandle::onMouseMove(const ZUIEvent& event) {
     std::cout << "MouseMove: " << event.x << ", " << event.y << std::endl;
+    return false;
 }
 
-void ZUICommonHandle::onMouseUp(const ZUIEvent& event) {
+bool ZUICommonHandle::onMouseUp(const ZUIEvent& event) {
     std::cout << "MouseUp: " << event.x << ", " << event.y << std::endl;
+    return false;
 }
 
-void ZUICommonHandle::onMouseWheel(const ZUIEvent& event) {
+bool ZUICommonHandle::onMouseWheel(const ZUIEvent& event) {
     std::cout << "MouseWheel: " << event.deltaX << ", " << event.deltaY << std::endl;
+    return false;
 }
 
-void ZUICommonHandle::onKeyDown(const ZUIEvent& event) {
+bool ZUICommonHandle::onKeyDown(const ZUIEvent& event) {
     std::cout << "KeyDown: " << static_cast<int>(event.keyCode) << std::endl;
+    return false;
 }
 
-void ZUICommonHandle::onKeyUp(const ZUIEvent& event) {
+bool ZUICommonHandle::onKeyUp(const ZUIEvent& event) {
     std::cout << "KeyUp: " << static_cast<int>(event.keyCode) << std::endl;
+    return false;
 }
