@@ -50,8 +50,10 @@ void ZWindow::draw() {
     }
 #endif
 
+    // printf("[%d],[%d]\n", zWidth, zHeight);
+
     zEngine->save();
-    zEngine->beginFrame((float)zWidth, (float)zHeight, zDpr);
+    zEngine->beginFrame((float)zWidth / zDpr, (float)zHeight / zDpr, zDpr);
     zPaint->draw();
 
     // 绘制图片.
