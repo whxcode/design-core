@@ -7,8 +7,8 @@ const rootDir = path.resolve(__dirname, "..");
 
 const mappings = [
   {
-    input: "z-editor/include/ui-event/z-ui-handele-event.h",
-    output: "z-types/ui-event/z-ui-handele-event.ts",
+    input: "z-editor/include/ui-event/z-ui-event.h",
+    output: "z-types/ui-event/z-ui-event.ts",
   },
 ];
 

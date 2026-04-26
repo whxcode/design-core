@@ -1,5 +1,7 @@
 add_library(editor_lib STATIC
+    src/ui-event/z-ui-common-handle.cpp
     src/ui-event/z-ui-handle.cpp
+    src/ui-event/z-ui-handle-event.cpp
 )
 
 target_include_directories(editor_lib
