@@ -1,10 +1,17 @@
 #pragma once
 
-enum class ZProp {
+#include <cstddef>
+enum class ZPropKey {
     zId,
     zType,
     zParentId,
     zName,
     zSize,
     zTransform,
+};
+
+struct ZPropKeyHash {
+    size_t operator()(ZPropKey propKey) const noexcept {
+        return static_cast<size_t>(propKey);
+    }
 };

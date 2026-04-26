@@ -2,9 +2,9 @@
 #include <memory>
 #include <string>
 
-#include "z-document/include/z-define-prop.h"
+#include "z-document/include/prop/z-define-prop.h"
+#include "z-document/include/prop/z-prop-key.h"
 #include "z-document/include/z-model-type.h"
-#include "z-document/include/z-prop.h"
 #include "z-matrix/include/z-matrix.h"
 #include "z-matrix/include/z-size.h"
 #include "z-tools/include/z-guid.h"
@@ -15,6 +15,9 @@ public:
     ZModel(ZGuid id, const ZModelType type);
 
     virtual ~ZModel() = default;
+    // 删除默认赋值运算符
+    ZModel& operator=(const ZModel&) = delete;
+    ZModel& operator=(ZModel&&) = delete;  // 可选：同时删除移动赋值
 
 public:
     template <typename T>
@@ -30,7 +33,7 @@ public:
      * @param oldVal 旧值指针
      * @param newVal 新值指针
      */
-    virtual void triggerUpdate(ZProp prop, void* oldVal, void* newVal);
+    virtual void triggerUpdate(ZPropKey prop, void* oldVal, void* newVal);
 
     DEFINE_READONLY_PROP(ZGuid, Id)
     DEFINE_READONLY_PROP(ZModelType, Type)
