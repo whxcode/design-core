@@ -4,6 +4,7 @@
 
 #include "z-document/include/prop/z-define-prop.h"
 #include "z-document/include/prop/z-prop-key.h"
+#include "z-document/include/prop/z-sparse-props.h"
 #include "z-document/include/z-model-type.h"
 #include "z-matrix/include/z-matrix.h"
 #include "z-matrix/include/z-size.h"
@@ -40,4 +41,7 @@ public:
 
     DEFINE_PROP(ZGuid, ParentId)
     DEFINE_PROP(std::string, Name)
+
+private:
+    SparseProps zProps;
 };
