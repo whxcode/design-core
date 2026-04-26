@@ -16,9 +16,6 @@ public:
         auto rect1 = ZCreatorModel::Make<ZLayerModel>(ZModelType::zRectangle);
         auto rect2 = ZCreatorModel::Make<ZLayerModel>(ZModelType::zRectangle);
 
-        std::cout << &rect1->getSize() << std::endl;
-        std::cout << &rect2->getSize() << std::endl;
-
         docModel->setName("Test Doc A");
 
         pageModel->setParentId(docModel->getId());
@@ -31,17 +28,6 @@ public:
         rect2->setParentId(rect1->getId());
         rect2->setSize({100.f, 100.f});
         rect2->setName("矩形 2");
-
-        std::cout << "--" << std::endl;
-
-        std::cout << &rect1->getSize() << std::endl;
-        std::cout << &rect2->getSize() << std::endl;
-
-        std::cout << "--" << std::endl;
-        rect1->setSize({});
-
-        std::cout << &rect1->getSize() << std::endl;
-        std::cout << &rect2->getSize() << std::endl;
 
         rect2->setTransform(ZMatrix::Identity()
                                 .preTranslate(100, 100)          //
