@@ -62,6 +62,7 @@ void ZApp::onUIEvent(const ZUIEvent& event) {
     }
 
     zUIHandle->onUIEvent(event);
+    requestRedraw();
 }
 
 void ZApp::addImage(uintptr_t ptr, size_t size, float x, float y, float width, float height) {

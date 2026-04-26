@@ -1,6 +1,6 @@
 import type { ZUIEvent } from "./ui-event/z-ui-event";
 
-export { KeyCode, ZUIEventType } from "./ui-event/z-ui-event";
+export { KeyCode, MouseButton, ZUIEventType } from "./ui-event/z-ui-event";
 export type { ZUIEvent } from "./ui-event/z-ui-event";
 
 export type WasmPtr = number;

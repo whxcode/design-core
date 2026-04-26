@@ -27,6 +27,7 @@ ZUIEvent GetValue(const emscripten::val& source, ZUIEvent*) {
     target.deltaX = readOptional<float>(source, "deltaX", 0.0f);
     target.deltaY = readOptional<float>(source, "deltaY", 0.0f);
     target.keyCode = static_cast<KeyCode>(readOptional<int>(source, "keyCode", 0));
+    target.button = static_cast<MouseButton>(readOptional<int>(source, "button", 0));
     target.metaKey = readOptional<bool>(source, "metaKey", false);
     target.ctrlKey = readOptional<bool>(source, "ctrlKey", false);
     target.altKey = readOptional<bool>(source, "altKey", false);

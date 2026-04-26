@@ -66,6 +66,13 @@ enum class KeyCode : uint8_t {
     zDelete,
 };
 
+enum class MouseButton : uint8_t {
+    zUnknown,
+    zLeft,
+    zMiddle,
+    zRight,
+};
+
 struct ZUIEvent {
     ZUIEventType type{ZUIEventType::zUnknown};
     float x{0.0f};
@@ -73,6 +80,7 @@ struct ZUIEvent {
     float deltaX{0.0f};
     float deltaY{0.0f};
     KeyCode keyCode{KeyCode::zUnknown};
+    MouseButton button{MouseButton::zUnknown};
     bool metaKey{false};
     bool ctrlKey{false};
     bool altKey{false};
