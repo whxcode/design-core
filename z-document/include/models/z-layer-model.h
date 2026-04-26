@@ -8,6 +8,7 @@ class ZLayerModel : public ZModel {
 public:
     using ZModel::ZModel;
 
-    DEFINE_PROP(ZSize, Size)
-    DEFINE_PROP(ZMatrix, Transform)
+public:
+    DEFINED_SPARSE_PRO(ZSize, Size)
+    DEFINED_SPARSE_PRO(ZMatrix, Transform)
 };

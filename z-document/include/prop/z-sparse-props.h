@@ -1,13 +1,15 @@
 #pragma once
 
+#include <any>
 #include <future>
 #include <unordered_map>
 
 #include "z-document/include/prop/z-default-value.h"
 #include "z-document/include/prop/z-define-prop.h"
 #include "z-document/include/prop/z-prop-key.h"
+#include "z-matrix/include/z-matrix.h"
 
-using PropValue = std::variant<std::string, ZSize>;
+using PropValue = std::any;
 
 class SparseProps {
 public:
@@ -16,7 +18,8 @@ public:
         auto it = values->find(P);
 
         if (it != values->end()) {
-            return std::get<typename PropTraits<P>::Type>(it->second);
+            // return std::get<typename PropTraits<P>::Type>(it->second);
+            return std::any_cast<const typename PropTraits<P>::Type&>(it->second);
         }
 
         return PropTraits<P>::def();
@@ -28,9 +31,7 @@ public:
             values = std::make_shared<Storages>();
         }
 
-        const auto& d = PropTraits<P>::def();
-
-        if (d == v) {
+        if (PropTraits<P>::def() == v) {
             values->erase(P);
         } else {
             (*values)[P] = v;

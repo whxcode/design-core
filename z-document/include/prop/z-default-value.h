@@ -1,6 +1,9 @@
 #pragma once
 
+#include <string>
+
 #include "z-document/include/prop/z-prop-key.h"
+#include "z-matrix/include/z-matrix.h"
 #include "z-matrix/include/z-size.h"
 
 template <ZPropKey p>
@@ -21,4 +24,6 @@ struct PropTraits;
         }                                        \
     }
 
+DEFINE_DEFAULT_VALUE(std::string, Name);
 DEFINE_DEFAULT_VALUE(ZSize, Size);
+DEFINE_DEFAULT_VALUE(ZMatrix, Transform);

@@ -49,11 +49,10 @@ public:                                                                         
     }
 
 #define DEFINED_SPARSE_PRO(Type, Name)                      \
-public:                                                     \
     const Type& get##Name() const {                         \
         return this->template getProp<ZPropKey::z##Name>(); \
     }                                                       \
                                                             \
     void set##Name(const Type& value) {                     \
-        this->template setProp<ZPropKey::z##Name>(value)    \
+        this->template setProp<ZPropKey::z##Name>(value);   \
     }

@@ -1,8 +1,12 @@
 #include "z-document/include/models/z-model.h"
 
+#include <any>
+
 #include "z-tools/include/z-guid.h"
 
 ZModel::ZModel(ZGuid id, const ZModelType type) : zId(id), zType(type) {
+    // printf("any [%d\n]", sizeof(std::any));
+    // printf("std::varinat[%d\n]", sizeof(PropValue));
 }
 
 void ZModel::triggerUpdate(ZPropKey prop, void* oldVal, void* newVal) {
