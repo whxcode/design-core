@@ -7,12 +7,12 @@ set(WEBAPI_SOURCES
 )
 
 # 如果还是报错，检查这个文件是否存在！
-add_library(webapi_lib STATIC ${WEBAPI_SOURCES})
+add_library(z_webapi STATIC ${WEBAPI_SOURCES})
 
 # 路径往上提一级，方便 #include "app/include/App.h"
-target_include_directories(webapi_lib
+target_include_directories(z_webapi
     PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
 
-target_link_libraries(webapi_lib PUBLIC wasm_lib)
+target_link_libraries(z_webapi PUBLIC z_wasm)

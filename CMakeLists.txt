@@ -84,9 +84,9 @@ target_include_directories(DesignCore SYSTEM PRIVATE
 )
 
 # --- 7. 链接与输出配置 ---
-target_link_libraries(DesignCore PRIVATE webapi_lib app_lib engine_lib)
+target_link_libraries(DesignCore PRIVATE z_webapi z_app z_engine)
 
-# target_link_libraries(DesignCore PRIVATE document_lib window_lib)
+# target_link_libraries(DesignCore PRIVATE z_document z_window)
 target_compile_options(DesignCore PRIVATE ${COMMON_COMPILE_OPTIONS})
 
 # 强制输出后缀为 .js，Emscripten 会自动生成同名的 .wasm 和 .worker.js

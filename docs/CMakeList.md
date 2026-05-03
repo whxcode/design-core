@@ -104,7 +104,7 @@
 
 ## 11. 链接和输出
 
-- `target_link_libraries(DesignCore PRIVATE webapi_lib app_lib engine_lib)`
+- `target_link_libraries(DesignCore PRIVATE z_webapi z_app z_engine)`
   - 将主程序与各静态库链接。
 - `target_compile_options(DesignCore PRIVATE ${COMMON_COMPILE_OPTIONS})`
   - 给 `DesignCore` 再追加一次编译参数（和全局参数叠加）。

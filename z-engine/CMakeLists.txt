@@ -12,9 +12,9 @@ file(GLOB_RECURSE ENGINE_SOURCES
 )
 
 # 如果还是报错，检查这个文件是否存在！
-add_library(engine_lib STATIC ${ENGINE_SOURCES})
+add_library(z_engine STATIC ${ENGINE_SOURCES})
 
-target_include_directories(engine_lib
+target_include_directories(z_engine
     PUBLIC
         # 这个路径是为了让外部（如 z-draw）能用 #include "z-engine/xxx.h"
         # 假设 z-engine 文件夹在项目根目录
@@ -28,5 +28,5 @@ target_include_directories(engine_lib
 
 # 4. WASM 特殊链接配置
 if(EMSCRIPTEN)
-  target_link_options(engine_lib PUBLIC "-s FULL_ES3=1")
+  target_link_options(z_engine PUBLIC "-s FULL_ES3=1")
 endif()

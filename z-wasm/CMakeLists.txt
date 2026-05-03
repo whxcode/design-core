@@ -1,10 +1,10 @@
-add_library(wasm_lib STATIC
+add_library(z_wasm STATIC
     src/z-js-value.cpp
 )
 
-target_include_directories(wasm_lib
+target_include_directories(z_wasm
     PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
 
-target_link_libraries(wasm_lib PUBLIC z_editor)
+target_link_libraries(z_wasm PUBLIC z_editor)
