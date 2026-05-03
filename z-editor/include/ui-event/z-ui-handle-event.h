@@ -6,6 +6,8 @@ class ZEditorContext;
 
 class ZUIHandleEvent {
 public:
+    friend class ZUIHandle;
+
     explicit ZUIHandleEvent(const ZHandlerType type, ZEditorContext* context = nullptr);
     virtual ~ZUIHandleEvent() = default;
 

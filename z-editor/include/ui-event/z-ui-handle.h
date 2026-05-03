@@ -14,8 +14,11 @@ public:
     void onUIEvent(const ZUIEvent& event);
     void addEffectHandler(std::shared_ptr<ZUIHandleEvent> handleEvent);
     void setActiveHandler(std::shared_ptr<ZUIHandleEvent> handleEvent);
+    void switchHandler(ZHandlerType type);
+    ZHandlerType activeHandlerType() const;
 
 public:
+    void switchCommonHandler();
     void switchDrawPathHandler();
 
 private:

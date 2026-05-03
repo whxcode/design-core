@@ -2,6 +2,7 @@
 
 #include "z-document/include/layers/z-document.h"
 #include "z-document/include/layers/z-page.h"
+#include "z-editor/include/ui-event/z-ui-handle.h"
 #include "z-window/include/ZWindow.h"
 
 ZEditorContext::ZEditorContext(ZDocument* document, ZWindow* window)
@@ -14,6 +15,10 @@ ZDocument* ZEditorContext::getDocument() const {
 
 ZWindow* ZEditorContext::getWindow() const {
     return zWindow;
+}
+
+ZUIHandle* ZEditorContext::getHandle() const {
+    return zHandle;
 }
 
 z_sp<ZPage> ZEditorContext::getCurrentPage() const {
@@ -57,4 +62,8 @@ void ZEditorContext::requestRedraw() const {
     }
 
     zWindow->draw();
+}
+
+void ZEditorContext::setHandle(ZUIHandle* handle) {
+    zHandle = handle;
 }

@@ -55,8 +55,16 @@ EMSCRIPTEN_BINDINGS(core_api) {
                       return self.getViewportData();
                   }))
 
+        .function("handler", optional_override([](ZApp& self) -> int {
+                      return static_cast<int>(self.getHandlerType());
+                  }))
+
         .function("onUIEvent", optional_override([](ZApp& self, const val& event) -> void {
                       self.onUIEvent(wasm::cpp::GetValue(event, static_cast<ZUIEvent*>(nullptr)));
+                  }))
+
+        .function("switchHandler", optional_override([](ZApp& self, const int type) -> void {
+                      self.switchHandler(static_cast<ZHandlerType>(type));
                   }))
 
         .function("window", optional_override([](ZApp& self) {

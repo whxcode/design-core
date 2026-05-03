@@ -2,20 +2,24 @@
 
 #include <iostream>
 
+#include "z-editor/include/ui-event/z-ui-event.h"
+#include "z-editor/include/ui-event/z-ui-handle.h"
+#include "z-editor/include/z-editor-context.h"
+
 bool ZDrawLayerHandle::onMouseDown(const ZUIEvent& event) {
     std::cout << "ZDrawPathHandle::onMouseDown" << std::endl;
-    return false;
+    return true;
 }
 
 bool ZDrawLayerHandle::onMouseMove(const ZUIEvent& event) {
-    // std::cout << "MouseMove: " << event.x << ", " << event.y << std::endl;
-    return false;
+    // std::cout << "ZDrawLayerHandle::onMouseMove" << event.x << ", " << event.y << std::endl;
+    return true;
 }
 
 bool ZDrawLayerHandle::onMouseUp(const ZUIEvent& event) {
     std::cout << "ZDrawPathHandle::onMouseUp" << std::endl;
     // std::cout << "MouseUp: " << event.x << ", " << event.y << std::endl;
-    return false;
+    return true;
 }
 
 bool ZDrawLayerHandle::onMouseWheel(const ZUIEvent& event) {
@@ -29,6 +33,10 @@ bool ZDrawLayerHandle::onKeyDown(const ZUIEvent& event) {
 }
 
 bool ZDrawLayerHandle::onKeyUp(const ZUIEvent& event) {
-    // std::cout << "KeyUp: " << static_cast<int>(event.keyCode) << std::endl;
+    if (event.keyCode == KeyCode::zEscape && zContext && zContext->getHandle()) {
+        zContext->getHandle()->switchCommonHandler();
+        return true;
+    }
+
     return false;
 }

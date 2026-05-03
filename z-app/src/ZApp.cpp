@@ -35,6 +35,23 @@ ViewportData ZApp::getViewportData() const {
     return zEditorContext->getViewportData();
 }
 
+ZHandlerType ZApp::getHandlerType() const {
+    if (!zUIHandle) {
+        return ZHandlerType::zCommon;
+    }
+
+    return zUIHandle->activeHandlerType();
+}
+
+void ZApp::switchHandler(const ZHandlerType type) {
+    if (!zUIHandle) {
+        return;
+    }
+
+    zUIHandle->switchHandler(type);
+    requestRedraw();
+}
+
 void ZApp::startup() {
     auto futureR = DoTask([]() {
         return ZLoader::MakeDocument(ZTestDoc::MakeDoc());
@@ -46,7 +63,7 @@ void ZApp::startup() {
 
     zEditorContext = std::make_unique<ZEditorContext>(zDocument.get(), zWindow.get());
     zUIHandle = std::make_unique<ZUIHandle>(zEditorContext.get());
-    zUIHandle->switchDrawPathHandler();
+    zEditorContext->setHandle(zUIHandle.get());
 
     this->zWindow->setEditorContext(zEditorContext.get());
     this->zWindow->setOverlayRoot(std::make_shared<ZShape>());

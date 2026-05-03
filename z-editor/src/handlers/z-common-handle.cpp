@@ -3,12 +3,12 @@
 #include <iostream>
 
 bool ZUICommonHandle::onMouseDown(const ZUIEvent& event) {
-    // std::cout << "MouseDown: " << event.x << ", " << event.y << std::endl;
+    std::cout << "ZUICommonHandle::onMouseDown" << event.x << ", " << event.y << std::endl;
     return false;
 }
 
 bool ZUICommonHandle::onMouseMove(const ZUIEvent& event) {
-    // std::cout << "MouseMove: " << event.x << ", " << event.y << std::endl;
+    // std::cout << "ZUICommonHandle::MouseMove: " << event.x << ", " << event.y << std::endl;
     return false;
 }
 

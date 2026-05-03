@@ -50,6 +50,8 @@ public:
     ZWindow& getWindow() const;
     ZDocument& getDocument() const;
     ViewportData getViewportData() const;
+    ZHandlerType getHandlerType() const;
+    void switchHandler(ZHandlerType type);
 
 public:
     void addImage(uintptr_t ptr, size_t size, float x = 0.0f, float y = 0.0f, float width = 0.0f,

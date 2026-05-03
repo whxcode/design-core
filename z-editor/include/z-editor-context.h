@@ -5,6 +5,7 @@
 
 class ZDocument;
 class ZPage;
+class ZUIHandle;
 class ZWindow;
 
 class ZEditorContext {
@@ -13,13 +14,16 @@ public:
 
     ZDocument* getDocument() const;
     ZWindow* getWindow() const;
+    ZUIHandle* getHandle() const;
     z_sp<ZPage> getCurrentPage() const;
     ZViewport* getViewport() const;
     ViewportData getViewportData() const;
     void setViewportData(const ViewportData& data) const;
     void requestRedraw() const;
+    void setHandle(ZUIHandle* handle);
 
 private:
     ZDocument* zDocument{nullptr};
     ZWindow* zWindow{nullptr};
+    ZUIHandle* zHandle{nullptr};
 };

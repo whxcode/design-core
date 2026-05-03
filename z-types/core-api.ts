@@ -1,6 +1,12 @@
-import type { ZUIEvent } from "./ui-event/z-ui-event";
+import type { ZHandlerType, ZUIEvent } from "./ui-event/z-ui-event";
 
-export { KeyCode, MouseButton, ZUIEventType } from "./ui-event/z-ui-event";
+export {
+  KeyCode,
+  MouseButton,
+  ZDrawLayerType,
+  ZHandlerType,
+  ZUIEventType,
+} from "./ui-event/z-ui-event";
 export type { ZUIEvent } from "./ui-event/z-ui-event";
 
 export type WasmPtr = number;
@@ -25,7 +31,9 @@ export interface CoreApp {
   putImage(size: SizeT, width: SizeT, height: SizeT): WasmPtr;
   draw(): void;
   viewport(): ViewportData;
+  handler(): ZHandlerType;
   onUIEvent(event: ZUIEvent): void;
+  switchHandler(type: ZHandlerType): void;
   window(): CoreWindow;
   document(): CoreDocument;
 }

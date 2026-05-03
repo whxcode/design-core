@@ -31,6 +31,33 @@ void ZUIHandle::setActiveHandler(std::shared_ptr<ZUIHandleEvent> handleEvent) {
     zActiveHandler = std::move(handleEvent);
 }
 
+void ZUIHandle::switchHandler(const ZHandlerType type) {
+    switch (type) {
+        case ZHandlerType::zCommon:
+            switchCommonHandler();
+            return;
+        case ZHandlerType::zDrawLayer:
+            switchDrawPathHandler();
+            return;
+        case ZHandlerType::zViewport:
+            return;
+    }
+}
+
+ZHandlerType ZUIHandle::activeHandlerType() const {
+    if (!zActiveHandler) {
+        return ZHandlerType::zCommon;
+    }
+
+    return zActiveHandler->zType;
+}
+
+void ZUIHandle::switchCommonHandler() {
+    setActiveHandler(std::make_shared<ZUICommonHandle>(ZHandlerType::zCommon, zContext));
+    printf("ZUIHandle::switchCommonHandler\n");
+}
+
 void ZUIHandle::switchDrawPathHandler() {
     setActiveHandler(std::make_shared<ZDrawLayerHandle>(ZHandlerType::zDrawLayer, zContext));
+    printf("ZUIHandle::switchDrawPathHandler\n");
 }
