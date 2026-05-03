@@ -6,7 +6,7 @@ class ZEditorContext;
 
 class ZUIHandleEvent {
 public:
-    explicit ZUIHandleEvent(ZEditorContext* context = nullptr);
+    explicit ZUIHandleEvent(const ZHandlerType type, ZEditorContext* context = nullptr);
     virtual ~ZUIHandleEvent() = default;
 
     virtual bool onUIEvent(const ZUIEvent& event);
@@ -19,4 +19,5 @@ public:
 
 protected:
     ZEditorContext* zContext{nullptr};
+    ZHandlerType zType{ZHandlerType::zCommon};
 };

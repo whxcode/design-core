@@ -1,12 +1,12 @@
-add_library(editor_lib STATIC
-    src/handlers/z-viewport-handler.cpp
-    src/z-editor-context.cpp
-    src/ui-event/z-ui-common-handle.cpp
-    src/ui-event/z-ui-handle.cpp
-    src/ui-event/z-ui-handle-event.cpp
-)
+# 1. 递归扫描 src 目录下所有的 .cpp 文件，存入 Z_SOURCES 变量
+#
+file(GLOB_RECURSE Z_SOURCES "src/*.cpp")
 
-target_include_directories(editor_lib
+# 2. 使用扫描到的变量创建静态库
+add_library(z_editor STATIC ${Z_SOURCES})
+
+
+target_include_directories(z_editor
     PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/.."
 )

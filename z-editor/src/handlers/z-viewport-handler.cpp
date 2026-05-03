@@ -5,9 +5,6 @@
 
 #include "z-editor/include/z-editor-context.h"
 
-ZViewportHandler::ZViewportHandler(ZEditorContext* context) : ZUIHandleEvent(context) {
-}
-
 bool ZViewportHandler::onMouseDown(const ZUIEvent& event) {
     if (!zSpacePressed || event.button != MouseButton::zLeft) {
         return false;

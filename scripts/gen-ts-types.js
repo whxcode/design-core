@@ -39,7 +39,10 @@ function stripComments(source) {
 }
 
 function normalizeType(type) {
-  return type.replace(/\bconst\b/g, "").replace(/[&*]/g, "").trim();
+  return type
+    .replace(/\bconst\b/g, "")
+    .replace(/[&*]/g, "")
+    .trim();
 }
 
 function toTsType(type) {
@@ -49,7 +52,8 @@ function toTsType(type) {
 
 function parseEnumClasses(source) {
   const enums = [];
-  const enumRegex = /enum\s+class\s+(\w+)\s*(?::\s*[\w:]+)?\s*\{([\s\S]*?)\}\s*;/g;
+  const enumRegex =
+    /enum\s+class\s+(\w+)\s*(?::\s*[\w:]+)?\s*\{([\s\S]*?)\}\s*;/g;
 
   for (const match of source.matchAll(enumRegex)) {
     const [, name, body] = match;
@@ -86,7 +90,8 @@ function parseStructs(source) {
   for (const match of normalizedSource.matchAll(structRegex)) {
     const [, name, body] = match;
     const fields = [];
-    const fieldRegex = /^\s*([A-Za-z_][\w:<>]*)\s+([A-Za-z_]\w*)\s*(?:\{[^;]*\}|=[^;]*)?\s*;/gm;
+    const fieldRegex =
+      /^\s*([A-Za-z_][\w:<>]*)\s+([A-Za-z_]\w*)\s*(?:\{[^;]*\}|=[^;]*)?\s*;/gm;
 
     for (const fieldMatch of body.matchAll(fieldRegex)) {
       const [, cppType, fieldName] = fieldMatch;

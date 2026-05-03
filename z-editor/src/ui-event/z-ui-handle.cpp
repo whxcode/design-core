@@ -2,12 +2,13 @@
 
 #include <utility>
 
+#include "z-editor/include/handlers/z-common-handle.h"
+#include "z-editor/include/handlers/z-draw-layer-handle.h"
 #include "z-editor/include/handlers/z-viewport-handler.h"
-#include "z-editor/include/ui-event/z-ui-common-handle.h"
 
-ZUIHandle::ZUIHandle(ZEditorContext* context) {
-    addEffectHandler(std::make_shared<ZViewportHandler>(context));
-    setActiveHandler(std::make_shared<ZUICommonHandle>(context));
+ZUIHandle::ZUIHandle(ZEditorContext* context) : zContext(context) {
+    addEffectHandler(std::make_shared<ZViewportHandler>(ZHandlerType::zViewport, context));
+    setActiveHandler(std::make_shared<ZUICommonHandle>(ZHandlerType::zCommon, context));
 }
 
 void ZUIHandle::onUIEvent(const ZUIEvent& event) {
@@ -28,4 +29,8 @@ void ZUIHandle::addEffectHandler(std::shared_ptr<ZUIHandleEvent> handleEvent) {
 
 void ZUIHandle::setActiveHandler(std::shared_ptr<ZUIHandleEvent> handleEvent) {
     zActiveHandler = std::move(handleEvent);
+}
+
+void ZUIHandle::switchDrawPathHandler() {
+    setActiveHandler(std::make_shared<ZDrawLayerHandle>(ZHandlerType::zDrawLayer, zContext));
 }

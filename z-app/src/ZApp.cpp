@@ -17,9 +17,6 @@
 ZApp::ZApp() {
     // 掌握生命周期：在这里创建实例
     zWindow = std::make_unique<ZWindow>();
-    zWindow->setOverlayDrawer([this](IZEngine* engine) {
-        renderImages(engine);
-    });
 }
 
 ZWindow& ZApp::getWindow() const {
@@ -49,6 +46,7 @@ void ZApp::startup() {
 
     zEditorContext = std::make_unique<ZEditorContext>(zDocument.get(), zWindow.get());
     zUIHandle = std::make_unique<ZUIHandle>(zEditorContext.get());
+    zUIHandle->switchDrawPathHandler();
 
     this->zWindow->setEditorContext(zEditorContext.get());
     this->zWindow->setOverlayRoot(std::make_shared<ZShape>());
@@ -70,7 +68,10 @@ void ZApp::addImage(uintptr_t ptr, size_t size, float x, float y, float width, f
         return;
     }
 
-    zImages.push_back({.ptr = ptr, .size = size, .x = x, .y = y, .width = width, .height = height});
+    printf("ZApp::addImage\n");
+
+    // zImages.push_back({.ptr = ptr, .size = size, .x = x, .y = y, .width = width, .height =
+    // height});
 }
 
 void ZApp::clearImages() {
@@ -79,28 +80,6 @@ void ZApp::clearImages() {
 
 const std::vector<ZImagePayload>& ZApp::getImages() const {
     return zImages;
-}
-
-void ZApp::renderImages(IZEngine* engine) const {
-    if (engine == nullptr) {
-        return;
-    }
-
-    engine->save();
-    ZMatrix m;
-
-    for (const auto& image : zImages) {
-        if (image.ptr == 0 || image.size == 0) {
-            continue;
-        }
-
-        engine->transform(m.preTranslate(50, 50).preScale(300 / image.width, 100 / image.height));
-        const auto* bytes = reinterpret_cast<const uint8_t*>(image.ptr);
-
-        engine->drawImage(bytes, image.size, image.x, image.y, image.width, image.height);
-    }
-
-    engine->restore();
 }
 
 void ZApp::requestRedraw() {

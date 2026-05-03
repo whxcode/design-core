@@ -15,7 +15,11 @@ public:
     void addEffectHandler(std::shared_ptr<ZUIHandleEvent> handleEvent);
     void setActiveHandler(std::shared_ptr<ZUIHandleEvent> handleEvent);
 
+public:
+    void switchDrawPathHandler();
+
 private:
     std::vector<std::shared_ptr<ZUIHandleEvent>> zEffectHandlers;
     std::shared_ptr<ZUIHandleEvent> zActiveHandler{nullptr};
+    ZEditorContext* zContext{nullptr};
 };

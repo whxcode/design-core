@@ -8,4 +8,4 @@ target_include_directories(app_lib
 )
 
 # 建立层级链接
-target_link_libraries(app_lib PUBLIC window_lib document_lib editor_lib z_paint)
+target_link_libraries(app_lib PUBLIC window_lib document_lib z_editor z_paint)

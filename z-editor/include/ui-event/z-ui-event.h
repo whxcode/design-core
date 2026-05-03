@@ -86,3 +86,13 @@ struct ZUIEvent {
     bool altKey{false};
     bool shiftKey{false};
 };
+
+enum class ZHandlerType : uint8_t {
+    zCommon,     // 默认Handler.
+    zViewport,   //
+    zDrawLayer,  // 绘制图层
+};
+
+enum class ZDrawLayerType {
+    zRectangle,  // 绘制矩形
+};

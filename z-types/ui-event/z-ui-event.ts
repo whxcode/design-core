@@ -72,6 +72,16 @@ export enum MouseButton {
   Right = 3,
 }
 
+export enum ZHandlerType {
+  Common = 0,
+  Viewport = 1,
+  DrawLayer = 2,
+}
+
+export enum ZDrawLayerType {
+  Rectangle = 0,
+}
+
 export interface ZUIEvent {
   type: ZUIEventType;
   x: number;

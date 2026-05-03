@@ -1,6 +1,7 @@
 #include "z-editor/include/ui-event/z-ui-handle-event.h"
 
-ZUIHandleEvent::ZUIHandleEvent(ZEditorContext* context) : zContext(context) {
+ZUIHandleEvent::ZUIHandleEvent(const ZHandlerType type, ZEditorContext* context)
+    : zType(type), zContext(context) {
 }
 
 bool ZUIHandleEvent::onUIEvent(const ZUIEvent& event) {

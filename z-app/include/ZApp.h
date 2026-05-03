@@ -6,9 +6,9 @@
 
 #include "z-document/include/layers/z-document.h"
 #include "z-document/include/viewport/z-viewport.h"
-#include "z-engine/include/z-engine.h"
-#include "z-editor/include/z-editor-context.h"
 #include "z-editor/include/ui-event/z-ui-handle.h"
+#include "z-editor/include/z-editor-context.h"
+#include "z-engine/include/z-engine.h"
 #include "z-window/include/ZWindow.h"
 
 // #include "document/include/Document.h"
@@ -56,7 +56,6 @@ public:
                   float height = 0.0f);
     void clearImages();
     const std::vector<ZImagePayload>& getImages() const;
-    void renderImages(IZEngine* engine) const;
     void requestRedraw();
 
 private:

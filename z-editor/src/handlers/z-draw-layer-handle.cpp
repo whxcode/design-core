@@ -1,33 +1,34 @@
-#include "z-editor/include/ui-event/z-ui-common-handle.h"
+#include "z-editor/include/handlers/z-draw-layer-handle.h"
 
 #include <iostream>
 
-bool ZUICommonHandle::onMouseDown(const ZUIEvent& event) {
-    // std::cout << "MouseDown: " << event.x << ", " << event.y << std::endl;
+bool ZDrawLayerHandle::onMouseDown(const ZUIEvent& event) {
+    std::cout << "ZDrawPathHandle::onMouseDown" << std::endl;
     return false;
 }
 
-bool ZUICommonHandle::onMouseMove(const ZUIEvent& event) {
+bool ZDrawLayerHandle::onMouseMove(const ZUIEvent& event) {
     // std::cout << "MouseMove: " << event.x << ", " << event.y << std::endl;
     return false;
 }
 
-bool ZUICommonHandle::onMouseUp(const ZUIEvent& event) {
+bool ZDrawLayerHandle::onMouseUp(const ZUIEvent& event) {
+    std::cout << "ZDrawPathHandle::onMouseUp" << std::endl;
     // std::cout << "MouseUp: " << event.x << ", " << event.y << std::endl;
     return false;
 }
 
-bool ZUICommonHandle::onMouseWheel(const ZUIEvent& event) {
+bool ZDrawLayerHandle::onMouseWheel(const ZUIEvent& event) {
     // std::cout << "MouseWheel: " << event.deltaX << ", " << event.deltaY << std::endl;
     return false;
 }
 
-bool ZUICommonHandle::onKeyDown(const ZUIEvent& event) {
+bool ZDrawLayerHandle::onKeyDown(const ZUIEvent& event) {
     // std::cout << "KeyDown: " << static_cast<int>(event.keyCode) << std::endl;
     return false;
 }
 
-bool ZUICommonHandle::onKeyUp(const ZUIEvent& event) {
+bool ZDrawLayerHandle::onKeyUp(const ZUIEvent& event) {
     // std::cout << "KeyUp: " << static_cast<int>(event.keyCode) << std::endl;
     return false;
 }

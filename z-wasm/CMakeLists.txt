@@ -7,4 +7,4 @@ target_include_directories(wasm_lib
         "${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
 
-target_link_libraries(wasm_lib PUBLIC editor_lib)
+target_link_libraries(wasm_lib PUBLIC z_editor)
