@@ -26,7 +26,7 @@ void ZPaint::draw() {
                 zEngine->transform(model->getTransform());
                 zEngine->drawRect(size.width(), size.height(),
                                   {
-                                      .zFillColor = 0xFF0000,
+                                      .zFillColor = model->getFillColor(),
 
                                   });
 

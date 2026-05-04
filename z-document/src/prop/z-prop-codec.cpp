@@ -1,5 +1,6 @@
 #include "z-document/include/prop/z-prop-codec.h"
 
+#include <cstdint>
 #include <cstdio>
 #include <string>
 
@@ -21,6 +22,8 @@ std::any ZPropCodec::CopyValue(const ZPropKey key, const void* value) {
             return std::any(*static_cast<const ZSize*>(value));
         case ZPropKey::zTransform:
             return std::any(*static_cast<const ZMatrix*>(value));
+        case ZPropKey::zFillColor:
+            return std::any(*static_cast<const uint32_t*>(value));
         case ZPropKey::zId:
         case ZPropKey::zType:
             return {};

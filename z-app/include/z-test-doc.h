@@ -15,26 +15,36 @@ public:
         auto pageModel = ZCreatorModel::Make<ZLayerModel>(ZModelType::zPage);
         auto rect1 = ZCreatorModel::Make<ZLayerModel>(ZModelType::zRectangle);
         auto rect2 = ZCreatorModel::Make<ZLayerModel>(ZModelType::zRectangle);
+        auto rect3 = ZCreatorModel::Make<ZLayerModel>(ZModelType::zRectangle);
 
         docModel->setName("Test Doc A");
 
         pageModel->setParentId(docModel->getId());
 
         rect1->setParentId(pageModel->getId());
-        rect1->setSize({300.f, 300.f});
+        rect1->setSize({240.f, 180.f});
         rect1->setName("矩形 1");
-        rect1->setTransform(ZMatrix::Translate(100.f, 100.f));
+        rect1->setFillColor(0x2563EB);
+        rect1->setTransform(ZMatrix::Translate(100.f, 120.f));
 
-        rect2->setParentId(rect1->getId());
-        rect2->setSize({100.f, 100.f});
+        rect2->setParentId(pageModel->getId());
+        rect2->setSize({180.f, 120.f});
         rect2->setName("矩形 2");
-
+        rect2->setFillColor(0x16A34A);
         rect2->setTransform(ZMatrix::Identity()
-                                .preTranslate(100, 100)          //
-                                .preScale(1.2, 1.5, 25.f, 25.f)  //(50.f, 50.f)    //
-                                .preRotate(45.f, 25.f, 25.f)     //(50.f, 50.f)    //
+                                .preTranslate(420.f, 150.f)
+                                .preRotate(12.f, 90.f, 60.f)
         );
 
-        return {docModel, pageModel, rect1, rect2};
+        rect3->setParentId(pageModel->getId());
+        rect3->setSize({140.f, 220.f});
+        rect3->setName("矩形 3");
+        rect3->setFillColor(0xF97316);
+        rect3->setTransform(ZMatrix::Identity()
+                                .preTranslate(260.f, 360.f)
+                                .preRotate(-18.f, 70.f, 110.f)
+        );
+
+        return {docModel, pageModel, rect1, rect2, rect3};
     };
 };

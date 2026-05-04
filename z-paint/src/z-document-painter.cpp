@@ -34,7 +34,7 @@ void ZDocumentPainter::draw(IZEngine* engine) {
                 engine->transform(model->getTransform());
                 engine->drawRect(size.width(), size.height(),
                                  {
-                                     .zFillColor = 0xFF0000,
+                                     .zFillColor = model->getFillColor(),
                                  });
 
                 render(layer->getChildren<ZLayerBase>());

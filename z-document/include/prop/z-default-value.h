@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 
 #include "z-document/include/prop/z-prop-key.h"
@@ -26,3 +27,4 @@ struct PropTraits;
 
 DEFINE_DEFAULT_VALUE(ZSize, Size);
 DEFINE_DEFAULT_VALUE(ZMatrix, Transform);
+DEFINE_DEFAULT_VALUE(uint32_t, FillColor);

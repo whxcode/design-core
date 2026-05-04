@@ -33,7 +33,8 @@ public:
 public:
     void addChild(const z_sp<ZComponent>& comp) override;
     z_sp<ZPage> getActivePage();
-    std::vector<z_sp<ZLayerBase>> getNonPageLayers() const;
+    z_sp<ZComponent> findKey(ZGuid id) const;
+    z_sp<ZComponent> findKey(ZUniqueId id) const;
 
     void setActivePage(const ZUniqueId id);
 

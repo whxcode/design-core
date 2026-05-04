@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL.h>
 
+#include <algorithm>
 #include <functional>
 #include <future>
 #include <iostream>
@@ -12,7 +13,10 @@
 #include "z-app/include/z-test-doc.h"
 #include "z-document/include/commit/z-commit.h"
 #include "z-document/include/creator/loader.h"
+#include "z-document/include/layers/z-layerbase.h"
+#include "z-document/include/layers/z-page.h"
 #include "z-document/include/models/z-layer-model.h"
+#include "z-document/include/z-model-type.h"
 #include "z-matrix/include/z-matrix.h"
 #include "z-paint/include/z-shape.h"
 #include "z-tools/include/z-task.h"
@@ -128,28 +132,46 @@ void ZApp::randProps() {
         return;
     }
 
-    const auto layers = zDocument->getNonPageLayers();
+    const auto page = zDocument->getActivePage();
+    if (!page) {
+        return;
+    }
+
+    const auto layers = page->getChildren<ZLayerBase>();
+
     if (layers.empty()) {
         return;
     }
 
     static std::mt19937 rng{std::random_device{}()};
-    std::uniform_int_distribution<size_t> pickLayer(0, layers.size() - 1);
     std::uniform_real_distribution<float> moveDelta(-80.0f, 80.0f);
     std::uniform_real_distribution<float> rotateDelta(-25.0f, 25.0f);
+    std::uniform_real_distribution<float> sizeDelta(-36.0f, 48.0f);
 
-    const auto& layer = layers[pickLayer(rng)];
-    const auto model = layer->getModel<ZLayerModel>();
-    if (!model) {
-        return;
+    for (const auto& layer : layers) {
+        if (!layer) {
+            continue;
+        }
+
+        const auto model = layer->getModel<ZLayerModel>();
+        if (!model) {
+            continue;
+        }
+
+        const auto size = model->getSize();
+        const auto width = std::max(40.0f, size.width() + sizeDelta(rng));
+        const auto height = std::max(40.0f, size.height() + sizeDelta(rng));
+        model->setSize({width, height});
+
+        auto next = model->getTransform();
+        next.preTranslate(moveDelta(rng), moveDelta(rng));
+        next.preRotate(rotateDelta(rng), width * 0.5f, height * 0.5f);
+        model->setTransform(next);
     }
 
-    auto next = model->getTransform();
-    next.preTranslate(moveDelta(rng), moveDelta(rng));
-    next.preRotate(rotateDelta(rng));
-    model->setTransform(next);
-
-    zCommit->commit();
+    if (zCommit) {
+        zCommit->commit();
+    }
 
     requestRedraw();
 }

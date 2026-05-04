@@ -2,7 +2,6 @@
 #include "z-document/include/layers/z-document.h"
 
 #include <cstdio>
-#include <functional>
 #include <iostream>
 
 #include "z-document/include/layers/z-component.h"
@@ -40,13 +39,13 @@ std::optional<ZPatch> ZDocument::commit() {
 
 void ZDocument::mergePatches(const ZPatches& patches) {
     for (const auto& item : patches) {
-        auto it = zLayers.find(item.zId.toNumber());
+        const auto comp = findKey(item.zId);
 
-        if (it == zLayers.end()) {
+        if (!comp) {
             continue;
         }
 
-        it->second->getModel()->setProps(item.zProps);
+        comp->getModel()->setProps(item.zProps);
     }
 }
 
@@ -70,36 +69,21 @@ z_sp<ZPage> ZDocument::getActivePage() {
     return zPages[zActivePageId];
 }
 
-std::vector<z_sp<ZLayerBase>> ZDocument::getNonPageLayers() const {
-    std::vector<z_sp<ZLayerBase>> layers;
-
-    const auto pageIt = zPages.find(zActivePageId);
-    const auto page = zActivePageId != 0 && pageIt != zPages.end()
-                          ? pageIt->second
-                          : (zPages.empty() ? nullptr : zPages.begin()->second);
-    if (!page) {
-        return layers;
-    }
-
-    std::function<void(const z_sp<ZComponent>&)> visit = [&](const z_sp<ZComponent>& node) {
-        if (!node) {
-            return;
-        }
-
-        if (node->getType() != ZModelType::zPage) {
-            layers.push_back(node->as<ZLayerBase>());
-        }
-
-        for (const auto& child : node->getChildren<ZComponent>()) {
-            visit(child);
-        }
-    };
-
-    visit(page);
-    return layers;
+z_sp<ZComponent> ZDocument::findKey(const ZGuid id) const {
+    return findKey(id.toNumber());
 }
 
-void ZDocument::setActivePage(const size_t id) {
+z_sp<ZComponent> ZDocument::findKey(const ZUniqueId id) const {
+    const auto it = zLayers.find(id);
+
+    if (it == zLayers.end()) {
+        return nullptr;
+    }
+
+    return it->second;
+}
+
+void ZDocument::setActivePage(const ZUniqueId id) {
     zActivePageId = id;
 }
 

@@ -8,6 +8,7 @@ enum class ZPropKey {
     zName,
     zSize,
     zTransform,
+    zFillColor,
 };
 
 struct ZPropKeyHash {

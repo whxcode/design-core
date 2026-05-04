@@ -40,6 +40,7 @@ void ZModel::setPropValue(const ZPropKey key, const std::any& value) {
         case ZPropKey::zType:
         case ZPropKey::zSize:
         case ZPropKey::zTransform:
+        case ZPropKey::zFillColor:
             return;
     }
 }
