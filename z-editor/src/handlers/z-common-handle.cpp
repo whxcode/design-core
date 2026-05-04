@@ -2,18 +2,35 @@
 
 #include <iostream>
 
+#include "z-editor/include/selection/z-selection.h"
+#include "z-editor/include/z-editor-context.h"
+
 bool ZUICommonHandle::onMouseDown(const ZUIEvent& event) {
     std::cout << "ZUICommonHandle::onMouseDown" << event.x << ", " << event.y << std::endl;
     return false;
 }
 
 bool ZUICommonHandle::onMouseMove(const ZUIEvent& event) {
-    // std::cout << "ZUICommonHandle::MouseMove: " << event.x << ", " << event.y << std::endl;
+    if (zContext && zContext->getSelection()) {
+        zContext->getSelection()->hitHover(getCurrentPoint());
+    }
+
     return false;
 }
 
 bool ZUICommonHandle::onMouseUp(const ZUIEvent& event) {
-    // std::cout << "MouseUp: " << event.x << ", " << event.y << std::endl;
+    if (!zContext || !zContext->getSelection()) {
+        return false;
+    }
+
+    zContext->getSelection()->hitHover(getCurrentPoint());
+    const auto hoverLayer = zContext->getSelection()->getHoverLayer();
+    if (hoverLayer) {
+        zContext->getSelection()->select(hoverLayer);
+        return false;
+    }
+
+    zContext->getSelection()->clear();
     return false;
 }
 

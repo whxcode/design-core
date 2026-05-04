@@ -3,6 +3,8 @@
 #include <cmath>
 #include <cstring>
 
+#include "z-matrix/include/z-point.h"
+
 ZMatrix ZMatrix::Translate(float dx, float dy) {
     return ZMatrix().setTranslate(dx, dy);
 }
@@ -130,4 +132,32 @@ ZMatrix& ZMatrix::setRotate(float degrees, float px, float py) {
     fMat[7] = 0;
     fMat[8] = 1;
     return *this;
+}
+
+ZPoint ZMatrix::mapPoint(const ZPoint& point) const {
+    return ZPoint(fMat[0] * point.x() + fMat[1] * point.y() + fMat[2],
+                  fMat[3] * point.x() + fMat[4] * point.y() + fMat[5]);
+}
+
+bool ZMatrix::invert(ZMatrix* inverse) const {
+    if (!inverse) {
+        return false;
+    }
+
+    const float det = fMat[0] * fMat[4] - fMat[1] * fMat[3];
+    if (std::fabs(det) < 0.000001f) {
+        return false;
+    }
+
+    const float invDet = 1.0f / det;
+    inverse->fMat[0] = fMat[4] * invDet;
+    inverse->fMat[1] = -fMat[1] * invDet;
+    inverse->fMat[2] = (fMat[1] * fMat[5] - fMat[4] * fMat[2]) * invDet;
+    inverse->fMat[3] = -fMat[3] * invDet;
+    inverse->fMat[4] = fMat[0] * invDet;
+    inverse->fMat[5] = (fMat[3] * fMat[2] - fMat[0] * fMat[5]) * invDet;
+    inverse->fMat[6] = 0.0f;
+    inverse->fMat[7] = 0.0f;
+    inverse->fMat[8] = 1.0f;
+    return true;
 }

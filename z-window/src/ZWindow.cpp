@@ -31,9 +31,18 @@ void ZWindow::init() {
 #ifdef __EMSCRIPTEN__
     zDpr = emscripten_get_device_pixel_ratio();
     emscripten_get_canvas_element_size("#canvas", &zWidth, &zHeight);
+    double cssWidth = 0.0;
+    double cssHeight = 0.0;
+    emscripten_get_element_css_size("#canvas", &cssWidth, &cssHeight);
+    zCssWidth = cssWidth > 0.0 ? static_cast<float>(cssWidth) : static_cast<float>(zWidth) / zDpr;
+    zCssHeight =
+        cssHeight > 0.0 ? static_cast<float>(cssHeight) : static_cast<float>(zHeight) / zDpr;
+#else
+    zCssWidth = static_cast<float>(zWidth);
+    zCssHeight = static_cast<float>(zHeight);
 #endif
 
-    zEngine = new ZVgEngine(zWidth, zHeight, zDpr);
+    zEngine = new ZVgEngine(static_cast<int>(zCssWidth), static_cast<int>(zCssHeight), zDpr);
     zDocumentPainter = std::make_shared<ZDocumentPainter>();
     zOverlayPainter = std::make_shared<ZOverlayPainter>(zEditorContext);
 }
@@ -54,8 +63,7 @@ void ZWindow::draw() {
 
     // printf("[%d],[%d]\n", zWidth, zHeight);
 
-    zEngine->save();
-    zEngine->beginFrame((float)zWidth / zDpr, (float)zHeight / zDpr, zDpr);
+    zEngine->beginFrame(zCssWidth, zCssHeight, zDpr);
     zDocumentPainter->draw(zEngine);
     zOverlayPainter->draw(zEngine);
 
@@ -76,8 +84,12 @@ void ZWindow::setEditorContext(ZEditorContext* context) {
     zOverlayPainter = std::make_shared<ZOverlayPainter>(zEditorContext);
 }
 
-void ZWindow::setOverlayRoot(std::shared_ptr<ZShape> root) {
+void ZWindow::setOverlayRoot(z_sp<ZShape> root) {
     zOverlayPainter->setRoot(std::move(root));
+}
+
+void ZWindow::setTrace(ZTrace* trace) {
+    zOverlayPainter->setTrace(trace);
 }
 
 void ZWindow::setOverlayDrawer(OverlayDrawer overlayDrawer) {

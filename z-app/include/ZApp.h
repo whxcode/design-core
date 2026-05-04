@@ -7,9 +7,12 @@
 #include "z-app/include/ZAppEvent.h"
 #include "z-document/include/layers/z-document.h"
 #include "z-document/include/viewport/z-viewport.h"
+#include "z-editor/include/selection/z-selection.h"
 #include "z-editor/include/ui-event/z-ui-handle.h"
 #include "z-editor/include/z-editor-context.h"
 #include "z-engine/include/z-engine.h"
+#include "z-paint/include/z-trace.h"
+#include "z-tools/include/z-editor-theme.h"
 #include "z-window/include/ZWindow.h"
 
 // #include "document/include/Document.h"
@@ -55,6 +58,7 @@ public:
     ZHandlerType getHandlerType() const;
     void switchHandler(ZHandlerType type);
     ZAppEvent& getAppEvent() const;
+    void setTheme(ZEditorThemeType type);
 
 public:
     void addImage(uintptr_t ptr, size_t size, float x = 0.0f, float y = 0.0f, float width = 0.0f,
@@ -75,6 +79,8 @@ private:
     std::unique_ptr<ZWindow> zWindow{nullptr};
     std::unique_ptr<ZEditorContext> zEditorContext{nullptr};
     std::unique_ptr<ZUIHandle> zUIHandle{nullptr};
+    std::unique_ptr<ZSelection> zSelection{nullptr};
+    std::unique_ptr<ZTrace> zTrace{nullptr};
     z_sp<ZDocument> zDocument{nullptr};
     z_sp<ZCommit> zCommit{nullptr};
     std::vector<ZImagePayload> zImages;

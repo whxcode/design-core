@@ -5,6 +5,8 @@
 
 class ZDocument;
 class ZPage;
+class ZSelection;
+class ZTrace;
 class ZUIHandle;
 class ZWindow;
 class ZAppEvent;
@@ -24,10 +26,16 @@ public:
     void setHandle(ZUIHandle* handle);
     void setAppEvent(ZAppEvent* appEvent);
     ZAppEvent* getAppEvent() const;
+    void setSelection(ZSelection* selection);
+    ZSelection* getSelection() const;
+    void setTrace(ZTrace* trace);
+    ZTrace* getTrace() const;
 
 private:
     ZDocument* zDocument{nullptr};
     ZWindow* zWindow{nullptr};
     ZUIHandle* zHandle{nullptr};
     ZAppEvent* zAppEvent{nullptr};
+    ZSelection* zSelection{nullptr};
+    ZTrace* zTrace{nullptr};
 };

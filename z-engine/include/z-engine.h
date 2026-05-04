@@ -5,9 +5,9 @@
 #include "z-matrix/include/z-matrix.h"
 
 struct ZStyle {
-    uint32_t zFillColor = 0xFFFFFFFF;
-    uint32_t zStrokeColor = 0x000000FF;
-    float zStrokeWidth = 1.0f;
+    uint32_t zFillColor{0x000000FF};
+    uint32_t zStrokeColor{0x000000FF};
+    float zStrokeWidth{0};
     // 后期扩展：zGradient, zShadow...
 };
 

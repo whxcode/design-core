@@ -65,6 +65,11 @@ ZAppEvent& ZApp::getAppEvent() const {
     return *zAppEvent;
 }
 
+void ZApp::setTheme(const ZEditorThemeType type) {
+    ZEditorTheme::SetTheme(type);
+    requestRedraw();
+}
+
 void ZApp::startup() {
     auto futureR = DoTask([]() {
         return ZLoader::MakeDocument(ZTestDoc::MakeDoc());
@@ -76,13 +81,19 @@ void ZApp::startup() {
 
     zEditorContext = std::make_unique<ZEditorContext>(zDocument.get(), zWindow.get());
     zEditorContext->setAppEvent(zAppEvent.get());
+    zSelection = std::make_unique<ZSelection>(zEditorContext.get());
+    zTrace = std::make_unique<ZTrace>(zEditorContext.get(), zAppEvent.get(), [this]() {
+        requestRedraw();
+    });
     zUIHandle = std::make_unique<ZUIHandle>(zEditorContext.get());
     zCommit = std::make_shared<ZCommit>(zDocument, zAppEvent.get());
 
     zEditorContext->setHandle(zUIHandle.get());
+    zEditorContext->setSelection(zSelection.get());
+    zEditorContext->setTrace(zTrace.get());
 
     this->zWindow->setEditorContext(zEditorContext.get());
-    this->zWindow->setOverlayRoot(std::make_shared<ZShape>());
+    this->zWindow->setTrace(zTrace.get());
     this->zWindow->setPage(page);
     this->zWindow->draw();
 }

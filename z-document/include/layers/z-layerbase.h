@@ -6,6 +6,8 @@
 #include "z-document/include/layers/z-component.h"
 #include "z-document/include/models/z-document-model.h"
 #include "z-document/include/models/z-layer-model.h"
+#include "z-matrix/include/z-point.h"
+#include "z-matrix/include/z-rect.h"
 
 class ZLayerBase : public ZComponent {
 public:
@@ -13,5 +15,11 @@ public:
     // ZLayerBase(z_sp<ZLayerModel> model): ZComponent(model);
 
 public:
+    bool hitTestWorldPoint(const ZPoint& worldPoint);
+    ZPoint worldToLocal(const ZPoint& worldPoint);
+    ZPoint localToWorld(const ZPoint& localPoint);
+    ZRect getLocalRect();
+    ZRect getWorldRect();
+
     void setName() {};
 };

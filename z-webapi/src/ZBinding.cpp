@@ -9,6 +9,7 @@
 #include "z-app/include/ZApp.h"
 #include "z-document/include/commit/z-commit.h"
 #include "z-document/include/layers/z-document.h"
+#include "z-tools/include/z-editor-theme.h"
 #include "z-wasm/include/z-wasm/z-js-value.h"
 
 // 在文件末尾或开头添加一个空函数
@@ -88,6 +89,10 @@ EMSCRIPTEN_BINDINGS(core_api) {
 
         .function("switchHandler", optional_override([](ZApp& self, const int type) -> void {
                       self.switchHandler(static_cast<ZHandlerType>(type));
+                  }))
+
+        .function("setTheme", optional_override([](ZApp& self, const int type) -> void {
+                      self.setTheme(static_cast<ZEditorThemeType>(type));
                   }))
 
         .function("appEvent", optional_override([](ZApp& self) -> ZAppEvent* {

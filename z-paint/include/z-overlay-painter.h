@@ -1,20 +1,22 @@
 #pragma once
 
-#include <memory>
-
 #include "z-paint/include/z-painter.h"
+#include "z-tools/include/z-type.h"
 
 class ZEditorContext;
 class ZShape;
+class ZTrace;
 
 class ZOverlayPainter : public ZPainter {
 public:
     explicit ZOverlayPainter(ZEditorContext* context);
 
-    void setRoot(std::shared_ptr<ZShape> root);
+    void setRoot(z_sp<ZShape> root);
+    void setTrace(ZTrace* trace);
     void draw(IZEngine* engine) override;
 
 private:
     ZEditorContext* zContext{nullptr};
-    std::shared_ptr<ZShape> zRoot{nullptr};
+    z_sp<ZShape> zRoot{nullptr};
+    ZTrace* zTrace{nullptr};
 };

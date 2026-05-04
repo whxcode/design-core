@@ -53,13 +53,19 @@ z_sp<ZDocument> ZLoader::MakeDocument(ZModelArray&& models) {
                       });
                   });
 
+    if (!result) {
+        Z_ASSERT(false, "doc is nullptr\n");
+        // result->rebuildIndex();
+    }
+
+    result->closeCollector();
+
     for (const auto& f : func) {
         f();
     }
 
-    if (result) {
-        result->rebuildIndex();
-    }
+    result->rebuildIndex();
+    result->openCollector();
 
     return result;
 }

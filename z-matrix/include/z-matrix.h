@@ -2,6 +2,9 @@
 #pragma once
 #include <cmath>
 #include <cstddef>
+
+class ZPoint;
+
 class ZMatrix {
 public:
     // --- 静态工厂 (保持洋气) ---
@@ -47,6 +50,10 @@ public:
     void setConcat(const ZMatrix& a, const ZMatrix& b);
 
     ZMatrix& setRotate(float degrees, float px = 0, float py = 0);
+
+    ZPoint mapPoint(const ZPoint& point) const;
+
+    bool invert(ZMatrix* inverse) const;
 
     inline float get(const size_t i) const {
         return fMat[i];

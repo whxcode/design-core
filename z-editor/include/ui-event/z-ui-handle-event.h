@@ -1,6 +1,7 @@
 #pragma once
 
 #include "z-editor/include/ui-event/z-ui-event.h"
+#include "z-matrix/include/z-point.h"
 
 class ZEditorContext;
 
@@ -20,6 +21,15 @@ public:
     virtual bool onKeyUp(const ZUIEvent& event);
 
 protected:
+    ZPoint getMouseDownPoint() const;
+    ZPoint getCurrentPoint() const;
+    ZPoint getMouseUpPoint() const;
+    ZPoint toWorldPoint(const ZUIEvent& event) const;
+
+protected:
     ZEditorContext* zContext{nullptr};
     ZHandlerType zType{ZHandlerType::zCommon};
+    ZPoint zMouseDownPoint{};
+    ZPoint zCurrentPoint{};
+    ZPoint zMouseUpPoint{};
 };

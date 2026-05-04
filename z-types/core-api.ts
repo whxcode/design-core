@@ -41,6 +41,14 @@ export enum ZAppEventType {
   ViewportChanged = 2,
   HistoryChanged = 3,
   HandlerChanged = 4,
+  HoverLayerChanged = 5,
+  SelectedLayerChanged = 6,
+  TraceChanged = 7,
+}
+
+export enum ZEditorThemeType {
+  Light = 0,
+  Dark = 1,
 }
 
 export interface CoreAppEvent {
@@ -56,6 +64,7 @@ export interface CoreApp {
   handler(): ZHandlerType;
   onUIEvent(event: ZUIEvent): void;
   switchHandler(type: ZHandlerType): void;
+  setTheme(type: ZEditorThemeType): void;
   appEvent(): CoreAppEvent;
   commit(): CoreCommit;
   window(): CoreWindow;

@@ -16,6 +16,7 @@
 
 #include "z-engine/libs/nanovg/nanovg.h"
 #include "z-engine/libs/nanovg/nanovg_gl.h"
+#include "z-tools/include/z-editor-theme.h"
 
 ZVgEngine::ZVgEngine(int w, int h, float dpr) : zWidth(w), zHeight(h), zDpr(dpr) {
     init();
@@ -173,6 +174,13 @@ void ZVgEngine::transform(const ZMatrix& matrix) {
 }
 
 void ZVgEngine::beginFrame(float zWidth, float zHeight, float zDpr) {
+    glViewport(0, 0, static_cast<int>(zWidth * zDpr), static_cast<int>(zHeight * zDpr));
+    const auto backgroundColor = ZEditorTheme::GetColor(ZEditorThemeToken::zCanvasBackground);
+    glClearColor(((backgroundColor >> 16) & 0xFF) / 255.0f,
+                 ((backgroundColor >> 8) & 0xFF) / 255.0f,
+                 (backgroundColor & 0xFF) / 255.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     // NanoVG 的标准入口
     nvgBeginFrame(zVg, zWidth, zHeight, zDpr);
 }

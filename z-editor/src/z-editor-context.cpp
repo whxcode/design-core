@@ -79,3 +79,19 @@ void ZEditorContext::setAppEvent(ZAppEvent* appEvent) {
 ZAppEvent* ZEditorContext::getAppEvent() const {
     return zAppEvent;
 }
+
+void ZEditorContext::setSelection(ZSelection* selection) {
+    zSelection = selection;
+}
+
+ZSelection* ZEditorContext::getSelection() const {
+    return zSelection;
+}
+
+void ZEditorContext::setTrace(ZTrace* trace) {
+    zTrace = trace;
+}
+
+ZTrace* ZEditorContext::getTrace() const {
+    return zTrace;
+}

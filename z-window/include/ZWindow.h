@@ -1,7 +1,6 @@
 #pragma once
 
 #include <functional>
-#include <memory>
 
 #include "z-tools/include/z-type.h"
 
@@ -11,6 +10,7 @@ class ZEditorContext;
 class ZOverlayPainter;
 class ZPage;
 class ZShape;
+class ZTrace;
 
 class ZWindow {
 public:
@@ -21,7 +21,8 @@ public:
     void setTitle();
     void setPage(const z_sp<ZPage>& page);
     void setEditorContext(ZEditorContext* context);
-    void setOverlayRoot(std::shared_ptr<ZShape> root);
+    void setOverlayRoot(z_sp<ZShape> root);
+    void setTrace(ZTrace* trace);
     void setOverlayDrawer(OverlayDrawer overlayDrawer);
     void dump() const;
 
@@ -31,6 +32,8 @@ private:
 private:
     int zWidth{800};
     int zHeight{800};
+    float zCssWidth{800.0f};
+    float zCssHeight{800.0f};
     float zDpr{0};
 
     IZEngine* zEngine{nullptr};
