@@ -95,3 +95,11 @@ void ZEditorContext::setTrace(ZTrace* trace) {
 ZTrace* ZEditorContext::getTrace() const {
     return zTrace;
 }
+
+void ZEditorContext::setCommit(ZCommit* commit) {
+    zCommit = commit;
+}
+
+ZCommit* ZEditorContext::getCommit() const {
+    return zCommit;
+}

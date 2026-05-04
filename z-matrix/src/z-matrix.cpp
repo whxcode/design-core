@@ -33,6 +33,12 @@ bool ZMatrix::operator!=(const ZMatrix& other) const {
     return !(*this == other);
 }
 
+ZMatrix ZMatrix::operator*(const ZMatrix& other) const {
+    ZMatrix result;
+    result.setConcat(*this, other);
+    return result;
+}
+
 ZMatrix& ZMatrix::setIdentity() {
     fMat[0] = 1;
     fMat[1] = 0;

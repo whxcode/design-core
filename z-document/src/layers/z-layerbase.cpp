@@ -44,6 +44,24 @@ ZMatrix ZLayerBase::getWorldMatrix() {
     return matrix;
 }
 
+ZMatrix ZLayerBase::getParentWorldMatrix() {
+    auto parent = getParent();
+    if (!parent || parent->getType() == ZModelType::zDocument) {
+        return ZMatrix::Identity();
+    }
+
+    return parent->as<ZLayerBase>()->getWorldMatrix();
+}
+
+ZMatrix ZLayerBase::getParentInvertWorldMatrix() {
+    ZMatrix inverse;
+    if (!getParentWorldMatrix().invert(&inverse)) {
+        return ZMatrix::Identity();
+    }
+
+    return inverse;
+}
+
 ZRect ZLayerBase::getLocalRect() {
     const auto model = getModel<ZLayerModel>();
     if (!model) {

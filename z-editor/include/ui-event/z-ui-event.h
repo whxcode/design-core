@@ -92,6 +92,7 @@ enum class ZHandlerType : uint8_t {
     zViewport,   //
     zDrawLayer,  // 绘制图层
     zSelectFrame,
+    zDrag,
 };
 
 enum class ZDrawLayerType {

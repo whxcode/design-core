@@ -91,6 +91,7 @@ void ZApp::startup() {
     zEditorContext->setHandle(zUIHandle.get());
     zEditorContext->setSelection(zSelection.get());
     zEditorContext->setTrace(zTrace.get());
+    zEditorContext->setCommit(zCommit.get());
 
     this->zWindow->setEditorContext(zEditorContext.get());
     this->zWindow->setTrace(zTrace.get());

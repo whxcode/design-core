@@ -7,8 +7,15 @@
 #include "z-editor/include/z-editor-context.h"
 
 bool ZUICommonHandle::onMouseDown(const ZUIEvent& event) {
+    zDragPending = false;
     if (event.button != MouseButton::zLeft || !zContext || !zContext->getSelection()) {
         return false;
+    }
+
+    const auto selectedRect = zContext->getSelection()->getSelectedLayerWorldRect();
+    if (!selectedRect.isEmpty() && selectedRect.contains(getCurrentPoint())) {
+        zDragPending = true;
+        return true;
     }
 
     zContext->getSelection()->hitHover(getCurrentPoint());
@@ -25,6 +32,12 @@ bool ZUICommonHandle::onMouseDown(const ZUIEvent& event) {
 }
 
 bool ZUICommonHandle::onMouseMove(const ZUIEvent& event) {
+    if (zDragPending && zContext && zContext->getHandle()) {
+        zContext->getHandle()->switchDragHandler(getMouseDownPoint(), getCurrentPoint());
+        zDragPending = false;
+        return true;
+    }
+
     if (zContext && zContext->getSelection()) {
         zContext->getSelection()->hitHover(getCurrentPoint());
     }
@@ -33,6 +46,7 @@ bool ZUICommonHandle::onMouseMove(const ZUIEvent& event) {
 }
 
 bool ZUICommonHandle::onMouseUp(const ZUIEvent& event) {
+    zDragPending = false;
     if (!zContext || !zContext->getSelection()) {
         return false;
     }

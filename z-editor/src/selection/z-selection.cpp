@@ -144,6 +144,10 @@ void ZSelection::selectInRect(const ZRect& worldRect) {
     select(layers);
 }
 
+void ZSelection::refreshSelectedLayers() {
+    emitSelectedChanged();
+}
+
 z_sp<ZLayerBase> ZSelection::hitTest(const ZPoint& worldPoint) const {
     if (!zContext) {
         return nullptr;

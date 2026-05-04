@@ -26,6 +26,7 @@ public:
     void append(const z_sp<ZLayerBase>& layer);
     void append(const std::vector<z_sp<ZLayerBase>>& layers);
     void selectInRect(const ZRect& worldRect);
+    void refreshSelectedLayers();
 
 private:
     z_sp<ZLayerBase> hitTest(const ZPoint& worldPoint) const;

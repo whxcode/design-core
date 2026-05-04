@@ -4,6 +4,7 @@
 #include "z-tools/include/z-type.h"
 
 class ZDocument;
+class ZCommit;
 class ZPage;
 class ZSelection;
 class ZTrace;
@@ -30,6 +31,8 @@ public:
     ZSelection* getSelection() const;
     void setTrace(ZTrace* trace);
     ZTrace* getTrace() const;
+    void setCommit(ZCommit* commit);
+    ZCommit* getCommit() const;
 
 private:
     ZDocument* zDocument{nullptr};
@@ -38,4 +41,5 @@ private:
     ZAppEvent* zAppEvent{nullptr};
     ZSelection* zSelection{nullptr};
     ZTrace* zTrace{nullptr};
+    ZCommit* zCommit{nullptr};
 };

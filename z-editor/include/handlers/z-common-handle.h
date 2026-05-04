@@ -12,4 +12,7 @@ public:
     bool onMouseWheel(const ZUIEvent& event) override;
     bool onKeyDown(const ZUIEvent& event) override;
     bool onKeyUp(const ZUIEvent& event) override;
+
+private:
+    bool zDragPending{false};
 };

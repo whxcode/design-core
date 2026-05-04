@@ -19,6 +19,7 @@ public:
 
     bool operator==(const ZMatrix& other) const;
     bool operator!=(const ZMatrix& other) const;
+    ZMatrix operator*(const ZMatrix& other) const;
 
 public:
     // --- 基础设置 (返回引用支持链式) ---

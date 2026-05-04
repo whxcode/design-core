@@ -23,6 +23,7 @@ public:
     void switchDrawPathHandler();
     void switchSelectFrameHandler();
     void switchSelectFrameHandler(const ZPoint& startPoint);
+    void switchDragHandler(const ZPoint& startPoint, const ZPoint& currentPoint);
 
 private:
     std::vector<std::shared_ptr<ZUIHandleEvent>> zEffectHandlers;

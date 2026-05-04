@@ -3,6 +3,7 @@
 #include <utility>
 
 #include "z-editor/include/handlers/z-common-handle.h"
+#include "z-editor/include/handlers/z-drag-handler.h"
 #include "z-editor/include/handlers/z-draw-layer-handle.h"
 #include "z-editor/include/handlers/z-select-frame-handler.h"
 #include "z-editor/include/handlers/z-viewport-handler.h"
@@ -50,6 +51,8 @@ void ZUIHandle::switchHandler(const ZHandlerType type) {
         case ZHandlerType::zSelectFrame:
             switchSelectFrameHandler();
             return;
+        case ZHandlerType::zDrag:
+            return;
     }
 }
 
@@ -82,4 +85,13 @@ void ZUIHandle::switchSelectFrameHandler(const ZPoint& startPoint) {
     handler->zCurrentPoint = startPoint;
     setActiveHandler(handler);
     printf("ZUIHandle::switchSelectFrameHandler\n");
+}
+
+void ZUIHandle::switchDragHandler(const ZPoint& startPoint, const ZPoint& currentPoint) {
+    auto handler = std::make_shared<ZDragHandler>(ZHandlerType::zDrag, zContext);
+    handler->zMouseDownPoint = startPoint;
+    handler->zCurrentPoint = currentPoint;
+    handler->setLastPoint(startPoint);
+    setActiveHandler(handler);
+    printf("ZUIHandle::switchDragHandler\n");
 }
