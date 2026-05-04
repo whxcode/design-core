@@ -53,8 +53,6 @@ z_sp<ZDocument> ZLoader::MakeDocument(ZModelArray&& models) {
                       });
                   });
 
-    // printf("treeMap[%d],[%d]\n", treeMap.size(), func.size());
-
     for (const auto& f : func) {
         f();
     }

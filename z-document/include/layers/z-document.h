@@ -19,6 +19,7 @@ public:
 public:
     void addChild(const z_sp<ZComponent>& comp) override;
     z_sp<ZPage> getActivePage();
+    std::vector<z_sp<ZLayerBase>> getNonPageLayers() const;
 
     void setActivePage(const size_t id);
 
@@ -28,4 +29,5 @@ public:
 private:
     size_t zActivePageId{0};
     std::unordered_map<size_t, z_sp<ZPage>> zPages{};
+    std::unordered_map<size_t, z_sp<ZComponent>> zLayers{};
 };

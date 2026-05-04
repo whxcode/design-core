@@ -51,6 +51,10 @@ EMSCRIPTEN_BINDINGS(core_api) {
                       self.requestRedraw();
                   }))
 
+        .function("randProps", optional_override([](ZApp& self) -> void {
+                      self.randProps();
+                  }))
+
         .function("viewport", optional_override([](ZApp& self) -> ViewportData {
                       return self.getViewportData();
                   }))

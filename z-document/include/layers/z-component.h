@@ -38,6 +38,15 @@ public:
                std::ranges::to<std::vector>();
     }
 
+    template <typename T>
+        requires std::derived_from<T, ZComponent>
+    std::vector<z_sp<T>> getChildren() const {
+        return zLayers | std::ranges::views::transform([](const z_sp<ZComponent>& comp) {
+                   return comp->as<T>();
+               }) |
+               std::ranges::to<std::vector>();
+    }
+
 public:
     virtual void addChild(const z_sp<ZComponent>& comp);
 

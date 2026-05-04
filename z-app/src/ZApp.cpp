@@ -2,13 +2,16 @@
 
 #include <SDL2/SDL.h>
 
+#include <functional>
 #include <future>
 #include <iostream>
+#include <random>
 #include <thread>
 #include <vector>
 
 #include "z-app/include/z-test-doc.h"
 #include "z-document/include/creator/loader.h"
+#include "z-document/include/models/z-layer-model.h"
 #include "z-matrix/include/z-matrix.h"
 #include "z-paint/include/z-shape.h"
 #include "z-tools/include/z-task.h"
@@ -105,4 +108,33 @@ void ZApp::requestRedraw() {
     }
 
     zWindow->draw();
+}
+
+void ZApp::randProps() {
+    if (!zDocument) {
+        return;
+    }
+
+    const auto layers = zDocument->getNonPageLayers();
+    if (layers.empty()) {
+        return;
+    }
+
+    static std::mt19937 rng{std::random_device{}()};
+    std::uniform_int_distribution<size_t> pickLayer(0, layers.size() - 1);
+    std::uniform_real_distribution<float> moveDelta(-80.0f, 80.0f);
+    std::uniform_real_distribution<float> rotateDelta(-25.0f, 25.0f);
+
+    const auto& layer = layers[pickLayer(rng)];
+    const auto model = layer->getModel<ZLayerModel>();
+    if (!model) {
+        return;
+    }
+
+    auto next = model->getTransform();
+    next.preTranslate(moveDelta(rng), moveDelta(rng));
+    next.preRotate(rotateDelta(rng));
+    model->setTransform(next);
+
+    requestRedraw();
 }

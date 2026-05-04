@@ -30,6 +30,7 @@ export interface ViewportData {
 export interface CoreApp {
   putImage(size: SizeT, width: SizeT, height: SizeT): WasmPtr;
   draw(): void;
+  randProps(): void;
   viewport(): ViewportData;
   handler(): ZHandlerType;
   onUIEvent(event: ZUIEvent): void;
