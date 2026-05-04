@@ -5,10 +5,5 @@
 
 class ZSelectShape : public ZShape {
 public:
-    void setRect(const ZRect& rect);
-    bool getVisible() const override;
     void render(IZEngine* engine, ZEditorContext* context) override;
-
-private:
-    ZRect zRect{};
 };

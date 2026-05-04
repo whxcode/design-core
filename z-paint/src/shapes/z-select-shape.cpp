@@ -1,5 +1,6 @@
 #include "z-paint/include/shapes/z-select-shape.h"
 
+#include "z-editor/include/selection/z-selection.h"
 #include "z-editor/include/z-editor-context.h"
 #include "z-engine/include/z-engine.h"
 #include "z-matrix/include/z-matrix.h"
@@ -19,15 +20,8 @@ void drawFrameRect(IZEngine* engine, const ZRect& rect, const float lineWidth,
 
 }  // namespace
 
-void ZSelectShape::setRect(const ZRect& rect) {
-    zRect = rect;
-}
-
-bool ZSelectShape::getVisible() const {
-    return !zRect.isEmpty();
-}
-
 void ZSelectShape::render(IZEngine* engine, ZEditorContext* context) {
+    const auto& zRect = context->getSelection()->getSelectedLayerWorldRect();
     if (!engine || !context || zRect.isEmpty()) {
         return;
     }

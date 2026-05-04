@@ -81,12 +81,6 @@ void ZTrace::syncHoverLayer() {
 }
 
 void ZTrace::syncSelectedLayers() {
-    if (!zContext || !zContext->getSelection()) {
-        zSelectShape->setRect(ZRect::MakeEmpty());
-        return;
-    }
-
-    zSelectShape->setRect(zContext->getSelection()->getSelectedLayerWorldRect());
 }
 
 void ZTrace::render(IZEngine* engine, ZEditorContext* context) {
