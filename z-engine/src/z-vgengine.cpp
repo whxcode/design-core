@@ -14,6 +14,8 @@
 #include <SDL2/SDL_opengl.h>  // 建议加上，确保 GL 宏定义完整
 #include <SDL2/SDL_video.h>   // 必须加上这个，它定义了 GLContext 和相关的操作函数
 
+#include <algorithm>
+
 #include "z-engine/libs/nanovg/nanovg.h"
 #include "z-engine/libs/nanovg/nanovg_gl.h"
 #include "z-tools/include/z-editor-theme.h"
@@ -83,8 +85,10 @@ void ZVgEngine::drawRect(float zX, float zY, float zW, float zH, const ZStyle& z
     nvgRect(vg, zX, zY, zW, zH);
 
     // 1. 处理填充
+    const auto fillAlpha =
+        static_cast<unsigned char>(std::clamp(zStyle.zFillAlpha, 0.0f, 1.0f) * 255.0f);
     nvgFillColor(vg, nvgRGBA((zStyle.zFillColor >> 16) & 0xFF, (zStyle.zFillColor >> 8) & 0xFF,
-                             zStyle.zFillColor & 0xFF, 255));
+                             zStyle.zFillColor & 0xFF, fillAlpha));
     nvgFill(vg);
 
     // 2. 处理边框 (Stroke)
@@ -105,6 +109,10 @@ void ZVgEngine::drawRect(float zX, float zY, float zW, float zH, const ZStyle& z
 
 void ZVgEngine::drawRect(float zW, float zH, const ZStyle& zStyle) {
     drawRect(0, 0, zW, zH, zStyle);
+};
+
+void ZVgEngine::drawRect(const ZRect& rect, const ZStyle& zStyle) {
+    drawRect(rect.left(), rect.top(), rect.width(), rect.height(), zStyle);
 };
 
 void ZVgEngine::drawImage(const uint8_t* bytes, size_t size, float zX, float zY, float zW,

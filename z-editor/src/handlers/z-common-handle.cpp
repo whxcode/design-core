@@ -3,10 +3,24 @@
 #include <iostream>
 
 #include "z-editor/include/selection/z-selection.h"
+#include "z-editor/include/ui-event/z-ui-handle.h"
 #include "z-editor/include/z-editor-context.h"
 
 bool ZUICommonHandle::onMouseDown(const ZUIEvent& event) {
-    std::cout << "ZUICommonHandle::onMouseDown" << event.x << ", " << event.y << std::endl;
+    if (event.button != MouseButton::zLeft || !zContext || !zContext->getSelection()) {
+        return false;
+    }
+
+    zContext->getSelection()->hitHover(getCurrentPoint());
+    if (zContext->getSelection()->getHoverLayer()) {
+        return false;
+    }
+
+    if (zContext->getHandle()) {
+        zContext->getHandle()->switchSelectFrameHandler(getCurrentPoint());
+        return true;
+    }
+
     return false;
 }
 

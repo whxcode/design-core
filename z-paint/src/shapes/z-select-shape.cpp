@@ -5,6 +5,20 @@
 #include "z-matrix/include/z-matrix.h"
 #include "z-tools/include/z-editor-theme.h"
 
+namespace {
+
+void drawFrameRect(IZEngine* engine, const ZRect& rect, const float lineWidth,
+                   const ZStyle& style) {
+    engine->drawRect(ZRect::MakeXYWH(rect.left(), rect.top(), rect.width(), lineWidth), style);
+    engine->drawRect(
+        ZRect::MakeXYWH(rect.left(), rect.bottom() - lineWidth, rect.width(), lineWidth), style);
+    engine->drawRect(ZRect::MakeXYWH(rect.left(), rect.top(), lineWidth, rect.height()), style);
+    engine->drawRect(
+        ZRect::MakeXYWH(rect.right() - lineWidth, rect.top(), lineWidth, rect.height()), style);
+}
+
+}  // namespace
+
 void ZSelectShape::setRect(const ZRect& rect) {
     zRect = rect;
 }
@@ -32,10 +46,7 @@ void ZSelectShape::render(IZEngine* engine, ZEditorContext* context) {
                           .preTranslate(viewport.offsetX, viewport.offsetY)
                           .preScale(viewport.scale, viewport.scale));
 
-    engine->drawRect(zRect.left(), zRect.top(), zRect.width(), lineWidth, style);
-    engine->drawRect(zRect.left(), zRect.bottom() - lineWidth, zRect.width(), lineWidth, style);
-    engine->drawRect(zRect.left(), zRect.top(), lineWidth, zRect.height(), style);
-    engine->drawRect(zRect.right() - lineWidth, zRect.top(), lineWidth, zRect.height(), style);
+    drawFrameRect(engine, zRect, lineWidth, style);
 
     engine->restore();
 }

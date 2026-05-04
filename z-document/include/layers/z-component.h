@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <ranges>
 #include <vector>
 
@@ -49,6 +50,7 @@ public:
 
 public:
     virtual void addChild(const z_sp<ZComponent>& comp);
+    z_sp<ZComponent> getParent() const;
 
 public:
     inline size_t getUnique() const {
@@ -66,6 +68,7 @@ public:
 private:
     const z_sp<ZModel> zModel{nullptr};
     std::vector<z_sp<ZComponent>> zLayers{};
+    std::weak_ptr<ZComponent> zParent{};
     size_t zRuntimeId{0};
     size_t zParentRuntimeId{0};
 };

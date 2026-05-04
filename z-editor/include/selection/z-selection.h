@@ -25,9 +25,12 @@ public:
     void select(const std::vector<z_sp<ZLayerBase>>& layers);
     void append(const z_sp<ZLayerBase>& layer);
     void append(const std::vector<z_sp<ZLayerBase>>& layers);
+    void selectInRect(const ZRect& worldRect);
 
 private:
     z_sp<ZLayerBase> hitTest(const ZPoint& worldPoint) const;
+    void collectLayersInRect(const z_sp<ZLayerBase>& layer, const ZRect& worldRect,
+                             std::vector<z_sp<ZLayerBase>>& result) const;
     void emitHoverChanged() const;
     void emitSelectedChanged() const;
     bool containsSelectedLayer(const ZGuid& id) const;

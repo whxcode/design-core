@@ -15,13 +15,8 @@ bool ZLayerBase::hitTestWorldPoint(const ZPoint& worldPoint) {
 }
 
 ZPoint ZLayerBase::worldToLocal(const ZPoint& worldPoint) {
-    const auto model = getModel<ZLayerModel>();
-    if (!model) {
-        return worldPoint;
-    }
-
     ZMatrix inverse;
-    if (!model->getTransform().invert(&inverse)) {
+    if (!getWorldMatrix().invert(&inverse)) {
         return worldPoint;
     }
 
@@ -29,12 +24,24 @@ ZPoint ZLayerBase::worldToLocal(const ZPoint& worldPoint) {
 }
 
 ZPoint ZLayerBase::localToWorld(const ZPoint& localPoint) {
+    return getWorldMatrix().mapPoint(localPoint);
+}
+
+ZMatrix ZLayerBase::getWorldMatrix() {
     const auto model = getModel<ZLayerModel>();
     if (!model) {
-        return localPoint;
+        return ZMatrix::Identity();
     }
 
-    return model->getTransform().mapPoint(localPoint);
+    auto matrix = model->getTransform();
+    auto parent = getParent();
+    while (parent && parent->getType() != ZModelType::zDocument) {
+        const auto parentLayer = parent->as<ZLayerBase>();
+        matrix.postConcat(parentLayer->getModel<ZLayerModel>()->getTransform());
+        parent = parent->getParent();
+    }
+
+    return matrix;
 }
 
 ZRect ZLayerBase::getLocalRect() {
@@ -48,20 +55,5 @@ ZRect ZLayerBase::getLocalRect() {
 }
 
 ZRect ZLayerBase::getWorldRect() {
-    const auto localRect = getLocalRect();
-    if (localRect.isEmpty()) {
-        return ZRect::MakeEmpty();
-    }
-
-    const auto p0 = localToWorld(ZPoint(localRect.left(), localRect.top()));
-    const auto p1 = localToWorld(ZPoint(localRect.right(), localRect.top()));
-    const auto p2 = localToWorld(ZPoint(localRect.right(), localRect.bottom()));
-    const auto p3 = localToWorld(ZPoint(localRect.left(), localRect.bottom()));
-
-    return ZRect(
-        std::min({p0.x(), p1.x(), p2.x(), p3.x()}),
-        std::min({p0.y(), p1.y(), p2.y(), p3.y()}),
-        std::max({p0.x(), p1.x(), p2.x(), p3.x()}),
-        std::max({p0.y(), p1.y(), p2.y(), p3.y()})
-    );
+    return getWorldMatrix().mapRect(getLocalRect());
 }

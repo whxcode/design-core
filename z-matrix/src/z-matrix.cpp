@@ -1,9 +1,11 @@
 #include "z-matrix/include/z-matrix.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstring>
 
 #include "z-matrix/include/z-point.h"
+#include "z-matrix/include/z-rect.h"
 
 ZMatrix ZMatrix::Translate(float dx, float dy) {
     return ZMatrix().setTranslate(dx, dy);
@@ -137,6 +139,24 @@ ZMatrix& ZMatrix::setRotate(float degrees, float px, float py) {
 ZPoint ZMatrix::mapPoint(const ZPoint& point) const {
     return ZPoint(fMat[0] * point.x() + fMat[1] * point.y() + fMat[2],
                   fMat[3] * point.x() + fMat[4] * point.y() + fMat[5]);
+}
+
+ZRect ZMatrix::mapRect(const ZRect& rect) const {
+    if (rect.isEmpty()) {
+        return ZRect::MakeEmpty();
+    }
+
+    const auto p0 = mapPoint(ZPoint(rect.left(), rect.top()));
+    const auto p1 = mapPoint(ZPoint(rect.right(), rect.top()));
+    const auto p2 = mapPoint(ZPoint(rect.right(), rect.bottom()));
+    const auto p3 = mapPoint(ZPoint(rect.left(), rect.bottom()));
+
+    return ZRect(
+        std::min({p0.x(), p1.x(), p2.x(), p3.x()}),
+        std::min({p0.y(), p1.y(), p2.y(), p3.y()}),
+        std::max({p0.x(), p1.x(), p2.x(), p3.x()}),
+        std::max({p0.y(), p1.y(), p2.y(), p3.y()})
+    );
 }
 
 bool ZMatrix::invert(ZMatrix* inverse) const {

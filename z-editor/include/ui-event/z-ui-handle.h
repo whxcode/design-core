@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "z-editor/include/ui-event/z-ui-handle-event.h"
+#include "z-matrix/include/z-point.h"
 
 class ZEditorContext;
 
@@ -20,6 +21,8 @@ public:
 public:
     void switchCommonHandler();
     void switchDrawPathHandler();
+    void switchSelectFrameHandler();
+    void switchSelectFrameHandler(const ZPoint& startPoint);
 
 private:
     std::vector<std::shared_ptr<ZUIHandleEvent>> zEffectHandlers;

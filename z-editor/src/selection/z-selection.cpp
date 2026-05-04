@@ -124,6 +124,26 @@ void ZSelection::append(const std::vector<z_sp<ZLayerBase>>& layers) {
     }
 }
 
+void ZSelection::selectInRect(const ZRect& worldRect) {
+    if (worldRect.isEmpty() || !zContext) {
+        clear();
+        return;
+    }
+
+    const auto page = zContext->getCurrentPage();
+    if (!page) {
+        clear();
+        return;
+    }
+
+    std::vector<z_sp<ZLayerBase>> layers;
+    for (const auto& child : page->getChildren<ZLayerBase>()) {
+        collectLayersInRect(child, worldRect, layers);
+    }
+
+    select(layers);
+}
+
 z_sp<ZLayerBase> ZSelection::hitTest(const ZPoint& worldPoint) const {
     if (!zContext) {
         return nullptr;
@@ -143,6 +163,21 @@ z_sp<ZLayerBase> ZSelection::hitTest(const ZPoint& worldPoint) const {
     }
 
     return nullptr;
+}
+
+void ZSelection::collectLayersInRect(const z_sp<ZLayerBase>& layer, const ZRect& worldRect,
+                                     std::vector<z_sp<ZLayerBase>>& result) const {
+    if (!layer) {
+        return;
+    }
+
+    if (layer->getWorldRect().intersects(worldRect)) {
+        result.push_back(layer);
+    }
+
+    for (const auto& child : layer->getChildren<ZLayerBase>()) {
+        collectLayersInRect(child, worldRect, result);
+    }
 }
 
 void ZSelection::emitHoverChanged() const {

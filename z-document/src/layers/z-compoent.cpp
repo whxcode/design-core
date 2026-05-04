@@ -11,5 +11,13 @@ ZComponent::ZComponent(z_sp<ZModel> model) : zModel(model) {
 }
 
 void ZComponent::addChild(const z_sp<ZComponent>& comp) {
+    if (comp) {
+        comp->zParent = shared_from_this();
+    }
+
     zLayers.push_back(comp);
+}
+
+z_sp<ZComponent> ZComponent::getParent() const {
+    return zParent.lock();
 }

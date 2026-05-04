@@ -8,6 +8,10 @@ ZRect ZRect::MakeXYWH(const float x, const float y, const float width, const flo
     return ZRect(x, y, x + width, y + height);
 }
 
+ZRect ZRect::MakeLTRB(const float left, const float top, const float right, const float bottom) {
+    return ZRect(left, top, right, bottom).normalized();
+}
+
 ZRect ZRect::MakeEmpty() {
     return {};
 }
@@ -43,6 +47,24 @@ float ZRect::height() const {
 bool ZRect::contains(const ZPoint& point) const {
     return point.x() >= zLeft && point.x() <= zRight && point.y() >= zTop &&
            point.y() <= zBottom;
+}
+
+bool ZRect::intersects(const ZRect& rect) const {
+    if (isEmpty() || rect.isEmpty()) {
+        return false;
+    }
+
+    return zLeft <= rect.zRight && zRight >= rect.zLeft && zTop <= rect.zBottom &&
+           zBottom >= rect.zTop;
+}
+
+ZRect ZRect::normalized() const {
+    return ZRect(
+        std::min(zLeft, zRight),
+        std::min(zTop, zBottom),
+        std::max(zLeft, zRight),
+        std::max(zTop, zBottom)
+    );
 }
 
 void ZRect::join(const ZRect& rect) {

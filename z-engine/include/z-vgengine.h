@@ -24,6 +24,7 @@ public:
 public:
     void drawRect(float zX, float zY, float zW, float zH, const ZStyle& zStyle) override;
     void drawRect(float zW, float zH, const ZStyle& zStyle) override;
+    void drawRect(const ZRect& rect, const ZStyle& zStyle) override;
     void drawImage(const uint8_t* bytes, size_t size, float zX, float zY, float zW,
                    float zH) override;
 

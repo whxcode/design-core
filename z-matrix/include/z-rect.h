@@ -10,6 +10,7 @@ public:
     ZRect(float left, float top, float right, float bottom);
 
     static ZRect MakeXYWH(float x, float y, float width, float height);
+    static ZRect MakeLTRB(float left, float top, float right, float bottom);
     static ZRect MakeEmpty();
 
     bool isEmpty() const;
@@ -21,6 +22,8 @@ public:
     float height() const;
 
     bool contains(const ZPoint& point) const;
+    bool intersects(const ZRect& rect) const;
+    ZRect normalized() const;
     void join(const ZRect& rect);
 
 private:

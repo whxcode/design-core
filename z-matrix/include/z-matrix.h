@@ -4,6 +4,7 @@
 #include <cstddef>
 
 class ZPoint;
+class ZRect;
 
 class ZMatrix {
 public:
@@ -52,6 +53,7 @@ public:
     ZMatrix& setRotate(float degrees, float px = 0, float py = 0);
 
     ZPoint mapPoint(const ZPoint& point) const;
+    ZRect mapRect(const ZRect& rect) const;
 
     bool invert(ZMatrix* inverse) const;
 

@@ -18,6 +18,7 @@ public:
     bool hitTestWorldPoint(const ZPoint& worldPoint);
     ZPoint worldToLocal(const ZPoint& worldPoint);
     ZPoint localToWorld(const ZPoint& localPoint);
+    ZMatrix getWorldMatrix();
     ZRect getLocalRect();
     ZRect getWorldRect();
 

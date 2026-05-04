@@ -1,9 +1,5 @@
-#include "z-paint/include/shapes/z-hover-shape.h"
+#include "z-paint/include/shapes/z-select-frame-shape.h"
 
-#include <algorithm>
-#include <utility>
-
-#include "z-document/include/viewport/z-viewport.h"
 #include "z-editor/include/z-editor-context.h"
 #include "z-engine/include/z-engine.h"
 #include "z-matrix/include/z-matrix.h"
@@ -23,39 +19,36 @@ void drawFrameRect(IZEngine* engine, const ZRect& rect, const float lineWidth,
 
 }  // namespace
 
-ZHoverShape::ZHoverShape(z_sp<ZLayerBase> layer) : zLayer(std::move(layer)) {
+void ZSelectFrameShape::setRect(const ZRect& rect) {
+    zRect = rect.normalized();
 }
 
-void ZHoverShape::setLayer(z_sp<ZLayerBase> layer) {
-    zLayer = std::move(layer);
+const ZRect& ZSelectFrameShape::getRect() const {
+    return zRect;
 }
 
-bool ZHoverShape::getVisible() const {
-    return zLayer != nullptr;
+bool ZSelectFrameShape::getVisible() const {
+    return !zRect.isEmpty();
 }
 
-void ZHoverShape::render(IZEngine* engine, ZEditorContext* context) {
-    if (!engine || !context || !zLayer) {
-        return;
-    }
-
-    const auto model = zLayer->getModel<ZLayerModel>();
-    if (!model) {
-        return;
-    }
-
-    const auto worldRect = zLayer->getWorldRect();
-
-    if (worldRect.isEmpty()) {
+void ZSelectFrameShape::render(IZEngine* engine, ZEditorContext* context) {
+    if (!engine || !context || zRect.isEmpty()) {
         return;
     }
 
     const auto viewport = context->getViewportData();
     const auto lineWidth = viewport.scale == 0.0f ? 1.0f : 1.0f / viewport.scale;
-    const auto strokeColor = ZEditorTheme::GetColor(ZEditorThemeToken::zHoverStroke);
+    const auto strokeColor = ZEditorTheme::GetColor(ZEditorThemeToken::zSelectionStroke);
+    const ZStyle fillStyle{
+        .zFillColor = strokeColor,
+        .zStrokeColor = strokeColor,
+        .zFillAlpha = 0.18f,
+        .zStrokeWidth = 0.0f,
+    };
     const ZStyle style{
         .zFillColor = strokeColor,
         .zStrokeColor = strokeColor,
+        .zFillAlpha = 1.0f,
         .zStrokeWidth = 0.0f,
     };
 
@@ -64,7 +57,8 @@ void ZHoverShape::render(IZEngine* engine, ZEditorContext* context) {
                           .preTranslate(viewport.offsetX, viewport.offsetY)
                           .preScale(viewport.scale, viewport.scale));
 
-    drawFrameRect(engine, worldRect, lineWidth, style);
+    engine->drawRect(zRect, fillStyle);
+    drawFrameRect(engine, zRect, lineWidth, style);
 
     engine->restore();
 }

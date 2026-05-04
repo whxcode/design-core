@@ -76,6 +76,7 @@ export enum ZHandlerType {
   Common = 0,
   Viewport = 1,
   DrawLayer = 2,
+  SelectFrame = 3,
 }
 
 export enum ZDrawLayerType {
