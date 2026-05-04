@@ -7,6 +7,7 @@ class ZDocument;
 class ZPage;
 class ZUIHandle;
 class ZWindow;
+class ZAppEvent;
 
 class ZEditorContext {
 public:
@@ -21,9 +22,12 @@ public:
     void setViewportData(const ViewportData& data) const;
     void requestRedraw() const;
     void setHandle(ZUIHandle* handle);
+    void setAppEvent(ZAppEvent* appEvent);
+    ZAppEvent* getAppEvent() const;
 
 private:
     ZDocument* zDocument{nullptr};
     ZWindow* zWindow{nullptr};
     ZUIHandle* zHandle{nullptr};
+    ZAppEvent* zAppEvent{nullptr};
 };

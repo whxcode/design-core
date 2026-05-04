@@ -2,6 +2,7 @@
 #include <memory>
 #include <string>
 
+#include "z-document/include/commit/z-patch.h"
 #include "z-document/include/prop/z-define-prop.h"
 #include "z-document/include/prop/z-prop-key.h"
 #include "z-document/include/prop/z-sparse-props.h"
@@ -53,7 +54,11 @@ public:
         return zChangeSink;
     }
 
+    void setProps(const ZPatchProps& props);
+
 protected:
+    virtual void setPropValue(ZPropKey key, const std::any& value);
+
     template <ZPropKey P>
     const typename PropTraits<P>::Type& getProp() const {
         return zProps.get<P>();

@@ -5,7 +5,9 @@
 #include <cstdio>
 #include <cstring>
 
+#include "z-app/include/ZAppEvent.h"
 #include "z-app/include/ZApp.h"
+#include "z-document/include/commit/z-commit.h"
 #include "z-document/include/layers/z-document.h"
 #include "z-wasm/include/z-wasm/z-js-value.h"
 
@@ -23,6 +25,16 @@ static ZApp* getAppInstance() {
 }
 
 EMSCRIPTEN_BINDINGS(core_api) {
+    class_<ZAppEvent>("AppEvent")
+        .function("on", optional_override([](ZAppEvent& self, const int type, const val& callback) -> size_t {
+                      return self.on(static_cast<ZAppEventType>(type), [callback](ZAppEventType eventType) {
+                          callback(static_cast<uint32_t>(eventType));
+                      });
+                  }))
+        .function("off", optional_override([](ZAppEvent& self, const int type, const size_t id) -> void {
+                      self.off(static_cast<ZAppEventType>(type), id);
+                  }));
+
     value_object<ViewportData>("ViewportData")
         .field("offsetX", &ViewportData::offsetX)
         .field("offsetY", &ViewportData::offsetY)
@@ -35,6 +47,13 @@ EMSCRIPTEN_BINDINGS(core_api) {
 
     // 绑定 Document
     class_<ZDocument>("Document").function("setName", &ZDocument::setName);
+
+    class_<ZCommit>("Commit")
+        .function("commit", &ZCommit::commit)
+        .function("undo", &ZCommit::undo)
+        .function("redo", &ZCommit::redo)
+        .function("canUndo", &ZCommit::canUndo)
+        .function("canRedo", &ZCommit::canRedo);
 
     // 绑定 App：返回的是引用，符合你“掌握生命周期”的要求
     class_<ZApp>("App")
@@ -70,6 +89,16 @@ EMSCRIPTEN_BINDINGS(core_api) {
         .function("switchHandler", optional_override([](ZApp& self, const int type) -> void {
                       self.switchHandler(static_cast<ZHandlerType>(type));
                   }))
+
+        .function("appEvent", optional_override([](ZApp& self) -> ZAppEvent* {
+                      return &self.getAppEvent();
+                  }),
+                  allow_raw_pointers())
+
+        .function("commit", optional_override([](ZApp& self) -> ZCommit* {
+                      return &self.getCommit();
+                  }),
+                  allow_raw_pointers())
 
         .function("window", optional_override([](ZApp& self) {
                       return &self.getWindow();

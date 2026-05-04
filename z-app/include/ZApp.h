@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include "z-app/include/ZAppEvent.h"
 #include "z-document/include/layers/z-document.h"
 #include "z-document/include/viewport/z-viewport.h"
 #include "z-editor/include/ui-event/z-ui-handle.h"
@@ -14,8 +15,9 @@
 // #include "document/include/Document.h"
 // #include "window/include/Window.h"
 
-class ZWindow;
+class ZCommit;
 class ZDocument;
+class ZWindow;
 
 struct ZImagePayload {
     uintptr_t ptr{0};
@@ -52,6 +54,7 @@ public:
     ViewportData getViewportData() const;
     ZHandlerType getHandlerType() const;
     void switchHandler(ZHandlerType type);
+    ZAppEvent& getAppEvent() const;
 
 public:
     void addImage(uintptr_t ptr, size_t size, float x = 0.0f, float y = 0.0f, float width = 0.0f,
@@ -59,6 +62,7 @@ public:
     void clearImages();
     const std::vector<ZImagePayload>& getImages() const;
     void requestRedraw();
+    ZCommit& getCommit() const;
 
     // 测试patch机制
     void randProps();
@@ -67,9 +71,11 @@ private:
     ZApp();  // 构造函数私有化
 
 private:
+    std::unique_ptr<ZAppEvent> zAppEvent{nullptr};
     std::unique_ptr<ZWindow> zWindow{nullptr};
     std::unique_ptr<ZEditorContext> zEditorContext{nullptr};
     std::unique_ptr<ZUIHandle> zUIHandle{nullptr};
     z_sp<ZDocument> zDocument{nullptr};
+    z_sp<ZCommit> zCommit{nullptr};
     std::vector<ZImagePayload> zImages;
 };

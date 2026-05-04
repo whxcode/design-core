@@ -11,6 +11,7 @@ enum class ZPropKey {
 };
 
 struct ZPropKeyHash {
+    ZPropKeyHash() = default;
     size_t operator()(ZPropKey propKey) const noexcept {
         return static_cast<size_t>(propKey);
     }

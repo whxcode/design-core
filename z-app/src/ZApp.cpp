@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "z-app/include/z-test-doc.h"
+#include "z-document/include/commit/z-commit.h"
 #include "z-document/include/creator/loader.h"
 #include "z-document/include/models/z-layer-model.h"
 #include "z-matrix/include/z-matrix.h"
@@ -19,6 +20,7 @@
 
 ZApp::ZApp() {
     // 掌握生命周期：在这里创建实例
+    zAppEvent = std::make_unique<ZAppEvent>();
     zWindow = std::make_unique<ZWindow>();
 }
 
@@ -55,6 +57,10 @@ void ZApp::switchHandler(const ZHandlerType type) {
     requestRedraw();
 }
 
+ZAppEvent& ZApp::getAppEvent() const {
+    return *zAppEvent;
+}
+
 void ZApp::startup() {
     auto futureR = DoTask([]() {
         return ZLoader::MakeDocument(ZTestDoc::MakeDoc());
@@ -65,7 +71,10 @@ void ZApp::startup() {
     auto page = zDocument->getActivePage();
 
     zEditorContext = std::make_unique<ZEditorContext>(zDocument.get(), zWindow.get());
+    zEditorContext->setAppEvent(zAppEvent.get());
     zUIHandle = std::make_unique<ZUIHandle>(zEditorContext.get());
+    zCommit = std::make_shared<ZCommit>(zDocument, zAppEvent.get());
+
     zEditorContext->setHandle(zUIHandle.get());
 
     this->zWindow->setEditorContext(zEditorContext.get());
@@ -102,6 +111,10 @@ const std::vector<ZImagePayload>& ZApp::getImages() const {
     return zImages;
 }
 
+ZCommit& ZApp::getCommit() const {
+    return *zCommit;
+}
+
 void ZApp::requestRedraw() {
     if (!zWindow) {
         return;
@@ -135,6 +148,8 @@ void ZApp::randProps() {
     next.preTranslate(moveDelta(rng), moveDelta(rng));
     next.preRotate(rotateDelta(rng));
     model->setTransform(next);
+
+    zCommit->commit();
 
     requestRedraw();
 }

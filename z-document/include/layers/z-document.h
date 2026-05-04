@@ -3,6 +3,7 @@
 #include <memory>
 #include <unordered_map>
 
+#include "z-document/include/commit/z-collector.h"
 #include "z-document/include/layers/z-component.h"
 #include "z-document/include/layers/z-page.h"
 #include "z-document/include/models/z-model-change-sink.h"
@@ -24,12 +25,17 @@ public:  // ZModelChangeSink 实现
 public:
     void rebuildIndex();
 
+    void openCollector();
+    void closeCollector();
+    std::optional<ZPatch> commit();
+    void mergePatches(const ZPatches& patches);
+
 public:
     void addChild(const z_sp<ZComponent>& comp) override;
     z_sp<ZPage> getActivePage();
     std::vector<z_sp<ZLayerBase>> getNonPageLayers() const;
 
-    void setActivePage(const size_t id);
+    void setActivePage(const ZUniqueId id);
 
 public:
     void setName() {};
@@ -39,6 +45,7 @@ private:
 
 private:
     size_t zActivePageId{0};
-    std::unordered_map<size_t, z_sp<ZPage>> zPages{};
-    std::unordered_map<size_t, z_sp<ZComponent>> zLayers{};
+    std::unordered_map<ZUniqueId, z_sp<ZPage>> zPages{};
+    std::unordered_map<ZUniqueId, z_sp<ZComponent>> zLayers{};
+    std::unique_ptr<ZCollector> zCollector{nullptr};
 };

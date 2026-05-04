@@ -5,6 +5,8 @@
 #include "z-editor/include/handlers/z-common-handle.h"
 #include "z-editor/include/handlers/z-draw-layer-handle.h"
 #include "z-editor/include/handlers/z-viewport-handler.h"
+#include "z-editor/include/z-editor-context.h"
+#include "z-app/include/ZAppEvent.h"
 
 ZUIHandle::ZUIHandle(ZEditorContext* context) : zContext(context) {
     addEffectHandler(std::make_shared<ZViewportHandler>(ZHandlerType::zViewport, context));
@@ -29,6 +31,9 @@ void ZUIHandle::addEffectHandler(std::shared_ptr<ZUIHandleEvent> handleEvent) {
 
 void ZUIHandle::setActiveHandler(std::shared_ptr<ZUIHandleEvent> handleEvent) {
     zActiveHandler = std::move(handleEvent);
+    if (zContext && zContext->getAppEvent()) {
+        zContext->getAppEvent()->emit(ZAppEventType::zHandlerChanged);
+    }
 }
 
 void ZUIHandle::switchHandler(const ZHandlerType type) {

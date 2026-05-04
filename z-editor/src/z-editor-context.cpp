@@ -1,5 +1,6 @@
 #include "z-editor/include/z-editor-context.h"
 
+#include "z-app/include/ZAppEvent.h"
 #include "z-document/include/layers/z-document.h"
 #include "z-document/include/layers/z-page.h"
 #include "z-editor/include/ui-event/z-ui-handle.h"
@@ -54,6 +55,9 @@ void ZEditorContext::setViewportData(const ViewportData& data) const {
     }
 
     viewport->setData(data);
+    if (zAppEvent) {
+        zAppEvent->emit(ZAppEventType::zViewportChanged);
+    }
 }
 
 void ZEditorContext::requestRedraw() const {
@@ -66,4 +70,12 @@ void ZEditorContext::requestRedraw() const {
 
 void ZEditorContext::setHandle(ZUIHandle* handle) {
     zHandle = handle;
+}
+
+void ZEditorContext::setAppEvent(ZAppEvent* appEvent) {
+    zAppEvent = appEvent;
+}
+
+ZAppEvent* ZEditorContext::getAppEvent() const {
+    return zAppEvent;
 }

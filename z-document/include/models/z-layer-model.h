@@ -11,4 +11,7 @@ public:
 public:
     DEFINED_SPARSE_PROP(ZSize, Size)
     DEFINED_SPARSE_PROP(ZMatrix, Transform)
+
+protected:
+    void setPropValue(ZPropKey key, const std::any& value) override;
 };

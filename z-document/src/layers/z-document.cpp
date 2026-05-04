@@ -10,13 +10,13 @@
 #include "z-document/include/layers/z-page.h"
 #include "z-document/include/z-model-type.h"
 
-ZDocument::ZDocument(std::shared_ptr<ZDocumentModel> model) : ZComponent(model) {
+ZDocument::ZDocument(std::shared_ptr<ZDocumentModel> model)
+    : ZComponent(model), zCollector(std::make_unique<ZCollector>()) {
 }
 
 void ZDocument::onModelPropChanged(const ZModel* const model, const ZPropKey key,
                                    const void* const oldValue, const void* const newValue) {
-    printf("prop changed: model[%zu], prop[%d]\n", model->getId().toNumber(),
-           static_cast<int>(key));
+    zCollector->recordPropChanged(model->getId(), key, oldValue, newValue);
 }
 
 void ZDocument::rebuildIndex() {
@@ -24,6 +24,30 @@ void ZDocument::rebuildIndex() {
     zLayers.clear();
 
     registerSubtree(as<ZComponent>());
+}
+
+void ZDocument::openCollector() {
+    zCollector->open();
+}
+
+void ZDocument::closeCollector() {
+    zCollector->close();
+}
+
+std::optional<ZPatch> ZDocument::commit() {
+    return zCollector->commit();
+}
+
+void ZDocument::mergePatches(const ZPatches& patches) {
+    for (const auto& item : patches) {
+        auto it = zLayers.find(item.zId.toNumber());
+
+        if (it == zLayers.end()) {
+            continue;
+        }
+
+        it->second->getModel()->setProps(item.zProps);
+    }
 }
 
 void ZDocument::addChild(const z_sp<ZComponent>& comp) {

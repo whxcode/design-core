@@ -21,7 +21,7 @@ bool ZGuid::operator==(const ZGuid& other) const {
     return !(*this != other);
 }
 
-const size_t ZGuid::toNumber() const {
+const ZUniqueId ZGuid::toNumber() const {
     return zSessionId + zClientId;
 }
 

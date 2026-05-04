@@ -21,10 +21,31 @@ export interface CoreDocument {
   setName(): void;
 }
 
+export interface CoreCommit {
+  commit(): void;
+  undo(): void;
+  redo(): void;
+  canUndo(): boolean;
+  canRedo(): boolean;
+}
+
 export interface ViewportData {
   offsetX: number;
   offsetY: number;
   scale: number;
+}
+
+export enum ZAppEventType {
+  None = 0,
+  DocChanged = 1,
+  ViewportChanged = 2,
+  HistoryChanged = 3,
+  HandlerChanged = 4,
+}
+
+export interface CoreAppEvent {
+  on(type: ZAppEventType, callback: (type: ZAppEventType) => void): number;
+  off(type: ZAppEventType, id: number): void;
 }
 
 export interface CoreApp {
@@ -35,6 +56,8 @@ export interface CoreApp {
   handler(): ZHandlerType;
   onUIEvent(event: ZUIEvent): void;
   switchHandler(type: ZHandlerType): void;
+  appEvent(): CoreAppEvent;
+  commit(): CoreCommit;
   window(): CoreWindow;
   document(): CoreDocument;
 }
