@@ -57,5 +57,9 @@ z_sp<ZDocument> ZLoader::MakeDocument(ZModelArray&& models) {
         f();
     }
 
+    if (result) {
+        result->rebuildIndex();
+    }
+
     return result;
 }

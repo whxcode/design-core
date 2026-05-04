@@ -11,6 +11,8 @@
 #include "z-tools/include/z-guid.h"
 #include "z-tools/include/z-type.h"
 
+class ZModelChangeSink;
+
 class ZModel : public std::enable_shared_from_this<ZModel> {
 public:
     ZModel(ZGuid id, const ZModelType type);
@@ -42,6 +44,15 @@ public:
     DEFINE_PROP(ZGuid, ParentId)
     DEFINE_PROP(std::string, Name)
 
+public:
+    void setChangeSink(ZModelChangeSink* sink) {
+        zChangeSink = sink;
+    }
+
+    ZModelChangeSink* getChangeSink() const {
+        return zChangeSink;
+    }
+
 protected:
     template <ZPropKey P>
     const typename PropTraits<P>::Type& getProp() const {
@@ -61,6 +72,8 @@ protected:
         zProps.set<P>(value);
         triggerUpdate(P, (void*)&v, (void*)&value);
     }
+
+    ZModelChangeSink* zChangeSink{nullptr};
 
 private:
     SparseProps zProps;

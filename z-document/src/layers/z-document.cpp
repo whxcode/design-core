@@ -13,6 +13,19 @@
 ZDocument::ZDocument(std::shared_ptr<ZDocumentModel> model) : ZComponent(model) {
 }
 
+void ZDocument::onModelPropChanged(const ZModel* const model, const ZPropKey key,
+                                   const void* const oldValue, const void* const newValue) {
+    printf("prop changed: model[%zu], prop[%d]\n", model->getId().toNumber(),
+           static_cast<int>(key));
+}
+
+void ZDocument::rebuildIndex() {
+    zPages.clear();
+    zLayers.clear();
+
+    registerSubtree(as<ZComponent>());
+}
+
 void ZDocument::addChild(const z_sp<ZComponent>& comp) {
     const auto& model = comp->getModel();
 
@@ -64,4 +77,24 @@ std::vector<z_sp<ZLayerBase>> ZDocument::getNonPageLayers() const {
 
 void ZDocument::setActivePage(const size_t id) {
     zActivePageId = id;
+}
+
+void ZDocument::registerSubtree(const z_sp<ZComponent>& node) {
+    if (!node) {
+        return;
+    }
+
+    zLayers[node->getUnique()] = node;
+
+    if (auto model = node->getModel()) {
+        model->setChangeSink(this);
+    }
+
+    if (node->getType() == ZModelType::zPage) {
+        zPages[node->getUnique()] = node->as<ZPage>();
+    }
+
+    for (const auto& child : node->getChildren<ZComponent>()) {
+        registerSubtree(child);
+    }
 };
