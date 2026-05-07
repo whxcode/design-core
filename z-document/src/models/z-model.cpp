@@ -3,7 +3,7 @@
 #include <any>
 #include <string>
 
-#include "z-document/include/models/z-model-change-sink.h"
+#include "z-document/include/models/z-document-change-sink.h"
 #include "z-tools/include/z-guid.h"
 
 ZModel::ZModel(ZGuid id, const ZModelType type) : zId(id), zType(type) {

@@ -18,6 +18,22 @@ void ZDocument::onModelPropChanged(const ZModel* const model, const ZPropKey key
     zCollector->recordPropChanged(model->getId(), key, oldValue, newValue);
 }
 
+void ZDocument::onAddChild(ZComponent* comp) {
+    if (!zCollector) {
+        return;
+    }
+
+    zCollector->recordAddChild(comp);
+}
+
+void ZDocument::onRemoveChild(ZComponent* comp) {
+    if (!zCollector) {
+        return;
+    }
+
+    zCollector->recordRemoveChild(comp);
+}
+
 void ZDocument::rebuildIndex() {
     zPages.clear();
     zLayers.clear();

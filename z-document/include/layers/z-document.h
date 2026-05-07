@@ -6,7 +6,7 @@
 #include "z-document/include/commit/z-collector.h"
 #include "z-document/include/layers/z-component.h"
 #include "z-document/include/layers/z-page.h"
-#include "z-document/include/models/z-model-change-sink.h"
+#include "z-document/include/models/z-document-change-sink.h"
 // #include "z-document/include/layers/z-layerbase.h"
 // #include "z-document/include/models/z-document-model.h"
 
@@ -14,13 +14,19 @@ class ZLayerBase;
 class ZDocumentModel;
 class ZPage;
 
-class ZDocument : public ZComponent, public ZModelChangeSink {
+class ZDocument : public ZComponent, public ZDocumentChangeSink {
 public:
     ZDocument(z_sp<ZDocumentModel> model);
 
-public:  // ZModelChangeSink 实现
+public:  // ZDocumentChangeSink 实现
     void onModelPropChanged(const ZModel* const model, const ZPropKey key,
                             const void* const oldValue, const void* const newValue) override;
+
+    // 收集子节点变化
+    void onAddChild(ZComponent* comp) override;
+
+    // 收集子节点变化
+    void onRemoveChild(ZComponent* comp) override;
 
 public:
     void rebuildIndex();

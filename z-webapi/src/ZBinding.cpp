@@ -5,8 +5,8 @@
 #include <cstdio>
 #include <cstring>
 
-#include "z-app/include/ZAppEvent.h"
 #include "z-app/include/ZApp.h"
+#include "z-app/include/ZAppEvent.h"
 #include "z-document/include/commit/z-commit.h"
 #include "z-document/include/layers/z-document.h"
 #include "z-tools/include/z-editor-theme.h"
@@ -27,12 +27,15 @@ static ZApp* getAppInstance() {
 
 EMSCRIPTEN_BINDINGS(core_api) {
     class_<ZAppEvent>("AppEvent")
-        .function("on", optional_override([](ZAppEvent& self, const int type, const val& callback) -> size_t {
-                      return self.on(static_cast<ZAppEventType>(type), [callback](ZAppEventType eventType) {
-                          callback(static_cast<uint32_t>(eventType));
-                      });
-                  }))
-        .function("off", optional_override([](ZAppEvent& self, const int type, const size_t id) -> void {
+        .function("on", optional_override(
+                            [](ZAppEvent& self, const int type, const val& callback) -> size_t {
+                                return self.on(static_cast<ZAppEventType>(type),
+                                               [callback](ZAppEventType eventType) {
+                                                   callback(static_cast<uint32_t>(eventType));
+                                               });
+                            }))
+        .function("off",
+                  optional_override([](ZAppEvent& self, const int type, const size_t id) -> void {
                       self.off(static_cast<ZAppEventType>(type), id);
                   }));
 
@@ -69,10 +72,6 @@ EMSCRIPTEN_BINDINGS(core_api) {
 
         .function("draw", optional_override([](ZApp& self) -> void {
                       self.requestRedraw();
-                  }))
-
-        .function("randProps", optional_override([](ZApp& self) -> void {
-                      self.randProps();
                   }))
 
         .function("viewport", optional_override([](ZApp& self) -> ViewportData {

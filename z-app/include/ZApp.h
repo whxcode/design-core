@@ -68,9 +68,6 @@ public:
     void requestRedraw();
     ZCommit& getCommit() const;
 
-    // 测试patch机制
-    void randProps();
-
 private:
     ZApp();  // 构造函数私有化
 

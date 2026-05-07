@@ -45,6 +45,20 @@ void ZCollector::recordPropChanged(const ZGuid id, const ZPropKey key, const voi
     recordPropChanged(id, key, std::move(oldAny), std::move(newAny));
 }
 
+void ZCollector::recordAddChild(ZComponent* comp) {
+    if (!zEnable || comp == nullptr) {
+        return;
+    }
+
+    printf("ZCollector::recordAddChild\n");
+}
+
+void ZCollector::recordRemoveChild(ZComponent* comp) {
+    if (!zEnable || comp == nullptr) {
+        return;
+    }
+}
+
 std::optional<ZPatch> ZCollector::commit() {
     if (zCollectItems.empty()) {
         return std::nullopt;

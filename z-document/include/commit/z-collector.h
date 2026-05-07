@@ -7,6 +7,8 @@
 #include "z-document/include/prop/z-prop-key.h"
 #include "z-tools/include/z-guid.h"
 
+class ZComponent;
+
 struct ZCollectItem {
     ZGuid zId{};
     ZPatchType zType{};
@@ -28,6 +30,10 @@ public:
 
     void recordPropChanged(const ZGuid id, const ZPropKey key, const void* const oldValue,
                            const void* const newValue);
+
+    void recordAddChild(ZComponent* comp);
+
+    void recordRemoveChild(ZComponent* comp);
 
     std::optional<ZPatch> commit();
 

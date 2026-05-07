@@ -12,7 +12,7 @@
 #include "z-tools/include/z-guid.h"
 #include "z-tools/include/z-type.h"
 
-class ZModelChangeSink;
+class ZDocumentChangeSink;
 
 class ZModel : public std::enable_shared_from_this<ZModel> {
 public:
@@ -46,11 +46,11 @@ public:
     DEFINE_PROP(std::string, Name)
 
 public:
-    void setChangeSink(ZModelChangeSink* sink) {
+    void setChangeSink(ZDocumentChangeSink* sink) {
         zChangeSink = sink;
     }
 
-    ZModelChangeSink* getChangeSink() const {
+    ZDocumentChangeSink* getChangeSink() const {
         return zChangeSink;
     }
 
@@ -78,7 +78,7 @@ protected:
         triggerUpdate(P, (void*)&v, (void*)&value);
     }
 
-    ZModelChangeSink* zChangeSink{nullptr};
+    ZDocumentChangeSink* zChangeSink{nullptr};
 
 private:
     SparseProps zProps;

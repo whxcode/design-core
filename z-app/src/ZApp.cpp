@@ -26,6 +26,10 @@ ZApp::ZApp() {
     // 掌握生命周期：在这里创建实例
     zAppEvent = std::make_unique<ZAppEvent>();
     zWindow = std::make_unique<ZWindow>();
+
+    zAppEvent->on(ZAppEventType::zDocChanged, [this](const auto type) {
+        this->requestRedraw();
+    });
 }
 
 ZWindow& ZApp::getWindow() const {
@@ -137,53 +141,4 @@ void ZApp::requestRedraw() {
     }
 
     zWindow->draw();
-}
-
-void ZApp::randProps() {
-    if (!zDocument) {
-        return;
-    }
-
-    const auto page = zDocument->getActivePage();
-    if (!page) {
-        return;
-    }
-
-    const auto layers = page->getChildren<ZLayerBase>();
-
-    if (layers.empty()) {
-        return;
-    }
-
-    static std::mt19937 rng{std::random_device{}()};
-    std::uniform_real_distribution<float> moveDelta(-80.0f, 80.0f);
-    std::uniform_real_distribution<float> rotateDelta(-25.0f, 25.0f);
-    std::uniform_real_distribution<float> sizeDelta(-36.0f, 48.0f);
-
-    for (const auto& layer : layers) {
-        if (!layer) {
-            continue;
-        }
-
-        const auto model = layer->getModel<ZLayerModel>();
-        if (!model) {
-            continue;
-        }
-
-        const auto size = model->getSize();
-        const auto width = std::max(40.0f, size.width() + sizeDelta(rng));
-        const auto height = std::max(40.0f, size.height() + sizeDelta(rng));
-        model->setSize({width, height});
-
-        auto next = model->getTransform();
-        next.preTranslate(moveDelta(rng), moveDelta(rng));
-        next.preRotate(rotateDelta(rng), width * 0.5f, height * 0.5f);
-        model->setTransform(next);
-    }
-
-    if (zCommit) {
-        zCommit->commit();
-    }
-
-    requestRedraw();
 }
