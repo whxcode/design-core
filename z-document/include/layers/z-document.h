@@ -23,10 +23,10 @@ public:  // ZDocumentChangeSink 实现
                             const void* const oldValue, const void* const newValue) override;
 
     // 收集子节点变化
-    void onAddChild(ZComponent* comp) override;
+    void onAddChild(const z_sp<ZComponent>& comp) override;
 
     // 收集子节点变化
-    void onRemoveChild(ZComponent* comp) override;
+    void onRemoveChild(const z_sp<ZComponent>& comp) override;
 
 public:
     void rebuildIndex();
@@ -49,6 +49,7 @@ public:
 
 private:
     void registerSubtree(const z_sp<ZComponent>& node);
+    void unregisterSubtree(const z_sp<ZComponent>& node);
 
 private:
     size_t zActivePageId{0};

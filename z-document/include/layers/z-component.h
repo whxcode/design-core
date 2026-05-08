@@ -50,6 +50,7 @@ public:
 
 public:
     virtual void addChild(const z_sp<ZComponent>& comp);
+    virtual void removeChild(const z_sp<ZComponent>& comp);
     z_sp<ZComponent> getParent() const;
 
 public:

@@ -27,17 +27,6 @@ void ZCommit::commit() {
 void ZCommit::undo() {
     const auto& undo = zHistory->popUndo();
 
-    // 禁止多层嵌套
-    if (undo.has_value()) {
-        zDocument->closeCollector();
-        zDocument->mergePatches(undo->zUndo);
-        zDocument->openCollector();
-        if (zAppEvent) {
-            zAppEvent->emit(ZAppEventType::zDocChanged);
-            zAppEvent->emit(ZAppEventType::zHistoryChanged);
-        }
-    }
-
     // 运行这样
     if (!undo.has_value()) {
         return;

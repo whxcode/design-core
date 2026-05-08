@@ -20,12 +20,29 @@ void ZComponent::addChild(const z_sp<ZComponent>& comp) {
     comp->zParent = shared_from_this();
     zLayers.push_back(comp);
 
-    const auto sink = comp->getModel()->getChangeSink();
+    const auto sink = this->getModel()->getChangeSink();
 
+    // printf("sink[%d]\n", sink);
     if (sink != nullptr) {
-        sink->onAddChild(comp.get());
+        sink->onAddChild(comp);
     }
 }
+
+void ZComponent::removeChild(const z_sp<ZComponent>& comp) {
+    // 移除子节点.
+    comp->zParent.reset();
+
+    std::erase_if(zLayers, [comp](const z_sp<ZComponent>& child) {
+        return child->getModel()->getId() == comp->getModel()->getId();
+    });
+
+    const auto sink = this->getModel()->getChangeSink();
+
+    // printf("sink[%d]\n", sink);
+    if (sink != nullptr) {
+        sink->onRemoveChild(comp);
+    }
+};
 
 z_sp<ZComponent> ZComponent::getParent() const {
     return zParent.lock();

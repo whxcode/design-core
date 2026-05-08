@@ -12,8 +12,9 @@ using ZPatchValue = std::any;
 using ZPatchProps = std::unordered_map<ZPropKey, ZPatchValue, ZPropKeyHash>;
 
 enum class ZPatchType {
-    zProps,  // 属性修改
-    zAdd,    // 添加
+    zProps,   // 属性修改
+    zAdd,     // 添加
+    zRemove,  // 添加
 };
 
 struct ZPatchItem {

@@ -40,9 +40,9 @@ public:
     void recordPropChanged(const ZGuid id, const ZPropKey key, const void* const oldValue,
                            const void* const newValue);
 
-    void recordAddChild(ZComponent* comp);
+    void recordAddChild(const z_sp<ZComponent>& comp);
 
-    void recordRemoveChild(ZComponent* comp);
+    void recordRemoveChild(const z_sp<ZComponent>& comp);
 
     std::optional<ZPatch> commit();
 
