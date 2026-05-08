@@ -17,6 +17,7 @@ public:
 
 public:
     bool hitTestWorldPoint(const ZPoint& worldPoint);
+    z_sp<ZLayerBase> getFirstChild() const;
     ZPoint worldToLocal(const ZPoint& worldPoint);
     ZPoint localToWorld(const ZPoint& localPoint);
     ZMatrix getWorldMatrix();

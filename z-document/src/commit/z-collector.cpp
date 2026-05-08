@@ -1,6 +1,9 @@
 #include "z-document/include/commit/z-collector.h"
 
+#include <optional>
+
 #include "z-document/include/commit/z-patch.h"
+#include "z-document/include/layers/z-component.h"
 #include "z-document/include/prop/z-prop-codec.h"
 
 void ZCollector::open() {
@@ -13,6 +16,18 @@ void ZCollector::close() {
 
 bool ZCollector::canOpen() {
     return zEnable;
+}
+
+void ZCollector::recordPropChanged(const ZGuid id, const ZPropKey key, const void* const oldValue,
+                                   const void* const newValue) {
+    auto oldAny = ZPropCodec::CopyValue(key, oldValue);
+    auto newAny = ZPropCodec::CopyValue(key, newValue);
+
+    if (!oldAny.has_value() || !newAny.has_value()) {
+        return;
+    }
+
+    recordPropChanged(id, key, std::move(oldAny), std::move(newAny));
 }
 
 void ZCollector::recordPropChanged(ZGuid id, ZPropKey key, std::any oldValue, std::any newValue) {
@@ -33,24 +48,12 @@ void ZCollector::recordPropChanged(ZGuid id, ZPropKey key, std::any oldValue, st
     item.zNewProps[key] = std::move(newValue);
 }
 
-void ZCollector::recordPropChanged(const ZGuid id, const ZPropKey key, const void* const oldValue,
-                                   const void* const newValue) {
-    auto oldAny = ZPropCodec::CopyValue(key, oldValue);
-    auto newAny = ZPropCodec::CopyValue(key, newValue);
-
-    if (!oldAny.has_value() || !newAny.has_value()) {
-        return;
-    }
-
-    recordPropChanged(id, key, std::move(oldAny), std::move(newAny));
-}
-
 void ZCollector::recordAddChild(ZComponent* comp) {
     if (!zEnable || comp == nullptr) {
         return;
     }
 
-    printf("ZCollector::recordAddChild\n");
+    zNewChild.insert(comp);
 }
 
 void ZCollector::recordRemoveChild(ZComponent* comp) {
@@ -60,11 +63,28 @@ void ZCollector::recordRemoveChild(ZComponent* comp) {
 }
 
 std::optional<ZPatch> ZCollector::commit() {
-    if (zCollectItems.empty()) {
+    if (zCollectItems.empty() ||  //
+        zCollectItems.empty()) {
+        printf("empty patch\n");
         return std::nullopt;
     }
 
     ZPatch patch;
+
+    for (const auto& comp : zNewChild) {
+        const auto model = comp->getModel();
+        patch.zUndo.push_back({
+            .zId = model->getId(),
+            .zType = ZPatchType::zAdd,
+            .zProps = std::move(item.zOldProps),
+        });
+
+        patch.zRedo.push_back({
+            .zId = item.zId,
+            .zType = item.zType,
+            .zProps = std::move(item.zNewProps),
+        });
+    }
 
     for (const auto& [_, item] : zCollectItems) {
         patch.zUndo.push_back({
@@ -87,6 +107,7 @@ std::optional<ZPatch> ZCollector::commit() {
 
 void ZCollector::clear() {
     zCollectItems.clear();
+    zNewChild.clear();
 }
 
 bool ZCollector::empty() const {

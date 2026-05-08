@@ -6,8 +6,14 @@
 #include "z-document/include/commit/z-patch.h"
 #include "z-document/include/prop/z-prop-key.h"
 #include "z-tools/include/z-guid.h"
+#include "z-tools/include/z-type.h"
 
 class ZComponent;
+
+struct ZCollectNode {
+    ZPatchType zType{};
+    ZPatchProps props{};  // 存入添加节点/删除节点的props数据。
+};
 
 struct ZCollectItem {
     ZGuid zId{};
@@ -15,6 +21,9 @@ struct ZCollectItem {
     std::set<ZPropKey> zUsed{};
     ZPatchProps zOldProps{};
     ZPatchProps zNewProps{};
+
+    // 收集子节点信息
+    std::unordered_map<ZGuid, ZCollectNode, ZGuidHash> zCollectChildren{};
 };
 
 class ZCollector {
@@ -45,4 +54,5 @@ private:
     bool zEnable{true};
     ZCollectItem t;
     std::unordered_map<ZGuid, ZCollectItem, ZGuidHash> zCollectItems{};
+    std::set<ZComponent*> zNewChild{};
 };

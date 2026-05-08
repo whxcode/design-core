@@ -9,4 +9,5 @@ class ZDocument;
 class ZLoader {
 public:
     static z_sp<ZDocument> MakeDocument(ZModelArray&& models);
+    static ZLayerBaseArray MakeViews(ZModelArray&& models);
 };

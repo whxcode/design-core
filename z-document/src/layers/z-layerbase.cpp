@@ -14,6 +14,15 @@ bool ZLayerBase::hitTestWorldPoint(const ZPoint& worldPoint) {
     return getLocalRect().contains(localPoint);
 }
 
+z_sp<ZLayerBase> ZLayerBase::getFirstChild() const {
+    const auto children = getChildren<ZLayerBase>();
+    if (children.empty()) {
+        return nullptr;
+    }
+
+    return children.front();
+}
+
 ZPoint ZLayerBase::worldToLocal(const ZPoint& worldPoint) {
     ZMatrix inverse;
     if (!getWorldMatrix().invert(&inverse)) {

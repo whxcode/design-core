@@ -22,8 +22,9 @@ void ZUIHandle::onUIEvent(const ZUIEvent& event) {
         }
     }
 
-    if (zActiveHandler) {
-        zActiveHandler->onUIEvent(event);
+    const auto activeHandler = zActiveHandler;
+    if (activeHandler) {
+        activeHandler->onUIEvent(event);
     }
 }
 

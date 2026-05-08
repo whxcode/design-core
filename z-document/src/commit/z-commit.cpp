@@ -9,7 +9,6 @@ ZCommit::ZCommit(z_sp<ZDocument> document, ZAppEvent* appEvent)
 }
 
 void ZCommit::commit() {
-    printf("Commit::提交?\n\n\n");
     const auto& patch = zDocument->commit();
     if (!patch.has_value()) {
         return;

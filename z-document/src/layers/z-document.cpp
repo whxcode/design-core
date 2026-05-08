@@ -24,6 +24,8 @@ void ZDocument::onAddChild(ZComponent* comp) {
     }
 
     zCollector->recordAddChild(comp);
+
+    registerSubtree(comp->as<ZComponent>());
 }
 
 void ZDocument::onRemoveChild(ZComponent* comp) {
