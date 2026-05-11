@@ -12,10 +12,6 @@
 #include "z-tools/include/z-guid.h"
 
 z_sp<ZDocument> ZLoader::MakeDocument(ZModelArray&& models) {
-    for (const auto& model : models) {
-        ZCreatorLayer::Make(model);
-    }
-
     auto view = models |  //
                 std::views::transform([](auto model) {
                     return ZCreatorLayer::Make(model);

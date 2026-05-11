@@ -22,10 +22,8 @@ public:  // ZDocumentChangeSink 实现
     void onModelPropChanged(const ZModel* const model, const ZPropKey key,
                             const void* const oldValue, const void* const newValue) override;
 
-    // 收集子节点变化
     void onAddChild(const z_sp<ZComponent>& comp) override;
 
-    // 收集子节点变化
     void onRemoveChild(const z_sp<ZComponent>& comp) override;
 
 public:

@@ -75,7 +75,8 @@ std::optional<ZPatch> ZCollector::commit() {
     ZPatch patch;
     ZComponentArray comps;
 
-    printf("zNewChild[%d]\n", zNewChild.size());
+    printf("zNewChild[%zu]\n", zNewChild.size());
+
     for (const auto& comp : zNewChild) {
         comps.push_back(comp->as<ZComponent>());
 

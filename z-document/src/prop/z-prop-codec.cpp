@@ -41,7 +41,7 @@ std::any ZPropCodec::CopyValue(const ZPropKey key, const void* value) {
 ZPatchProps ZPropCodec::MakeProps(const z_sp<ZModel>& model) {
     ZPatchProps props;
 
-    props[ZPropKey::zId] = model->getType();
+    props[ZPropKey::zId] = model->getId();
     props[ZPropKey::zParentId] = model->getParentId();
     props[ZPropKey::zType] = model->getType();
     props[ZPropKey::zName] = model->getName();
