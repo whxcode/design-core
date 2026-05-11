@@ -41,18 +41,18 @@ std::any ZPropCodec::CopyValue(const ZPropKey key, const void* value) {
 ZPatchProps ZPropCodec::MakeProps(const z_sp<ZModel>& model) {
     ZPatchProps props;
 
-    props[ZPropKey::zId] = model->getId();
-    props[ZPropKey::zParentId] = model->getParentId();
-    props[ZPropKey::zType] = model->getType();
-    props[ZPropKey::zName] = model->getName();
+    props.set<ZPropKey::zId>(model->getId());
+    props.set<ZPropKey::zType>(model->getType());
+    props.set<ZPropKey::zParentId>(model->getParentId());
+    props.set<ZPropKey::zName>(model->getName());
 
     switch (model->getType()) {
         case ZModelType::zRectangle: {
             const auto& layerModel = model->as<ZLayerModel>();
 
-            props[ZPropKey::zSize] = layerModel->getSize();
-            props[ZPropKey::zTransform] = layerModel->getTransform();
-            props[ZPropKey::zFillColor] = layerModel->getFillColor();
+            props.set<ZPropKey::zSize>(layerModel->getSize());
+            props.set<ZPropKey::zTransform>(layerModel->getTransform());
+            props.set<ZPropKey::zFillColor>(layerModel->getFillColor());
         }
 
         default:

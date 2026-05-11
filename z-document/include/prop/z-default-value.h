@@ -4,8 +4,10 @@
 #include <string>
 
 #include "z-document/include/prop/z-prop-key.h"
+#include "z-document/include/z-model-type.h"
 #include "z-matrix/include/z-matrix.h"
 #include "z-matrix/include/z-size.h"
+#include "z-tools/include/z-guid.h"
 
 template <ZPropKey p>
 struct PropTraits;
@@ -25,6 +27,10 @@ struct PropTraits;
         }                                        \
     }
 
+DEFINE_DEFAULT_VALUE(ZGuid, Id);
+DEFINE_DEFAULT_VALUE(ZGuid, ParentId);
+DEFINE_DEFAULT_VALUE(std::string, Name);
+DEFINE_DEFAULT_VALUE(ZModelType, Type);
 DEFINE_DEFAULT_VALUE(ZSize, Size);
 DEFINE_DEFAULT_VALUE(ZMatrix, Transform);
 DEFINE_DEFAULT_VALUE(uint32_t, FillColor);

@@ -43,11 +43,11 @@ void ZCollector::recordPropChanged(ZGuid id, ZPropKey key, std::any oldValue, st
     item.zType = ZPatchType::zProps;
 
     if (!item.zUsed.contains(key)) {
-        item.zOldProps[key] = std::move(oldValue);
+        item.zOldProps.set(key, std::move(oldValue));
         item.zUsed.insert(key);
     }
 
-    item.zNewProps[key] = std::move(newValue);
+    item.zNewProps.set(key, std::move(newValue));
 }
 
 void ZCollector::recordAddChild(const z_sp<ZComponent>& comp) {
@@ -74,8 +74,6 @@ std::optional<ZPatch> ZCollector::commit() {
 
     ZPatch patch;
     ZComponentArray comps;
-
-    printf("zNewChild[%zu]\n", zNewChild.size());
 
     for (const auto& comp : zNewChild) {
         comps.push_back(comp->as<ZComponent>());
