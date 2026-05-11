@@ -18,10 +18,6 @@ public:
         zValues[P] = value;
     }
 
-    void set(ZPropKey key, ZPatchValue value) {
-        zValues[key] = std::move(value);
-    }
-
     template <ZPropKey P>
     const typename PropTraits<P>::Type& get() const {
         return std::any_cast<const typename PropTraits<P>::Type&>(zValues.at(P));
