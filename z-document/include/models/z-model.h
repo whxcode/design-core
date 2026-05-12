@@ -39,11 +39,11 @@ public:
      */
     virtual void triggerUpdate(ZPropKey prop, void* oldVal, void* newVal);
 
-    DEFINE_READONLY_PROP(ZGuid, Id)
-    DEFINE_READONLY_PROP(ZModelType, Type)
+    DEFINED_SPARSE_PROP_READONLY(ZGuid, Id)
+    DEFINED_SPARSE_PROP_READONLY(ZModelType, Type)
 
-    DEFINE_PROP(ZGuid, ParentId)
-    DEFINE_PROP(std::string, Name)
+    DEFINED_SPARSE_PROP(ZGuid, ParentId)
+    DEFINED_SPARSE_PROP(std::string, Name)
 
 public:
     void setChangeSink(ZDocumentChangeSink* sink) {
@@ -52,6 +52,11 @@ public:
 
     ZDocumentChangeSink* getChangeSink() const {
         return zChangeSink;
+    }
+
+    void merge(const SparseProps& props) {
+        zProps.merge(props);
+        // zProps = std::move(props);
     }
 
     void setProps(const ZPatchProps& props);

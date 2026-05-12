@@ -40,6 +40,7 @@ std::any ZPropCodec::CopyValue(const ZPropKey key, const void* value) {
 
 ZPatchProps ZPropCodec::MakeProps(const z_sp<ZModel>& model) {
     ZPatchProps props;
+    /*
 
     props.set<ZPropKey::zId>(model->getId());
     props.set<ZPropKey::zType>(model->getType());
@@ -58,6 +59,7 @@ ZPatchProps ZPropCodec::MakeProps(const z_sp<ZModel>& model) {
         default:
             break;
     }
+  */
 
     return props;
 }

@@ -48,7 +48,22 @@ public:                                                                         
         return this->z##Name;                                                            \
     }
 
+#define DEFINED_SPARSE_PROP_READONLY(Type, Name)            \
+public:                                                     \
+    const Type& get##Name() const {                         \
+        return this->template getProp<ZPropKey::z##Name>(); \
+    }                                                       \
+                                                            \
+protected:                                                  \
+    void init##Name(const Type& value) {                    \
+        this->template setProp<ZPropKey::z##Name>(value);   \
+    }
+
+/**
+ *
+ * */
 #define DEFINED_SPARSE_PROP(Type, Name)                     \
+public:                                                     \
     const Type& get##Name() const {                         \
         return this->template getProp<ZPropKey::z##Name>(); \
     }                                                       \

@@ -6,9 +6,9 @@
 #include "z-document/include/models/z-document-change-sink.h"
 #include "z-tools/include/z-guid.h"
 
-ZModel::ZModel(ZGuid id, const ZModelType type) : zId(id), zType(type) {
-    // printf("any [%d\n]", sizeof(std::any));
-    // printf("std::varinat[%d\n]", sizeof(PropValue));
+ZModel::ZModel(ZGuid id, const ZModelType type) {
+    initId(id);
+    initType(type);
 }
 
 void ZModel::triggerUpdate(ZPropKey prop, void* oldVal, void* newVal) {
@@ -22,25 +22,11 @@ void ZModel::triggerUpdate(ZPropKey prop, void* oldVal, void* newVal) {
     // getId();
 }
 
-void ZModel::setProps(const ZPatchProps& props) {
-    for (const auto& [key, value] : props) {
-        setPropValue(key, value);
+void ZModel::setProps(const ZPatchProps& patch) {
+    for (const auto& [key, value] : patch.getEntry()) {
+        zProps.setAny(key, value);
     }
 }
 
 void ZModel::setPropValue(const ZPropKey key, const std::any& value) {
-    switch (key) {
-        case ZPropKey::zParentId:
-            setParentId(std::any_cast<const ZGuid&>(value));
-            return;
-        case ZPropKey::zName:
-            setName(std::any_cast<const std::string&>(value));
-            return;
-        case ZPropKey::zId:
-        case ZPropKey::zType:
-        case ZPropKey::zSize:
-        case ZPropKey::zTransform:
-        case ZPropKey::zFillColor:
-            return;
-    }
 }

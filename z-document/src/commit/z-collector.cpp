@@ -8,36 +8,6 @@
 #include "z-document/include/models/z-type.h"
 #include "z-document/include/prop/z-prop-codec.h"
 
-namespace {
-
-void SetPatchProp(ZPatchProps& props, ZPropKey key, const std::any& value) {
-    switch (key) {
-        case ZPropKey::zId:
-            props.set<ZPropKey::zId>(std::any_cast<const ZGuid&>(value));
-            return;
-        case ZPropKey::zType:
-            props.set<ZPropKey::zType>(std::any_cast<const ZModelType&>(value));
-            return;
-        case ZPropKey::zParentId:
-            props.set<ZPropKey::zParentId>(std::any_cast<const ZGuid&>(value));
-            return;
-        case ZPropKey::zName:
-            props.set<ZPropKey::zName>(std::any_cast<const std::string&>(value));
-            return;
-        case ZPropKey::zSize:
-            props.set<ZPropKey::zSize>(std::any_cast<const ZSize&>(value));
-            return;
-        case ZPropKey::zTransform:
-            props.set<ZPropKey::zTransform>(std::any_cast<const ZMatrix&>(value));
-            return;
-        case ZPropKey::zFillColor:
-            props.set<ZPropKey::zFillColor>(std::any_cast<const uint32_t&>(value));
-            return;
-    }
-}
-
-}  // namespace
-
 void ZCollector::open() {
     zEnable = true;
 }
@@ -73,11 +43,12 @@ void ZCollector::recordPropChanged(ZGuid id, ZPropKey key, std::any oldValue, st
     item.zType = ZPatchType::zProps;
 
     if (!item.zUsed.contains(key)) {
-        SetPatchProp(item.zOldProps, key, oldValue);
+        item.zOldProps.setAny(key, oldValue);
+
         item.zUsed.insert(key);
     }
 
-    SetPatchProp(item.zNewProps, key, newValue);
+    item.zNewProps.setAny(key, oldValue);
 }
 
 void ZCollector::recordAddChild(const z_sp<ZComponent>& comp) {

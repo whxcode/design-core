@@ -33,17 +33,16 @@ z_sp<ZComponent> MakeComponent(const ZPatchProps& props) {
     return ZCreatorLayer::Make(model);
 }
 
-std::vector<z_sp<ZModel>> MakeModels(std::vector<ZPatchProps> newProps) {
+std::vector<z_sp<ZModel>> MakeModels(const std::vector<const ZPatchProps*>& newProps) {
     std::vector<z_sp<ZModel>> result{};
     result.reserve(newProps.size());
 
     for (const auto& props : newProps) {
-        // printf("props[%d]\n", props.size());
-        const auto typeIt = props.get<ZPropKey::zType>();
-        const auto idIt = props.get<ZPropKey::zId>();
+        const auto typeIt = props->get<ZPropKey::zType>();
+        const auto idIt = props->get<ZPropKey::zId>();
         const auto model = ZCreatorModel::Make(idIt, typeIt);
 
-        model->setProps(props);
+        model->merge(props->getProps());
 
         result.push_back(std::move(model));
     }
@@ -54,7 +53,7 @@ std::vector<z_sp<ZModel>> MakeModels(std::vector<ZPatchProps> newProps) {
 }  // namespace
 
 void ZPatchMerger::Merge(ZDocument& document, const ZPatches& patches) {
-    std::vector<ZPatchProps> newProps;
+    std::vector<const ZPatchProps*> newProps;
 
     for (const auto& item : patches) {
         switch (item.zType) {
@@ -85,7 +84,7 @@ void ZPatchMerger::Merge(ZDocument& document, const ZPatches& patches) {
             }
 
             case ZPatchType::zAdd: {
-                newProps.push_back(item.zProps);
+                newProps.push_back(&item.zProps);
                 break;
             }
         }
