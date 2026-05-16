@@ -13,6 +13,7 @@
 #include "z-matrix/include/z-matrix.h"
 
 using PropValue = std::any;
+
 static std::set<ZPropKey> READONLY_PROPS = {
     ZPropKey::zId,
     ZPropKey::zType,
@@ -25,51 +26,18 @@ public:
 public:
     SparseProps() = default;
 
-    SparseProps(const SparseProps& other) {
-        if (other.values) {
-            values = std::make_unique<Storages>(*other.values);
-        }
-    }
+    SparseProps(const SparseProps& other);
 
-    SparseProps& operator=(const SparseProps& other) {
-        if (this == &other) {
-            return *this;
-        }
-
-        values = other.values ? std::make_unique<Storages>(*other.values) : nullptr;
-        return *this;
-    }
+    SparseProps& operator=(const SparseProps& other);
 
     SparseProps(SparseProps&&) noexcept = default;
     SparseProps& operator=(SparseProps&&) noexcept = default;
 
-    void setAny(ZPropKey key, const std::any& value) {
-        if (READONLY_PROPS.contains(key)) {
-            printf("!! error, try modify readonly props [%d]\n", key);
-            return;
-        }
+    void setAny(ZPropKey key, const std::any& value);
 
-        if (!values) {
-            values = std::make_unique<Storages>();
-        }
+    const Storages& getEntry() const;
 
-        (*values)[key] = value;
-    }
-
-    const Storages& getEntry() const {
-        static const Storages empty;
-        if (!values) {
-            return empty;
-        }
-
-        return *values;
-    }
-
-    void merge(const SparseProps& props) {
-        for (const auto& [key, value] : props.getEntry()) {
-            setAny(key, value);
-        }
-    }
+    void merge(const SparseProps& props);
 
 public:
     template <ZPropKey P>

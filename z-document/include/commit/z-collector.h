@@ -2,6 +2,8 @@
 
 #include <any>
 #include <optional>
+#include <set>
+#include <unordered_map>
 
 #include "z-document/include/commit/z-patch.h"
 #include "z-document/include/prop/z-prop-key.h"
@@ -52,5 +54,5 @@ private:
     bool zEnable{true};
     ZCollectItem t;
     std::unordered_map<ZGuid, ZCollectItem, ZGuidHash> zCollectItems{};
-    std::set<ZComponent*> zNewChild{};
+    std::set<z_sp<ZComponent>> zNewChild{};
 };

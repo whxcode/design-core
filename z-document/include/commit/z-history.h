@@ -21,6 +21,14 @@ public:
             zRecords.pop_back();
         }
 
+        // 丢弃之前的旧数据
+        while (zRecords.size() >= zMaxIndex) {
+            zRecords.pop_front();
+            if (zIndex > 0) {
+                --zIndex;
+            }
+        }
+
         zRecords.push_back(patch);
         zIndex = zRecords.size();
     }
@@ -52,8 +60,11 @@ public:
     }
 
 private:
+    static constexpr size_t zMaxIndex{100};
+
     std::deque<ZPatch> zRecords{};
     size_t zIndex{0};
+
     // std::deque<ZPatch> zUndo;
     // std::deque<ZPatch> zRedo;
 };

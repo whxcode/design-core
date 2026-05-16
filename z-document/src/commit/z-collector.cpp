@@ -46,13 +46,15 @@ void ZCollector::recordAddChild(const z_sp<ZComponent>& comp) {
     }
 
     // printf("ZCollector::recordAddChild[添加]\n");
-    zNewChild.insert(comp.get());
+    zNewChild.insert(comp);
 }
 
 void ZCollector::recordRemoveChild(const z_sp<ZComponent>& comp) {
     if (!zEnable || comp == nullptr) {
         return;
     }
+
+    zNewChild.erase(comp);
 }
 
 std::optional<ZPatch> ZCollector::commit() {
@@ -66,7 +68,7 @@ std::optional<ZPatch> ZCollector::commit() {
     ZComponentArray comps;
 
     for (const auto& comp : zNewChild) {
-        comps.push_back(comp->as<ZComponent>());
+        comps.push_back(comp);
 
         const auto& model = comp->getModel();
 
