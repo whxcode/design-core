@@ -2,13 +2,13 @@
 
 #include <utility>
 
+#include "z-app/include/ZAppEvent.h"
 #include "z-editor/include/handlers/z-common-handle.h"
 #include "z-editor/include/handlers/z-drag-handler.h"
 #include "z-editor/include/handlers/z-draw-layer-handle.h"
 #include "z-editor/include/handlers/z-select-frame-handler.h"
 #include "z-editor/include/handlers/z-viewport-handler.h"
 #include "z-editor/include/z-editor-context.h"
-#include "z-app/include/ZAppEvent.h"
 
 ZUIHandle::ZUIHandle(ZEditorContext* context) : zContext(context) {
     addEffectHandler(std::make_shared<ZViewportHandler>(ZHandlerType::zViewport, context));
@@ -67,17 +67,14 @@ ZHandlerType ZUIHandle::activeHandlerType() const {
 
 void ZUIHandle::switchCommonHandler() {
     setActiveHandler(std::make_shared<ZUICommonHandle>(ZHandlerType::zCommon, zContext));
-    printf("ZUIHandle::switchCommonHandler\n");
 }
 
 void ZUIHandle::switchDrawPathHandler(const ZDrawLayerType type) {
     setActiveHandler(std::make_shared<ZDrawLayerHandle>(ZHandlerType::zDrawLayer, zContext, type));
-    printf("ZUIHandle::switchDrawPathHandler\n");
 }
 
 void ZUIHandle::switchSelectFrameHandler() {
     setActiveHandler(std::make_shared<ZSelectFrameHandler>(ZHandlerType::zSelectFrame, zContext));
-    printf("ZUIHandle::switchSelectFrameHandler\n");
 }
 
 void ZUIHandle::switchSelectFrameHandler(const ZPoint& startPoint) {
@@ -85,7 +82,6 @@ void ZUIHandle::switchSelectFrameHandler(const ZPoint& startPoint) {
     handler->zMouseDownPoint = startPoint;
     handler->zCurrentPoint = startPoint;
     setActiveHandler(handler);
-    printf("ZUIHandle::switchSelectFrameHandler\n");
 }
 
 void ZUIHandle::switchDragHandler(const ZPoint& startPoint, const ZPoint& currentPoint) {
@@ -94,5 +90,4 @@ void ZUIHandle::switchDragHandler(const ZPoint& startPoint, const ZPoint& curren
     handler->zCurrentPoint = currentPoint;
     handler->setLastPoint(startPoint);
     setActiveHandler(handler);
-    printf("ZUIHandle::switchDragHandler\n");
 }
