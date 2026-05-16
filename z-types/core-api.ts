@@ -12,6 +12,16 @@ export type { ZUIEvent } from "./ui-event/z-ui-event";
 export type WasmPtr = number;
 export type SizeT = number;
 
+export enum ZCommandType {
+  SwitchToCommonHandler = 0,
+  DrawRectangle = 1,
+  DrawEllipse = 2,
+  UndoDocumentHistory = 3,
+  RedoDocumentHistory = 4,
+  DeleteSelectedLayer = 5,
+  CancelCurrentInteraction = 6,
+}
+
 export interface CoreWindow {
   setTitle(): void;
   dump(): void;
@@ -21,12 +31,9 @@ export interface CoreDocument {
   setName(): void;
 }
 
-export interface CoreCommit {
-  commit(): void;
-  undo(): void;
-  redo(): void;
-  canUndo(): boolean;
-  canRedo(): boolean;
+export interface CoreCommand {
+  canExecute(type: ZCommandType): boolean;
+  execute(type: ZCommandType): void;
 }
 
 export interface ViewportData {
@@ -62,10 +69,9 @@ export interface CoreApp {
   viewport(): ViewportData;
   handler(): ZHandlerType;
   onUIEvent(event: ZUIEvent): void;
-  switchHandler(type: ZHandlerType): void;
   setTheme(type: ZEditorThemeType): void;
   appEvent(): CoreAppEvent;
-  commit(): CoreCommit;
+  command(): CoreCommand;
   window(): CoreWindow;
   document(): CoreDocument;
 }

@@ -20,7 +20,7 @@ public:
 
 public:
     void switchCommonHandler();
-    void switchDrawPathHandler();
+    void switchDrawPathHandler(ZDrawLayerType type = ZDrawLayerType::zRectangle);
     void switchSelectFrameHandler();
     void switchSelectFrameHandler(const ZPoint& startPoint);
     void switchDragHandler(const ZPoint& startPoint, const ZPoint& currentPoint);

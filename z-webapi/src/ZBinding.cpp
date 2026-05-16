@@ -9,6 +9,7 @@
 #include "z-app/include/ZAppEvent.h"
 #include "z-document/include/commit/z-commit.h"
 #include "z-document/include/layers/z-document.h"
+#include "z-editor/include/command/z-command.h"
 #include "z-tools/include/z-editor-theme.h"
 #include "z-wasm/include/z-wasm/z-js-value.h"
 
@@ -52,12 +53,13 @@ EMSCRIPTEN_BINDINGS(core_api) {
     // 绑定 Document
     class_<ZDocument>("Document").function("setName", &ZDocument::setName);
 
-    class_<ZCommit>("Commit")
-        .function("commit", &ZCommit::commit)
-        .function("undo", &ZCommit::undo)
-        .function("redo", &ZCommit::redo)
-        .function("canUndo", &ZCommit::canUndo)
-        .function("canRedo", &ZCommit::canRedo);
+    class_<ZCommand>("Command")
+        .function("canExecute", optional_override([](ZCommand& self, const int type) -> bool {
+                      return self.canExecute(static_cast<ZCommandType>(type));
+                  }))
+        .function("execute", optional_override([](ZCommand& self, const int type) -> void {
+                      self.execute(static_cast<ZCommandType>(type));
+                  }));
 
     // 绑定 App：返回的是引用，符合你“掌握生命周期”的要求
     class_<ZApp>("App")
@@ -86,10 +88,6 @@ EMSCRIPTEN_BINDINGS(core_api) {
                       self.onUIEvent(wasm::cpp::GetValue(event, static_cast<ZUIEvent*>(nullptr)));
                   }))
 
-        .function("switchHandler", optional_override([](ZApp& self, const int type) -> void {
-                      self.switchHandler(static_cast<ZHandlerType>(type));
-                  }))
-
         .function("setTheme", optional_override([](ZApp& self, const int type) -> void {
                       self.setTheme(static_cast<ZEditorThemeType>(type));
                   }))
@@ -99,8 +97,8 @@ EMSCRIPTEN_BINDINGS(core_api) {
                   }),
                   allow_raw_pointers())
 
-        .function("commit", optional_override([](ZApp& self) -> ZCommit* {
-                      return &self.getCommit();
+        .function("command", optional_override([](ZApp& self) -> ZCommand* {
+                      return &self.getCommand();
                   }),
                   allow_raw_pointers())
 

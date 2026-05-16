@@ -10,6 +10,11 @@
 #include "z-editor/include/ui-event/z-ui-handle.h"
 #include "z-editor/include/z-editor-context.h"
 
+ZDrawLayerHandle::ZDrawLayerHandle(const ZHandlerType type, ZEditorContext* context,
+                                   const ZDrawLayerType drawType)
+    : ZUIHandleEvent(type, context), zDrawType(drawType) {
+}
+
 bool ZDrawLayerHandle::onMouseDown(const ZUIEvent& event) {
     std::cout << "ZDrawPathHandle::onMouseDown" << std::endl;
     return true;
@@ -28,7 +33,7 @@ bool ZDrawLayerHandle::onMouseUp(const ZUIEvent& event) {
     auto rect2 = ZCreatorModel::Make<ZLayerModel>(ZModelType::zRectangle);
 
     rect1->setSize({50.f, 50.f});
-    rect1->setName("---矩形 1---");
+    rect1->setName(zDrawType == ZDrawLayerType::zEllipse ? "---椭圆 1---" : "---矩形 1---");
     rect1->setFillColor(0x00ff00);
     rect1->setTransform(ZMatrix::Translate(0, 0));
 

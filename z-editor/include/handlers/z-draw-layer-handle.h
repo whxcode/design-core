@@ -4,7 +4,8 @@
 
 class ZDrawLayerHandle : public ZUIHandleEvent {
 public:
-    using ZUIHandleEvent::ZUIHandleEvent;
+    explicit ZDrawLayerHandle(ZHandlerType type, ZEditorContext* context = nullptr,
+                              ZDrawLayerType drawType = ZDrawLayerType::zRectangle);
 
     bool onMouseDown(const ZUIEvent& event) override;
     bool onMouseMove(const ZUIEvent& event) override;
@@ -12,4 +13,7 @@ public:
     bool onMouseWheel(const ZUIEvent& event) override;
     bool onKeyDown(const ZUIEvent& event) override;
     bool onKeyUp(const ZUIEvent& event) override;
+
+private:
+    ZDrawLayerType zDrawType{ZDrawLayerType::zRectangle};
 };

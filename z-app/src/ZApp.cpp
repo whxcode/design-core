@@ -17,6 +17,7 @@
 #include "z-document/include/layers/z-page.h"
 #include "z-document/include/models/z-layer-model.h"
 #include "z-document/include/z-model-type.h"
+#include "z-editor/include/command/z-command.h"
 #include "z-matrix/include/z-matrix.h"
 #include "z-paint/include/z-shape.h"
 #include "z-tools/include/z-task.h"
@@ -96,6 +97,7 @@ void ZApp::startup() {
     zEditorContext->setSelection(zSelection.get());
     zEditorContext->setTrace(zTrace.get());
     zEditorContext->setCommit(zCommit.get());
+    zCommand = std::make_unique<ZCommand>(zEditorContext.get());
 
     this->zWindow->setEditorContext(zEditorContext.get());
     this->zWindow->setTrace(zTrace.get());
@@ -133,6 +135,10 @@ const std::vector<ZImagePayload>& ZApp::getImages() const {
 
 ZCommit& ZApp::getCommit() const {
     return *zCommit;
+}
+
+ZCommand& ZApp::getCommand() const {
+    return *zCommand;
 }
 
 void ZApp::requestRedraw() {

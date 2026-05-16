@@ -7,6 +7,7 @@
 #include "z-app/include/ZAppEvent.h"
 #include "z-document/include/layers/z-document.h"
 #include "z-document/include/viewport/z-viewport.h"
+#include "z-editor/include/command/z-command.h"
 #include "z-editor/include/selection/z-selection.h"
 #include "z-editor/include/ui-event/z-ui-handle.h"
 #include "z-editor/include/z-editor-context.h"
@@ -67,6 +68,7 @@ public:
     const std::vector<ZImagePayload>& getImages() const;
     void requestRedraw();
     ZCommit& getCommit() const;
+    ZCommand& getCommand() const;
 
 private:
     ZApp();  // 构造函数私有化
@@ -80,5 +82,6 @@ private:
     std::unique_ptr<ZTrace> zTrace{nullptr};
     z_sp<ZDocument> zDocument{nullptr};
     z_sp<ZCommit> zCommit{nullptr};
+    std::unique_ptr<ZCommand> zCommand{nullptr};
     std::vector<ZImagePayload> zImages;
 };

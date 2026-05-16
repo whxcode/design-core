@@ -70,8 +70,8 @@ void ZUIHandle::switchCommonHandler() {
     printf("ZUIHandle::switchCommonHandler\n");
 }
 
-void ZUIHandle::switchDrawPathHandler() {
-    setActiveHandler(std::make_shared<ZDrawLayerHandle>(ZHandlerType::zDrawLayer, zContext));
+void ZUIHandle::switchDrawPathHandler(const ZDrawLayerType type) {
+    setActiveHandler(std::make_shared<ZDrawLayerHandle>(ZHandlerType::zDrawLayer, zContext, type));
     printf("ZUIHandle::switchDrawPathHandler\n");
 }
 
