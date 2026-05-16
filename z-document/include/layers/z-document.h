@@ -19,8 +19,8 @@ public:
     ZDocument(z_sp<ZDocumentModel> model);
 
 public:  // ZDocumentChangeSink 实现
-    void onModelPropChanged(const ZModel* const model, const ZPropKey key,
-                            const void* const oldValue, const void* const newValue) override;
+    void onModelPropChanged(const ZGuid& id, const ZPropKey key, const PropValue& oldValue,
+                            const PropValue& newValue) override;
 
     void onAddChild(const z_sp<ZComponent>& comp) override;
 

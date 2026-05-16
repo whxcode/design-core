@@ -19,6 +19,8 @@ std::any ZPropCodec::CopyValue(const ZPropKey key, const void* value) {
         return {};
     }
 
+    // auto a = std::any(10);
+
     switch (key) {
         case ZPropKey::zParentId:
             return std::any(*static_cast<const ZGuid*>(value));

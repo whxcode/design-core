@@ -20,19 +20,8 @@ bool ZCollector::canOpen() {
     return zEnable;
 }
 
-void ZCollector::recordPropChanged(const ZGuid id, const ZPropKey key, const void* const oldValue,
-                                   const void* const newValue) {
-    auto oldAny = ZPropCodec::CopyValue(key, oldValue);
-    auto newAny = ZPropCodec::CopyValue(key, newValue);
-
-    if (!oldAny.has_value() || !newAny.has_value()) {
-        return;
-    }
-
-    recordPropChanged(id, key, std::move(oldAny), std::move(newAny));
-}
-
-void ZCollector::recordPropChanged(ZGuid id, ZPropKey key, std::any oldValue, std::any newValue) {
+void ZCollector::recordPropChanged(const ZGuid& id, const ZPropKey key, const PropValue& oldValue,
+                                   const PropValue& newValue) {
     if (!zEnable) {
         return;
     }

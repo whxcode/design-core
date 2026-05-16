@@ -37,7 +37,8 @@ public:
      * @param oldVal 旧值指针
      * @param newVal 新值指针
      */
-    virtual void triggerUpdate(ZPropKey prop, void* oldVal, void* newVal);
+    virtual void triggerUpdate(const ZPropKey prop, const PropValue& oldValue,
+                               const PropValue& newValue);
 
     DEFINED_SPARSE_PROP_READONLY(ZGuid, Id)
     DEFINED_SPARSE_PROP_READONLY(ZModelType, Type)
@@ -77,10 +78,12 @@ protected:
             return;
         }
 
-        auto v = oldVal;
+        auto oldValue = oldVal;
+        auto newValue = std::any(value);
 
         zProps.set<P>(value);
-        triggerUpdate(P, (void*)&v, (void*)&value);
+
+        triggerUpdate(P, oldValue, newValue);
     }
 
     ZDocumentChangeSink* zChangeSink{nullptr};

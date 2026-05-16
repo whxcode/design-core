@@ -73,6 +73,19 @@ public:
 
 public:
     template <ZPropKey P>
+    const PropValue& getOrigin() const {
+        if (values != nullptr) {
+            auto it = values->find(P);
+
+            if (it != values->end()) {
+                return it->second;
+            }
+        }
+
+        return PropTraits<P>::defAny();
+    }
+
+    template <ZPropKey P>
     const typename PropTraits<P>::Type& get() const {
         if (values != nullptr) {
             auto it = values->find(P);

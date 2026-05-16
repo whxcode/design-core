@@ -35,10 +35,8 @@ public:
     bool canOpen();
 
 public:
-    void recordPropChanged(ZGuid id, ZPropKey key, std::any oldValue, std::any newValue);
-
-    void recordPropChanged(const ZGuid id, const ZPropKey key, const void* const oldValue,
-                           const void* const newValue);
+    void recordPropChanged(const ZGuid& id, const ZPropKey key, const PropValue& oldValue,
+                           const PropValue& newValue);
 
     void recordAddChild(const z_sp<ZComponent>& comp);
 

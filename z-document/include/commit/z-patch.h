@@ -10,11 +10,9 @@
 #include "z-document/include/prop/z-sparse-props.h"
 #include "z-tools/include/z-guid.h"
 
-using ZPatchValue = std::any;
-
 class ZPatchProps {
 public:
-    void setAny(ZPropKey key, const std::any& value) {
+    void setAny(const ZPropKey key, const PropValue& value) {
         zProps.setAny(key, value);
     }
 

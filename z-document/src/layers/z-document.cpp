@@ -3,8 +3,8 @@
 
 #include <cstdio>
 
-#include "z-document/include/commit/z-patch.h"
 #include "z-document/include/commit/z-patch-merger.h"
+#include "z-document/include/commit/z-patch.h"
 #include "z-document/include/layers/z-component.h"
 #include "z-document/include/layers/z-layerbase.h"
 #include "z-document/include/layers/z-page.h"
@@ -14,9 +14,9 @@ ZDocument::ZDocument(std::shared_ptr<ZDocumentModel> model)
     : ZComponent(model), zCollector(std::make_unique<ZCollector>()) {
 }
 
-void ZDocument::onModelPropChanged(const ZModel* const model, const ZPropKey key,
-                                   const void* const oldValue, const void* const newValue) {
-    zCollector->recordPropChanged(model->getId(), key, oldValue, newValue);
+void ZDocument::onModelPropChanged(const ZGuid& id, const ZPropKey key, const PropValue& oldValue,
+                                   const PropValue& newValue) {
+    zCollector->recordPropChanged(id, key, oldValue, newValue);
 }
 
 void ZDocument::onAddChild(const z_sp<ZComponent>& comp) {
