@@ -7,8 +7,13 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # --- 1. 路径定义 ---
-set(EM_PATH "/home/whx/emsdk/upstream/emscripten")
-set(EM_SYSROOT "${EM_PATH}/cache/sysroot")
+if(CMAKE_SYSROOT)
+  set(EM_SYSROOT "${CMAKE_SYSROOT}")
+elseif(DEFINED ENV{EM_CACHE})
+  set(EM_SYSROOT "$ENV{EM_CACHE}/sysroot")
+else()
+  message(FATAL_ERROR "Unable to resolve Emscripten sysroot. Run this project through emcmake.")
+endif()
 
 # --- 2. 基础编译选项 (公共部分) ---
 set(COMMON_COMPILE_OPTIONS

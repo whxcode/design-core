@@ -48,7 +48,7 @@ void ZCollector::recordPropChanged(ZGuid id, ZPropKey key, std::any oldValue, st
         item.zUsed.insert(key);
     }
 
-    item.zNewProps.setAny(key, oldValue);
+    item.zNewProps.setAny(key, newValue);
 }
 
 void ZCollector::recordAddChild(const z_sp<ZComponent>& comp) {

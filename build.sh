@@ -7,6 +7,7 @@ CORE_DIR=$(
   pwd
 )
 BUILD_DIR="$CORE_DIR/build_wasm"
+EM_CACHE_DIR="$BUILD_DIR/.emscripten_cache"
 
 # Web 产物输出路径
 WEB_DIST_DIR="$CORE_DIR/../design-web/public/wasm"
@@ -32,6 +33,16 @@ if [ -d "$BUILD_DIR" ]; then
   rm -rf "$BUILD_DIR/CMakeCache.txt"
 fi
 mkdir -p "$BUILD_DIR"
+mkdir -p "$EM_CACHE_DIR"
+export EM_CACHE="$EM_CACHE_DIR"
+
+if command -v nproc >/dev/null 2>&1; then
+  JOBS=$(nproc)
+elif command -v getconf >/dev/null 2>&1; then
+  JOBS=$(getconf _NPROCESSORS_ONLN)
+else
+  JOBS=4
+fi
 
 # --- 5. 运行 CMake 编译 ---
 cd "$BUILD_DIR"
@@ -43,7 +54,7 @@ emcmake cmake "$CORE_DIR" \
 
 # 多线程并行编译
 echo "编译中..."
-make -j$(nproc)
+make -j"$JOBS"
 
 # --- 6. 同步产物至前端 ---
 if [ -d "$WEB_DIST_DIR" ]; then
