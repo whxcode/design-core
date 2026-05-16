@@ -57,7 +57,10 @@ public:
 
     void merge(const SparseProps& props) {
         zProps.merge(props);
-        // zProps = std::move(props);
+    }
+
+    SparseProps getProps() {
+        return zProps;
     }
 
     void setProps(const ZPatchProps& props);

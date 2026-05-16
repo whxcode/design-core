@@ -101,8 +101,6 @@ std::optional<ZPatch> ZCollector::commit() {
         });
     }
 
-    // std::cout << "patch::undo:" << patch.zUndo.size() << std::endl;
-
     clear();
 
     return patch;

@@ -12,6 +12,10 @@
 
 class ZPatchProps {
 public:
+    ZPatchProps() = default;
+    ZPatchProps(const SparseProps& props) : zProps(props) {};
+
+public:
     void setAny(const ZPropKey key, const PropValue& value) {
         zProps.setAny(key, value);
     }

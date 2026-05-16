@@ -14,54 +14,8 @@
 #include "z-matrix/include/z-size.h"
 #include "z-tools/include/z-guid.h"
 
-std::any ZPropCodec::CopyValue(const ZPropKey key, const void* value) {
-    if (!value) {
-        return {};
-    }
-
-    // auto a = std::any(10);
-
-    switch (key) {
-        case ZPropKey::zParentId:
-            return std::any(*static_cast<const ZGuid*>(value));
-        case ZPropKey::zName:
-            return std::any(*static_cast<const std::string*>(value));
-        case ZPropKey::zSize:
-            return std::any(*static_cast<const ZSize*>(value));
-        case ZPropKey::zTransform:
-            return std::any(*static_cast<const ZMatrix*>(value));
-        case ZPropKey::zFillColor:
-            return std::any(*static_cast<const uint32_t*>(value));
-        case ZPropKey::zId:
-        case ZPropKey::zType:
-            return {};
-    }
-
-    return {};
-}
-
 ZPatchProps ZPropCodec::MakeProps(const z_sp<ZModel>& model) {
-    ZPatchProps props;
-    /*
-
-    props.set<ZPropKey::zId>(model->getId());
-    props.set<ZPropKey::zType>(model->getType());
-    props.set<ZPropKey::zParentId>(model->getParentId());
-    props.set<ZPropKey::zName>(model->getName());
-
-    switch (model->getType()) {
-        case ZModelType::zRectangle: {
-            const auto& layerModel = model->as<ZLayerModel>();
-
-            props.set<ZPropKey::zSize>(layerModel->getSize());
-            props.set<ZPropKey::zTransform>(layerModel->getTransform());
-            props.set<ZPropKey::zFillColor>(layerModel->getFillColor());
-        }
-
-        default:
-            break;
-    }
-  */
+    ZPatchProps props{model->getProps()};
 
     return props;
 }

@@ -15,7 +15,6 @@ class ZPropCodec {
     using Fn = std::function<void(z_sp<ZComponent> comp)>;
 
 public:
-    static std::any CopyValue(ZPropKey key, const void* value);
     static ZPatchProps MakeProps(const z_sp<ZModel>& model);
 
     static void DeepBST(std::vector<z_sp<ZComponent>> comps, const Fn& fn);

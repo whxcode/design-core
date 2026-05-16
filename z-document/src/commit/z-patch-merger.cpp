@@ -12,27 +12,6 @@
 
 namespace {
 
-z_sp<ZComponent> MakeComponent(const ZPatchProps& props) {
-    const auto& typeIt = props.get<ZPropKey::zType>();
-    const auto& idIt = props.get<ZPropKey::zId>();
-
-    /*
-      if (typeIt == props.end()) {
-          Z_ASSERT(false, "未能找到将要添加的节点类型");
-          return nullptr;
-      }
-
-      if (idIt == props.end()) {
-          Z_ASSERT(false, "未能找到将要添加的节点 id");
-          return nullptr;
-      }
-    */
-
-    const auto model = ZCreatorModel::Make(idIt, typeIt);
-    // model->setProps(props);
-    return ZCreatorLayer::Make(model);
-}
-
 std::vector<z_sp<ZModel>> MakeModels(const std::vector<const ZPatchProps*>& newProps) {
     std::vector<z_sp<ZModel>> result{};
     result.reserve(newProps.size());
