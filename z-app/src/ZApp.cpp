@@ -90,13 +90,14 @@ void ZApp::startup() {
     zTrace = std::make_unique<ZTrace>(zEditorContext.get(), zAppEvent.get(), [this]() {
         requestRedraw();
     });
-    zUIHandle = std::make_unique<ZUIHandle>(zEditorContext.get());
     zCommit = std::make_shared<ZCommit>(zDocument, zSelection, zAppEvent.get());
 
-    zEditorContext->setHandle(zUIHandle.get());
     zEditorContext->setSelection(zSelection.get());
     zEditorContext->setTrace(zTrace.get());
     zEditorContext->setCommit(zCommit.get());
+
+    zUIHandle = std::make_unique<ZUIHandle>(zEditorContext.get());
+    zEditorContext->setHandle(zUIHandle.get());
     zCommand = std::make_unique<ZCommand>(zEditorContext.get());
 
     this->zWindow->setEditorContext(zEditorContext.get());

@@ -1,15 +1,22 @@
 #pragma once
 
+#include "z-editor/include/ui-event/z-ui-handle-state.h"
 #include "z-editor/include/ui-event/z-ui-event.h"
 #include "z-matrix/include/z-point.h"
 
 class ZEditorContext;
+class ZCommit;
+class ZDocument;
+class ZSelection;
+class ZTrace;
+class ZUIHandle;
 
 class ZUIHandleEvent {
 public:
     friend class ZUIHandle;
 
-    explicit ZUIHandleEvent(const ZHandlerType type, ZEditorContext* context = nullptr);
+    explicit ZUIHandleEvent(const ZHandlerType type, const ZUIHandleState& state,
+                            ZEditorContext* context = nullptr);
     virtual ~ZUIHandleEvent() = default;
 
     virtual bool onUIEvent(const ZUIEvent& event);
@@ -21,16 +28,19 @@ public:
     virtual bool onKeyUp(const ZUIEvent& event);
 
 protected:
+    ZEditorContext& getContext() const;
+    ZDocument& getDocument() const;
+    ZUIHandle& getHandle() const;
+    ZSelection& getSelection() const;
+    ZTrace& getTrace() const;
+    ZCommit& getCommit() const;
     ZPoint getMouseDownPoint() const;
     ZPoint getCurrentPoint() const;
     ZPoint getMouseUpPoint() const;
-    ZPoint toWorldPoint(const ZUIEvent& event) const;
+    bool isPressDown() const;
 
 protected:
     ZEditorContext* zContext{nullptr};
+    const ZUIHandleState& zState;
     ZHandlerType zType{ZHandlerType::zCommon};
-    ZPoint zMouseDownPoint{};
-    ZPoint zCurrentPoint{};
-    ZPoint zMouseUpPoint{};
-    bool zPressDown{};
 };

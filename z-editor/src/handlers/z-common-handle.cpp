@@ -30,16 +30,16 @@ bool ZUICommonHandle::onMouseDown(const ZUIEvent& event) {
 
 bool ZUICommonHandle::onMouseMove(const ZUIEvent& event) {
     if (zDragPending) {
-        zContext->getHandle()->switchDragHandler(getMouseDownPoint(), getCurrentPoint());
+        zContext->getHandle()->switchDragHandler();
         zDragPending = false;
         return true;
     }
 
     zContext->getSelection()->hitHover(getCurrentPoint());
 
-    if (zPressDown &&  //
+    if (isPressDown() &&  //
         ZPoint::Distance(getMouseDownPoint(), getCurrentPoint()) > 10.f) {
-        zContext->getHandle()->switchSelectFrameHandler(getCurrentPoint());
+        zContext->getHandle()->switchSelectFrameHandler();
     }
 
     return false;

@@ -5,9 +5,9 @@
 
 class ZDragHandler : public ZUIHandleEvent {
 public:
-    using ZUIHandleEvent::ZUIHandleEvent;
+    explicit ZDragHandler(ZHandlerType type, const ZUIHandleState& state,
+                          ZEditorContext* context = nullptr);
 
-    void setLastPoint(const ZPoint& point);
     bool onMouseMove(const ZUIEvent& event) override;
     bool onMouseUp(const ZUIEvent& event) override;
 

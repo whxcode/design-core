@@ -11,11 +11,13 @@
 #include "z-editor/include/z-editor-context.h"
 
 ZUIHandle::ZUIHandle(ZEditorContext* context) : zContext(context) {
-    addEffectHandler(std::make_shared<ZViewportHandler>(ZHandlerType::zViewport, context));
-    setActiveHandler(std::make_shared<ZUICommonHandle>(ZHandlerType::zCommon, context));
+    addEffectHandler(std::make_shared<ZViewportHandler>(ZHandlerType::zViewport, zState, context));
+    setActiveHandler(std::make_shared<ZUICommonHandle>(ZHandlerType::zCommon, zState, context));
 }
 
 void ZUIHandle::onUIEvent(const ZUIEvent& event) {
+    zState.update(event, zContext);
+
     for (const auto& handler : zEffectHandlers) {
         if (handler && handler->onUIEvent(event)) {
             return;
@@ -66,28 +68,26 @@ ZHandlerType ZUIHandle::activeHandlerType() const {
 }
 
 void ZUIHandle::switchCommonHandler() {
-    setActiveHandler(std::make_shared<ZUICommonHandle>(ZHandlerType::zCommon, zContext));
+    setActiveHandler(std::make_shared<ZUICommonHandle>(ZHandlerType::zCommon, zState, zContext));
 }
 
 void ZUIHandle::switchDrawPathHandler(const ZDrawLayerType type) {
-    setActiveHandler(std::make_shared<ZDrawLayerHandle>(ZHandlerType::zDrawLayer, zContext, type));
+    setActiveHandler(std::make_shared<ZDrawLayerHandle>(
+        ZHandlerType::zDrawLayer,
+        zState,
+        zContext,
+        type
+    ));
 }
 
 void ZUIHandle::switchSelectFrameHandler() {
-    setActiveHandler(std::make_shared<ZSelectFrameHandler>(ZHandlerType::zSelectFrame, zContext));
+    setActiveHandler(std::make_shared<ZSelectFrameHandler>(
+        ZHandlerType::zSelectFrame,
+        zState,
+        zContext
+    ));
 }
 
-void ZUIHandle::switchSelectFrameHandler(const ZPoint& startPoint) {
-    auto handler = std::make_shared<ZSelectFrameHandler>(ZHandlerType::zSelectFrame, zContext);
-    handler->zMouseDownPoint = startPoint;
-    handler->zCurrentPoint = startPoint;
-    setActiveHandler(handler);
-}
-
-void ZUIHandle::switchDragHandler(const ZPoint& startPoint, const ZPoint& currentPoint) {
-    auto handler = std::make_shared<ZDragHandler>(ZHandlerType::zDrag, zContext);
-    handler->zMouseDownPoint = startPoint;
-    handler->zCurrentPoint = currentPoint;
-    handler->setLastPoint(startPoint);
-    setActiveHandler(handler);
+void ZUIHandle::switchDragHandler() {
+    setActiveHandler(std::make_shared<ZDragHandler>(ZHandlerType::zDrag, zState, zContext));
 }

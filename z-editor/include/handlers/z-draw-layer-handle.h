@@ -4,7 +4,8 @@
 
 class ZDrawLayerHandle : public ZUIHandleEvent {
 public:
-    explicit ZDrawLayerHandle(ZHandlerType type, ZEditorContext* context = nullptr,
+    explicit ZDrawLayerHandle(ZHandlerType type, const ZUIHandleState& state,
+                              ZEditorContext* context = nullptr,
                               ZDrawLayerType drawType = ZDrawLayerType::zRectangle);
 
     bool onMouseDown(const ZUIEvent& event) override;

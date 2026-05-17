@@ -1,33 +1,19 @@
 #include "z-editor/include/ui-event/z-ui-handle-event.h"
 
+#include "z-document/include/commit/z-commit.h"
+#include "z-document/include/layers/z-document.h"
+#include "z-editor/include/selection/z-selection.h"
+#include "z-editor/include/ui-event/z-ui-handle.h"
 #include "z-editor/include/z-editor-context.h"
+#include "z-paint/include/z-trace.h"
+#include "z-tools/include/z-assert.h"
 
-ZUIHandleEvent::ZUIHandleEvent(const ZHandlerType type, ZEditorContext* context)
-    : zType(type), zContext(context) {
+ZUIHandleEvent::ZUIHandleEvent(const ZHandlerType type, const ZUIHandleState& state,
+                               ZEditorContext* context)
+    : zContext(context), zState(state), zType(type) {
 }
 
 bool ZUIHandleEvent::onUIEvent(const ZUIEvent& event) {
-    switch (event.type) {
-        case ZUIEventType::zMouseDown:
-            zMouseDownPoint = toWorldPoint(event);
-            zCurrentPoint = zMouseDownPoint;
-            zPressDown = true;
-            break;
-        case ZUIEventType::zMouseMove:
-            zCurrentPoint = toWorldPoint(event);
-            break;
-        case ZUIEventType::zMouseUp:
-            zMouseUpPoint = toWorldPoint(event);
-            zCurrentPoint = zMouseUpPoint;
-            zPressDown = false;
-            break;
-        case ZUIEventType::zMouseWheel:
-        case ZUIEventType::zKeyDown:
-        case ZUIEventType::zKeyUp:
-        case ZUIEventType::zUnknown:
-            break;
-    }
-
     switch (event.type) {
         case ZUIEventType::zMouseDown:
             return onMouseDown(event);
@@ -72,28 +58,53 @@ bool ZUIHandleEvent::onKeyUp(const ZUIEvent&) {
     return false;
 }
 
+ZEditorContext& ZUIHandleEvent::getContext() const {
+    Z_ASSERT(zContext != nullptr, "ZUIHandleEvent requires ZEditorContext");
+    return *zContext;
+}
+
+ZDocument& ZUIHandleEvent::getDocument() const {
+    auto* document = getContext().getDocument();
+    Z_ASSERT(document != nullptr, "ZUIHandleEvent requires ZDocument");
+    return *document;
+}
+
+ZUIHandle& ZUIHandleEvent::getHandle() const {
+    auto* handle = getContext().getHandle();
+    Z_ASSERT(handle != nullptr, "ZUIHandleEvent requires ZUIHandle");
+    return *handle;
+}
+
+ZSelection& ZUIHandleEvent::getSelection() const {
+    auto* selection = getContext().getSelection();
+    Z_ASSERT(selection != nullptr, "ZUIHandleEvent requires ZSelection");
+    return *selection;
+}
+
+ZTrace& ZUIHandleEvent::getTrace() const {
+    auto* trace = getContext().getTrace();
+    Z_ASSERT(trace != nullptr, "ZUIHandleEvent requires ZTrace");
+    return *trace;
+}
+
+ZCommit& ZUIHandleEvent::getCommit() const {
+    auto* commit = getContext().getCommit();
+    Z_ASSERT(commit != nullptr, "ZUIHandleEvent requires ZCommit");
+    return *commit;
+}
+
 ZPoint ZUIHandleEvent::getMouseDownPoint() const {
-    return zMouseDownPoint;
+    return zState.mouseDownPoint();
 }
 
 ZPoint ZUIHandleEvent::getCurrentPoint() const {
-    return zCurrentPoint;
+    return zState.currentPoint();
 }
 
 ZPoint ZUIHandleEvent::getMouseUpPoint() const {
-    return zMouseUpPoint;
+    return zState.mouseUpPoint();
 }
 
-ZPoint ZUIHandleEvent::toWorldPoint(const ZUIEvent& event) const {
-    if (!zContext) {
-        return ZPoint(event.x, event.y);
-    }
-
-    const auto viewport = zContext->getViewportData();
-    if (viewport.scale == 0.0f) {
-        return ZPoint(event.x, event.y);
-    }
-
-    return ZPoint((event.x - viewport.offsetX) / viewport.scale,
-                  (event.y - viewport.offsetY) / viewport.scale);
+bool ZUIHandleEvent::isPressDown() const {
+    return zState.pressDown();
 }

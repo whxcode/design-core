@@ -7,15 +7,13 @@
 #include "z-editor/include/ui-event/z-ui-handle.h"
 #include "z-editor/include/z-editor-context.h"
 
-void ZDragHandler::setLastPoint(const ZPoint& point) {
-    zLastPoint = point;
+ZDragHandler::ZDragHandler(const ZHandlerType type, const ZUIHandleState& state,
+                           ZEditorContext* context)
+    : ZUIHandleEvent(type, state, context) {
+    zLastPoint = getCurrentPoint();
 }
 
 bool ZDragHandler::onMouseMove(const ZUIEvent&) {
-    if (!zContext || !zContext->getSelection()) {
-        return true;
-    }
-
     const auto current = getCurrentPoint();
     const auto dx = current.x() - zLastPoint.x();
     const auto dy = current.y() - zLastPoint.y();
@@ -23,7 +21,8 @@ bool ZDragHandler::onMouseMove(const ZUIEvent&) {
         return true;
     }
 
-    for (const auto& layer : zContext->getSelection()->getSelectedLayers()) {
+    auto& selection = getSelection();
+    for (const auto& layer : selection.getSelectedLayers()) {
         if (!layer) {
             continue;
         }
@@ -35,23 +34,15 @@ bool ZDragHandler::onMouseMove(const ZUIEvent&) {
     }
 
     zLastPoint = current;
-    zContext->getSelection()->refreshSelectedLayers();
-    zContext->requestRedraw();
+    selection.refreshSelectedLayers();
+    getContext().requestRedraw();
     return true;
 }
 
 bool ZDragHandler::onMouseUp(const ZUIEvent&) {
-    if (zContext && zContext->getCommit()) {
-        zContext->getCommit()->commit();
-    }
-
-    if (zContext && zContext->getHandle()) {
-        zContext->getHandle()->switchCommonHandler();
-    }
-
-    if (zContext) {
-        zContext->requestRedraw();
-    }
+    getCommit().commit();
+    getHandle().switchCommonHandler();
+    getContext().requestRedraw();
 
     return true;
 }

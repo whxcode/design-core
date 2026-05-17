@@ -10,9 +10,10 @@
 #include "z-editor/include/ui-event/z-ui-handle.h"
 #include "z-editor/include/z-editor-context.h"
 
-ZDrawLayerHandle::ZDrawLayerHandle(const ZHandlerType type, ZEditorContext* context,
+ZDrawLayerHandle::ZDrawLayerHandle(const ZHandlerType type, const ZUIHandleState& state,
+                                   ZEditorContext* context,
                                    const ZDrawLayerType drawType)
-    : ZUIHandleEvent(type, context), zDrawType(drawType) {
+    : ZUIHandleEvent(type, state, context), zDrawType(drawType) {
 }
 
 bool ZDrawLayerHandle::onMouseDown(const ZUIEvent& event) {
