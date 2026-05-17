@@ -9,6 +9,11 @@ enum class ZPropKey {
     zSize,
     zTransform,
     zFillColor,
+    zStartAngle,
+    zEndAngle,
+    zInnerRadius,
+    zPaths,
+    zWindingRule,
 };
 
 struct ZPropKeyHash {

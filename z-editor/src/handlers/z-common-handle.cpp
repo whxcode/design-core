@@ -71,6 +71,19 @@ bool ZUICommonHandle::onKeyDown(const ZUIEvent& event) {
 }
 
 bool ZUICommonHandle::onKeyUp(const ZUIEvent& event) {
-    // std::cout << "KeyUp: " << static_cast<int>(event.keyCode) << std::endl;
+    switch (event.keyCode) {
+        case KeyCode::zR:
+            zContext->getHandle()->switchDrawPathHandler(ZDrawLayerType::zRectangle);
+            return true;
+        case KeyCode::zO:
+            zContext->getHandle()->switchDrawPathHandler(ZDrawLayerType::zEllipse);
+            return true;
+        case KeyCode::zP:
+            zContext->getHandle()->switchDrawPathHandler(ZDrawLayerType::zVector);
+            return true;
+        default:
+            break;
+    }
+
     return false;
 }

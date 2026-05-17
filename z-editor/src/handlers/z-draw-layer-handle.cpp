@@ -1,14 +1,83 @@
 #include "z-editor/include/handlers/z-draw-layer-handle.h"
 
+#include <cstdint>
 #include <iostream>
+#include <string>
 
 #include "z-document/include/commit/z-commit.h"
 #include "z-document/include/creator/create-model.h"
 #include "z-document/include/creator/loader.h"
 #include "z-document/include/layers/z-document.h"
+#include "z-document/include/models/z-vector-model.h"
 #include "z-editor/include/ui-event/z-ui-event.h"
 #include "z-editor/include/ui-event/z-ui-handle.h"
 #include "z-editor/include/z-editor-context.h"
+
+namespace {
+
+constexpr float kDefaultLayerX = 100.0f;
+constexpr float kDefaultLayerY = 100.0f;
+constexpr float kDefaultLayerW = 100.0f;
+constexpr float kDefaultLayerH = 100.0f;
+
+ZModelType toModelType(const ZDrawLayerType drawType) {
+    switch (drawType) {
+        case ZDrawLayerType::zRectangle:
+            return ZModelType::zRectangle;
+        case ZDrawLayerType::zEllipse:
+            return ZModelType::zOval;
+        case ZDrawLayerType::zVector:
+            return ZModelType::zVector;
+    }
+
+    return ZModelType::zRectangle;
+}
+
+std::string makeLayerName(const ZDrawLayerType drawType) {
+    switch (drawType) {
+        case ZDrawLayerType::zRectangle:
+            return "矩形";
+        case ZDrawLayerType::zEllipse:
+            return "椭圆";
+        case ZDrawLayerType::zVector:
+            return "向量";
+    }
+
+    return "图层";
+}
+
+uint32_t makeFillColor(const ZDrawLayerType drawType) {
+    switch (drawType) {
+        case ZDrawLayerType::zRectangle:
+            return 0x00ff00;
+        case ZDrawLayerType::zEllipse:
+            return 0x2563eb;
+        case ZDrawLayerType::zVector:
+            return 0xf97316;
+    }
+
+    return 0x00ff00;
+}
+
+ZPathDataArray makeDefaultVectorPaths() {
+    ZPathData path;
+    path.isClosed = true;
+
+    // 默认向量使用不规则闭合曲线，方便肉眼验证 cubic bezier 的出入控制点是否生效。
+    path.points = {
+        ZPathPoint::Make(0.0f, {28.0f, -18.0f}, ZCurveMode::kDisconnected, {10.0f, 0.0f}, true,
+                         false, {10.0f, 18.0f}),
+        ZPathPoint::Make(0.0f, {108.0f, 18.0f}, ZCurveMode::kDisconnected, {56.0f, -8.0f}, true,
+                         true, {86.0f, 14.0f}),
+        ZPathPoint::Make(0.0f, {118.0f, 92.0f}, ZCurveMode::kDisconnected, {118.0f, 36.0f},
+                         true, true, {82.0f, 88.0f}),
+        ZPathPoint::Make(0.0f, {-8.0f, 82.0f}, ZCurveMode::kDisconnected, {40.0f, 116.0f}, true,
+                         true, {18.0f, 74.0f}),
+    };
+    return {path};
+}
+
+}  // namespace
 
 ZDrawLayerHandle::ZDrawLayerHandle(const ZHandlerType type, const ZUIHandleState& state,
                                    ZEditorContext* context,
@@ -28,23 +97,21 @@ bool ZDrawLayerHandle::onMouseMove(const ZUIEvent& event) {
 
 bool ZDrawLayerHandle::onMouseUp(const ZUIEvent& event) {
     std::cout << "ZDrawPathHandle::onMouseUp" << std::endl;
-    auto parent = zContext->getDocument()->getActivePage()->getFirstChild();
+    auto parent = zContext->getDocument()->getActivePage();
 
-    auto rect1 = ZCreatorModel::Make<ZLayerModel>(ZModelType::zRectangle);
-    auto rect2 = ZCreatorModel::Make<ZLayerModel>(ZModelType::zRectangle);
+    auto model = ZCreatorModel::MakeLayerModel(toModelType(zDrawType));
 
-    rect1->setSize({50.f, 50.f});
-    rect1->setName(zDrawType == ZDrawLayerType::zEllipse ? "---椭圆 1---" : "---矩形 1---");
-    rect1->setFillColor(0x00ff00);
-    rect1->setTransform(ZMatrix::Translate(0, 0));
+    model->setParentId(parent->getModel()->getId());
+    model->setSize({kDefaultLayerW, kDefaultLayerH});
+    model->setName(makeLayerName(zDrawType));
+    model->setFillColor(makeFillColor(zDrawType));
+    model->setTransform(ZMatrix::Translate(kDefaultLayerX, kDefaultLayerY));
 
-    rect2->setParentId(rect1->getId());
-    rect2->setSize({30.f, 30.f});
-    rect2->setName("矩形 2");
-    rect2->setFillColor(0xff00ff);
-    rect2->setTransform(ZMatrix::Identity().preTranslate(10, 10).preRotate(12.f, 90.f, 60.f));
+    if (zDrawType == ZDrawLayerType::zVector) {
+        model->as<ZVectorModel>()->setPaths(makeDefaultVectorPaths());
+    }
 
-    const auto views = ZLoader::MakeViews({rect1, rect2});
+    const auto views = ZLoader::MakeViews({model});
     const auto layer = views.front();
 
     parent->addChild(layer);

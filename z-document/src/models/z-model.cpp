@@ -28,6 +28,3 @@ void ZModel::setProps(const ZPatchProps& patch) {
         zProps.setAny(key, value);
     }
 }
-
-void ZModel::setPropValue(const ZPropKey key, const std::any& value) {
-}

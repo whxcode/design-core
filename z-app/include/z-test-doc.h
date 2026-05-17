@@ -6,6 +6,7 @@
 #include "z-document/include/layers/z-document.h"
 #include "z-document/include/models/z-document-model.h"
 #include "z-document/include/models/z-layer-model.h"
+#include "z-document/include/models/z-rectangle-model.h"
 #include "z-document/include/models/z-type.h"
 
 class ZTestDoc {
@@ -13,9 +14,9 @@ public:
     static ZModelArray MakeDoc() {
         auto docModel = ZCreatorModel::Make<ZDocumentModel>(ZModelType::zDocument);
         auto pageModel = ZCreatorModel::Make<ZLayerModel>(ZModelType::zPage);
-        auto rect1 = ZCreatorModel::Make<ZLayerModel>(ZModelType::zRectangle);
-        auto rect2 = ZCreatorModel::Make<ZLayerModel>(ZModelType::zRectangle);
-        auto rect3 = ZCreatorModel::Make<ZLayerModel>(ZModelType::zRectangle);
+        auto rect1 = ZCreatorModel::Make<ZRectangleModel>(ZModelType::zRectangle);
+        auto rect2 = ZCreatorModel::Make<ZRectangleModel>(ZModelType::zRectangle);
+        auto rect3 = ZCreatorModel::Make<ZRectangleModel>(ZModelType::zRectangle);
 
         docModel->setName("Test Doc A");
 

@@ -83,6 +83,7 @@ export enum ZHandlerType {
 export enum ZDrawLayerType {
   Rectangle = 0,
   Ellipse = 1,
+  Vector = 2,
 }
 
 export interface ZUIEvent {

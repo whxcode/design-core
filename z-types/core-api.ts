@@ -16,10 +16,11 @@ export enum ZCommandType {
   SwitchToCommonHandler = 0,
   DrawRectangle = 1,
   DrawEllipse = 2,
-  UndoDocumentHistory = 3,
-  RedoDocumentHistory = 4,
-  DeleteSelectedLayer = 5,
-  CancelCurrentInteraction = 6,
+  DrawVector = 3,
+  UndoDocumentHistory = 4,
+  RedoDocumentHistory = 5,
+  DeleteSelectedLayer = 6,
+  CancelCurrentInteraction = 7,
 }
 
 export interface CoreWindow {

@@ -6,6 +6,7 @@
 #include "z-document/include/layers/z-component.h"
 #include "z-document/include/layers/z-layerbase.h"
 #include "z-document/include/models/z-type.h"
+#include "z-document/include/models/z-vector-model.h"
 #include "z-engine/include/z-engine.h"
 #include "z-tools/include/z-assert.h"
 
@@ -24,11 +25,27 @@ void ZPaint::draw() {
                 auto size = model->getSize();
 
                 zEngine->transform(model->getTransform());
-                zEngine->drawRect(size.width(), size.height(),
-                                  {
-                                      .zFillColor = model->getFillColor(),
+                const ZStyle style{
+                    .zFillColor = model->getFillColor(),
+                };
 
-                                  });
+                switch (model->getType()) {
+                    case ZModelType::zRectangle:
+                        zEngine->drawRect(size.width(), size.height(), style);
+                        break;
+                    case ZModelType::zOval:
+                        zEngine->drawOval(size.width(), size.height(), style);
+                        break;
+                    case ZModelType::zVector: {
+                        const auto vectorModel = model->as<ZVectorModel>();
+                        zEngine->drawPath(vectorModel->getPaths(), vectorModel->getWindingRule(),
+                                          style);
+                        break;
+                    }
+                    case ZModelType::zDocument:
+                    case ZModelType::zPage:
+                        break;
+                }
 
                 render(layer->getChildren<ZLayerBase>());
 

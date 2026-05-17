@@ -12,7 +12,4 @@ public:
     DEFINED_SPARSE_PROP(ZSize, Size)
     DEFINED_SPARSE_PROP(ZMatrix, Transform)
     DEFINED_SPARSE_PROP(uint32_t, FillColor)
-
-protected:
-    void setPropValue(ZPropKey key, const std::any& value) override;
 };

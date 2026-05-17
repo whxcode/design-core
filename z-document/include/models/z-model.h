@@ -66,8 +66,6 @@ public:
     void setProps(const ZPatchProps& props);
 
 protected:
-    virtual void setPropValue(ZPropKey key, const std::any& value);
-
     template <ZPropKey P>
     const typename PropTraits<P>::Type& getProp() const {
         return zProps.get<P>();

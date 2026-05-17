@@ -20,6 +20,26 @@
 #include "z-engine/libs/nanovg/nanovg_gl.h"
 #include "z-tools/include/z-editor-theme.h"
 
+namespace {
+
+void applyFillAndStroke(NVGcontext* vg, const ZStyle& zStyle) {
+    const auto fillAlpha =
+        static_cast<unsigned char>(std::clamp(zStyle.zFillAlpha, 0.0f, 1.0f) * 255.0f);
+    nvgFillColor(vg, nvgRGBA((zStyle.zFillColor >> 16) & 0xFF, (zStyle.zFillColor >> 8) & 0xFF,
+                             zStyle.zFillColor & 0xFF, fillAlpha));
+    nvgFill(vg);
+
+    if (zStyle.zStrokeWidth > 0) {
+        nvgStrokeColor(
+            vg, nvgRGBA((zStyle.zStrokeColor >> 16) & 0xFF, (zStyle.zStrokeColor >> 8) & 0xFF,
+                        zStyle.zStrokeColor & 0xFF, 255));
+        nvgStrokeWidth(vg, zStyle.zStrokeWidth);
+        nvgStroke(vg);
+    }
+}
+
+}  // namespace
+
 ZVgEngine::ZVgEngine(int w, int h, float dpr) : zWidth(w), zHeight(h), zDpr(dpr) {
     init();
 };
@@ -83,28 +103,7 @@ void ZVgEngine::drawRect(float zX, float zY, float zW, float zH, const ZStyle& z
 
     nvgBeginPath(vg);
     nvgRect(vg, zX, zY, zW, zH);
-
-    // 1. 处理填充
-    const auto fillAlpha =
-        static_cast<unsigned char>(std::clamp(zStyle.zFillAlpha, 0.0f, 1.0f) * 255.0f);
-    nvgFillColor(vg, nvgRGBA((zStyle.zFillColor >> 16) & 0xFF, (zStyle.zFillColor >> 8) & 0xFF,
-                             zStyle.zFillColor & 0xFF, fillAlpha));
-    nvgFill(vg);
-
-    // 2. 处理边框 (Stroke)
-    // 假设 zStyle 里有边框颜色和宽度的定义
-    if (zStyle.zStrokeWidth > 0) {
-        // 设置边框颜色（比如黑色）
-        nvgStrokeColor(
-            vg, nvgRGBA((zStyle.zStrokeColor >> 16) & 0xFF, (zStyle.zStrokeColor >> 8) & 0xFF,
-                        zStyle.zStrokeColor & 0xFF, 255));
-
-        // 设置边框宽度
-        nvgStrokeWidth(vg, zStyle.zStrokeWidth);
-
-        // 执行描边
-        nvgStroke(vg);
-    }
+    applyFillAndStroke(vg, zStyle);
 };
 
 void ZVgEngine::drawRect(float zW, float zH, const ZStyle& zStyle) {
@@ -114,6 +113,59 @@ void ZVgEngine::drawRect(float zW, float zH, const ZStyle& zStyle) {
 void ZVgEngine::drawRect(const ZRect& rect, const ZStyle& zStyle) {
     drawRect(rect.left(), rect.top(), rect.width(), rect.height(), zStyle);
 };
+
+void ZVgEngine::drawOval(float zW, float zH, const ZStyle& zStyle) {
+    auto* vg = (NVGcontext*)zVg;
+
+    nvgBeginPath(vg);
+    nvgEllipse(vg, zW * 0.5f, zH * 0.5f, zW * 0.5f, zH * 0.5f);
+    applyFillAndStroke(vg, zStyle);
+}
+
+void ZVgEngine::drawPath(const ZPathDataArray& paths, const ZWindingRule windingRule,
+                         const ZStyle& zStyle) {
+    if (paths.empty()) {
+        return;
+    }
+
+    auto* vg = (NVGcontext*)zVg;
+
+    nvgBeginPath(vg);
+    for (const auto& path : paths) {
+        if (path.points.empty()) {
+            continue;
+        }
+
+        const auto& firstPoint = path.points.front();
+        nvgMoveTo(vg, firstPoint.point.x(), firstPoint.point.y());
+
+        for (size_t index = 1; index < path.points.size(); ++index) {
+            const auto& prevPoint = path.points[index - 1];
+            const auto& currentPoint = path.points[index];
+
+            // 曲线控制点按 MkPathPoint 语义处理：
+            // prev.curveFrom 是上一点出控制点，current.curveTo 是当前点入控制点。
+            if (prevPoint.hasCurveFrom || currentPoint.hasCurveTo) {
+                const auto controlFrom =
+                    prevPoint.hasCurveFrom ? prevPoint.curveFrom : prevPoint.point;
+                const auto controlTo =
+                    currentPoint.hasCurveTo ? currentPoint.curveTo : currentPoint.point;
+                nvgBezierTo(vg, controlFrom.x(), controlFrom.y(), controlTo.x(), controlTo.y(),
+                            currentPoint.point.x(), currentPoint.point.y());
+            } else {
+                nvgLineTo(vg, currentPoint.point.x(), currentPoint.point.y());
+            }
+        }
+
+        if (path.isClosed) {
+            nvgClosePath(vg);
+        }
+    }
+
+    // NanoVG 当前封装不直接暴露全局 even-odd fill rule；先保留参数，后续做复合路径时再扩展。
+    (void)windingRule;
+    applyFillAndStroke(vg, zStyle);
+}
 
 void ZVgEngine::drawImage(const uint8_t* bytes, size_t size, float zX, float zY, float zW,
                           float zH) {

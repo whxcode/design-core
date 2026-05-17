@@ -98,4 +98,5 @@ enum class ZHandlerType : uint8_t {
 enum class ZDrawLayerType {
     zRectangle,  // 绘制矩形
     zEllipse,    // 绘制椭圆
+    zVector,     // 绘制向量
 };

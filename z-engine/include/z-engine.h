@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <cstdint>
 
+#include "z-document/include/models/z-path-data.h"
 #include "z-matrix/include/z-matrix.h"
 #include "z-matrix/include/z-rect.h"
 
@@ -18,6 +19,9 @@ public:
     virtual void drawRect(float zX, float zY, float zW, float zH, const ZStyle& zStyle) = 0;
     virtual void drawRect(float zW, float zH, const ZStyle& zStyle) = 0;
     virtual void drawRect(const ZRect& rect, const ZStyle& zStyle) = 0;
+    virtual void drawOval(float zW, float zH, const ZStyle& zStyle) = 0;
+    virtual void drawPath(const ZPathDataArray& paths, ZWindingRule windingRule,
+                          const ZStyle& zStyle) = 0;
     virtual void drawImage(const uint8_t* bytes, size_t size, float zX, float zY, float zW,
                            float zH) = 0;
 

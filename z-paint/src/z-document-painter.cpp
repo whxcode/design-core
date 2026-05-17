@@ -5,6 +5,7 @@
 #include "z-document/include/layers/z-layerbase.h"
 #include "z-document/include/layers/z-page.h"
 #include "z-document/include/models/z-type.h"
+#include "z-document/include/models/z-vector-model.h"
 #include "z-engine/include/z-engine.h"
 #include "z-matrix/include/z-matrix.h"
 #include "z-tools/include/z-assert.h"
@@ -32,10 +33,27 @@ void ZDocumentPainter::draw(IZEngine* engine) {
                 const auto size = model->getSize();
 
                 engine->transform(model->getTransform());
-                engine->drawRect(size.width(), size.height(),
-                                 {
-                                     .zFillColor = model->getFillColor(),
-                                 });
+                const ZStyle style{
+                    .zFillColor = model->getFillColor(),
+                };
+
+                switch (model->getType()) {
+                    case ZModelType::zRectangle:
+                        engine->drawRect(size.width(), size.height(), style);
+                        break;
+                    case ZModelType::zOval:
+                        engine->drawOval(size.width(), size.height(), style);
+                        break;
+                    case ZModelType::zVector: {
+                        const auto vectorModel = model->as<ZVectorModel>();
+                        engine->drawPath(vectorModel->getPaths(), vectorModel->getWindingRule(),
+                                         style);
+                        break;
+                    }
+                    case ZModelType::zDocument:
+                    case ZModelType::zPage:
+                        break;
+                }
 
                 render(layer->getChildren<ZLayerBase>());
                 engine->restore();

@@ -20,6 +20,7 @@ bool ZCommand::canExecute(const ZCommandType type) const {
         case ZCommandType::zSwitchToCommonHandler:
         case ZCommandType::zDrawRectangle:
         case ZCommandType::zDrawEllipse:
+        case ZCommandType::zDrawVector:
             return true;
         case ZCommandType::zUndoDocumentHistory:
             return zContext->getCommit()->canUndo();
@@ -46,6 +47,9 @@ void ZCommand::execute(const ZCommandType type) {
             return;
         case ZCommandType::zDrawEllipse:
             zContext->getHandle()->switchDrawPathHandler(ZDrawLayerType::zEllipse);
+            return;
+        case ZCommandType::zDrawVector:
+            zContext->getHandle()->switchDrawPathHandler(ZDrawLayerType::zVector);
             return;
         case ZCommandType::zUndoDocumentHistory:
             zContext->getCommit()->undo();
