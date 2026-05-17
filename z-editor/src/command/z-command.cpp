@@ -74,11 +74,12 @@ bool ZCommand::canDeleteSelectedLayer() const {
 }
 
 void ZCommand::deleteSelectedLayer() {
-    auto* selection = zContext->getSelection();
-    auto* commit = zContext->getCommit();
+    auto selection = zContext->getSelection();
+    auto commit = zContext->getCommit();
 
-    zContext->getDocument()->removeLayers(selection->getSelectedLayers());
+    commit->commit([&]() {
+        zContext->getDocument()->removeLayers(selection->getSelectedLayers());
 
-    selection->clear();
-    commit->commit();
+        selection->clear();
+    });
 }

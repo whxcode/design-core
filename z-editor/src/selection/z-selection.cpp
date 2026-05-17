@@ -94,11 +94,10 @@ void ZSelection::select(const z_sp<ZLayerBase>& layer) {
 
 void ZSelection::select(const ZLayerBaseArray& layers) {
     const auto hadSelectedLayers = !zSelectedLayers.empty();
+
     zSelectedLayers.clear();
     append(layers);
-    if (hadSelectedLayers && zSelectedLayers.empty()) {
-        emitSelectedChanged();
-    }
+    emitSelectedChanged();
 }
 
 void ZSelection::append(const z_sp<ZLayerBase>& layer) {
@@ -159,6 +158,13 @@ void ZSelection::selectInRect(const ZRect& worldRect) {
 
 void ZSelection::refreshSelectedLayers() {
     emitSelectedChanged();
+}
+
+ZGuidArray ZSelection::getSelectedLayerGuids() const {
+    return zSelectedLayers | std::ranges::views::transform([](const auto& layer) {
+               return layer->getModel()->getId();
+           }) |
+           std::ranges::to<std::vector>();
 }
 
 z_sp<ZLayerBase> ZSelection::hitTest(const ZPoint& worldPoint) const {

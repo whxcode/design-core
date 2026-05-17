@@ -67,7 +67,7 @@ void ZCollector::collectorNewChild(ZPatch& patch) {
 
         const auto& model = comp->getModel();
 
-        patch.zUndo.push_back({
+        patch.zUndo.zPatches.push_back({
             .zId = model->getId(),
             .zType = ZPatchType::zRemove,
             .zProps = {},
@@ -77,7 +77,7 @@ void ZCollector::collectorNewChild(ZPatch& patch) {
     ZPropCodec::DeepBST(comps, [&patch](const z_sp<ZComponent>& comp) {
         const auto& model = comp->getModel();
 
-        patch.zRedo.push_back({
+        patch.zRedo.zPatches.push_back({
             .zId = model->getId(),
             .zType = ZPatchType::zAdd,
             .zProps = ZPropCodec::MakeProps(model),
@@ -93,7 +93,7 @@ void ZCollector::collectorDiscardChild(ZPatch& patch) {
 
         const auto& model = comp->getModel();
 
-        patch.zRedo.push_back({
+        patch.zRedo.zPatches.push_back({
             .zId = model->getId(),
             .zType = ZPatchType::zRemove,
             .zProps = {},
@@ -103,7 +103,7 @@ void ZCollector::collectorDiscardChild(ZPatch& patch) {
     ZPropCodec::DeepBST(comps, [&patch](const z_sp<ZComponent>& comp) {
         const auto& model = comp->getModel();
 
-        patch.zUndo.push_back({
+        patch.zUndo.zPatches.push_back({
             .zId = model->getId(),
             .zType = ZPatchType::zAdd,
             .zProps = ZPropCodec::MakeProps(model),
@@ -111,7 +111,7 @@ void ZCollector::collectorDiscardChild(ZPatch& patch) {
     });
 }
 
-std::optional<ZPatch> ZCollector::commit(ZPatchHandler&& handler) {
+std::optional<ZPatch> ZCollector::commit() {
     if (zCollectItems.empty() &&  //
         zNewChild.empty() &&      //
         zDiscardChild.empty()) {
@@ -125,13 +125,13 @@ std::optional<ZPatch> ZCollector::commit(ZPatchHandler&& handler) {
     collectorDiscardChild(patch);
 
     for (const auto& [_, item] : zCollectItems) {
-        patch.zUndo.push_back({
+        patch.zUndo.zPatches.push_back({
             .zId = item.zId,
             .zType = item.zType,
             .zProps = std::move(item.zOldProps),
         });
 
-        patch.zRedo.push_back({
+        patch.zRedo.zPatches.push_back({
             .zId = item.zId,
             .zType = item.zType,
             .zProps = std::move(item.zNewProps),
@@ -141,10 +141,6 @@ std::optional<ZPatch> ZCollector::commit(ZPatchHandler&& handler) {
     clear();
 
     return patch;
-}
-
-std::optional<ZPatch> ZCollector::commit() {
-    return commit(nullptr);
 }
 
 void ZCollector::clear() {

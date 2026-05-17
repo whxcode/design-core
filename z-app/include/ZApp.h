@@ -78,7 +78,7 @@ private:
     std::unique_ptr<ZWindow> zWindow{nullptr};
     std::unique_ptr<ZEditorContext> zEditorContext{nullptr};
     std::unique_ptr<ZUIHandle> zUIHandle{nullptr};
-    std::unique_ptr<ZSelection> zSelection{nullptr};
+    z_sp<ZSelection> zSelection{nullptr};
     std::unique_ptr<ZTrace> zTrace{nullptr};
     z_sp<ZDocument> zDocument{nullptr};
     z_sp<ZCommit> zCommit{nullptr};

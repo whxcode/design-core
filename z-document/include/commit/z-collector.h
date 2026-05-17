@@ -13,7 +13,6 @@
 #include "z-tools/include/z-type.h"
 
 class ZComponent;
-using ZPatchHandler = std::function<void()>;
 
 struct ZCollectNode {
     ZPatchType zType{};
@@ -48,7 +47,6 @@ public:
     void recordRemoveChild(const z_sp<ZComponent>& comp);
 
     std::optional<ZPatch> commit();
-    std::optional<ZPatch> commit(ZPatchHandler&& handler);
 
     void clear();
 

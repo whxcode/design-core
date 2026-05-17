@@ -1,6 +1,7 @@
 #pragma once
 
 #include <any>
+#include <functional>
 #include <set>
 #include <unordered_map>
 #include <vector>
@@ -50,7 +51,12 @@ public:
     ZPatchProps zProps{};
 };
 
-using ZPatches = std::vector<ZPatchItem>;
+using ZPatches = struct {
+    std::vector<ZPatchItem> zPatches;
+    std::vector<ZGuid> zSelectedLayers{};
+};
+
+using ZPatchHandler = std::function<void()>;
 
 struct ZPatch {
     ZPatches zUndo{};

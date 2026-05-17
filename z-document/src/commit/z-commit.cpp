@@ -3,15 +3,33 @@
 #include "z-app/include/ZAppEvent.h"
 #include "z-document/include/commit/z-history.h"
 #include "z-document/include/layers/z-document.h"
+#include "z-editor/include/selection/z-selection.h"
 
-ZCommit::ZCommit(z_sp<ZDocument> document, ZAppEvent* appEvent)
-    : zAppEvent(appEvent), zHistory(std::make_shared<ZHistory>()), zDocument(document) {
+ZCommit::ZCommit(z_sp<ZDocument> document, z_sp<ZSelection> selection, ZAppEvent* appEvent)
+    : zAppEvent(appEvent),
+      zHistory(std::make_shared<ZHistory>()),
+      zDocument(document),
+      zSelection(selection) {
 }
 
-void ZCommit::commit() {
-    const auto& patch = zDocument->commit();
+void ZCommit::commit(ZPatchHandler&& handler) {
+    ZGuidArray guids;
+    // 收集图层数据.
+    if (handler) {
+        guids = zSelection->getSelectedLayerGuids();
+
+        handler();
+    }
+
+    auto patch = zDocument->commit();
     if (!patch.has_value()) {
         return;
+    }
+
+    auto currentSelectedGuids = zSelection->getSelectedLayerGuids();
+    if (currentSelectedGuids != guids) {
+        patch->zUndo.zSelectedLayers = guids;
+        patch->zRedo.zSelectedLayers = currentSelectedGuids;
     }
 
     zDocument->closeCollector();
@@ -22,6 +40,10 @@ void ZCommit::commit() {
         zAppEvent->emit(ZAppEventType::zDocChanged);
         zAppEvent->emit(ZAppEventType::zHistoryChanged);
     }
+}
+
+void ZCommit::commit() {
+    commit(nullptr);
 }
 
 void ZCommit::undo() {
@@ -35,6 +57,9 @@ void ZCommit::undo() {
     zDocument->closeCollector();
     zDocument->mergePatches(undo->zUndo);
     zDocument->openCollector();
+
+    zSelection->select(undo->zUndo.zSelectedLayers);
+
     if (zAppEvent) {
         zAppEvent->emit(ZAppEventType::zDocChanged);
         zAppEvent->emit(ZAppEventType::zHistoryChanged);
@@ -44,14 +69,19 @@ void ZCommit::undo() {
 void ZCommit::redo() {
     const auto& redo = zHistory->popRedo();
 
-    if (redo.has_value()) {
-        zDocument->closeCollector();
-        zDocument->mergePatches(redo->zRedo);
-        zDocument->openCollector();
-        if (zAppEvent) {
-            zAppEvent->emit(ZAppEventType::zDocChanged);
-            zAppEvent->emit(ZAppEventType::zHistoryChanged);
-        }
+    if (!redo.has_value()) {
+        return;
+    }
+
+    zDocument->closeCollector();
+    zDocument->mergePatches(redo->zRedo);
+    zDocument->openCollector();
+
+    zSelection->select(redo->zRedo.zSelectedLayers);
+
+    if (zAppEvent) {
+        zAppEvent->emit(ZAppEventType::zDocChanged);
+        zAppEvent->emit(ZAppEventType::zHistoryChanged);
     }
 }
 

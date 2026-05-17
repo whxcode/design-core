@@ -34,7 +34,7 @@ std::vector<z_sp<ZModel>> MakeModels(const std::vector<const ZPatchProps*>& newP
 void ZPatchMerger::Merge(ZDocument& document, const ZPatches& patches) {
     std::vector<const ZPatchProps*> newChildren;
 
-    for (const auto& item : patches) {
+    for (const auto& item : patches.zPatches) {
         switch (item.zType) {
             case ZPatchType::zProps: {
                 const auto comp = document.findKey(item.zId);

@@ -32,7 +32,10 @@ public:
     void append(const ZLayerBaseArray& layers);
 
     void selectInRect(const ZRect& worldRect);
+
     void refreshSelectedLayers();
+
+    ZGuidArray getSelectedLayerGuids() const;
 
 private:
     z_sp<ZLayerBase> hitTest(const ZPoint& worldPoint) const;
