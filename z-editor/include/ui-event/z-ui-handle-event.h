@@ -32,4 +32,5 @@ protected:
     ZPoint zMouseDownPoint{};
     ZPoint zCurrentPoint{};
     ZPoint zMouseUpPoint{};
+    bool zPressDown{};
 };

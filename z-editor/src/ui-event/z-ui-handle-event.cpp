@@ -11,6 +11,7 @@ bool ZUIHandleEvent::onUIEvent(const ZUIEvent& event) {
         case ZUIEventType::zMouseDown:
             zMouseDownPoint = toWorldPoint(event);
             zCurrentPoint = zMouseDownPoint;
+            zPressDown = true;
             break;
         case ZUIEventType::zMouseMove:
             zCurrentPoint = toWorldPoint(event);
@@ -18,6 +19,7 @@ bool ZUIHandleEvent::onUIEvent(const ZUIEvent& event) {
         case ZUIEventType::zMouseUp:
             zMouseUpPoint = toWorldPoint(event);
             zCurrentPoint = zMouseUpPoint;
+            zPressDown = false;
             break;
         case ZUIEventType::zMouseWheel:
         case ZUIEventType::zKeyDown:

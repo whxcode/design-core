@@ -5,10 +5,12 @@
 #include "z-editor/include/selection/z-selection.h"
 #include "z-editor/include/ui-event/z-ui-handle.h"
 #include "z-editor/include/z-editor-context.h"
+#include "z-matrix/include/z-point.h"
 
 bool ZUICommonHandle::onMouseDown(const ZUIEvent& event) {
     zDragPending = false;
-    if (event.button != MouseButton::zLeft || !zContext || !zContext->getSelection()) {
+
+    if (event.button != MouseButton::zLeft) {
         return false;
     }
 
@@ -23,23 +25,21 @@ bool ZUICommonHandle::onMouseDown(const ZUIEvent& event) {
         return false;
     }
 
-    if (zContext->getHandle()) {
-        zContext->getHandle()->switchSelectFrameHandler(getCurrentPoint());
-        return true;
-    }
-
     return false;
 }
 
 bool ZUICommonHandle::onMouseMove(const ZUIEvent& event) {
-    if (zDragPending && zContext && zContext->getHandle()) {
+    if (zDragPending) {
         zContext->getHandle()->switchDragHandler(getMouseDownPoint(), getCurrentPoint());
         zDragPending = false;
         return true;
     }
 
-    if (zContext && zContext->getSelection()) {
-        zContext->getSelection()->hitHover(getCurrentPoint());
+    zContext->getSelection()->hitHover(getCurrentPoint());
+
+    if (zPressDown &&  //
+        ZPoint::Distance(getMouseDownPoint(), getCurrentPoint()) > 10.f) {
+        zContext->getHandle()->switchSelectFrameHandler(getCurrentPoint());
     }
 
     return false;
@@ -47,12 +47,10 @@ bool ZUICommonHandle::onMouseMove(const ZUIEvent& event) {
 
 bool ZUICommonHandle::onMouseUp(const ZUIEvent& event) {
     zDragPending = false;
-    if (!zContext || !zContext->getSelection()) {
-        return false;
-    }
 
     zContext->getSelection()->hitHover(getCurrentPoint());
     const auto hoverLayer = zContext->getSelection()->getHoverLayer();
+
     if (hoverLayer) {
         zContext->getSelection()->select(hoverLayer);
         return false;

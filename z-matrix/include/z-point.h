@@ -1,33 +1,32 @@
 #pragma once
 
+#include <cmath>
+#include <memory>
+
 class ZPoint {
 public:
-    ZPoint() : zX(0), zY(0) {
-    }
+    static ZPoint Make(const float x, const float y);
+    static float Distance(const ZPoint& p1, const ZPoint& p2);
 
-    ZPoint(float x, float y) : zX(x), zY(y) {
-    }
+public:
+    ZPoint() = default;
+    ZPoint(const float x, const float y);
 
-    static ZPoint Make(float x, float y);
+    void set(const float x, const float y);
+    void offset(const float x, const float y);
 
-    void set(float x, float y);
-    void offset(float dx, float dy);
+    const float x() const;
 
-    float x() const {
-        return zX;
-    }
-    float y() const {
-        return zY;
-    }
+    const float y() const;
 
     bool operator==(const ZPoint& other) const;
     bool operator!=(const ZPoint& other) const;
 
     // 常用数学运算
-    void scale(float scale);
+    void scale(const float scale);
     void negate();
 
 public:
-    float zX;
-    float zY;
+    float zX{0};
+    float zY{0};
 };
