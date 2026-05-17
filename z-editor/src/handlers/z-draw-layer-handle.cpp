@@ -69,8 +69,8 @@ ZPathDataArray makeDefaultVectorPaths() {
                          false, {10.0f, 18.0f}),
         ZPathPoint::Make(0.0f, {108.0f, 18.0f}, ZCurveMode::kDisconnected, {56.0f, -8.0f}, true,
                          true, {86.0f, 14.0f}),
-        ZPathPoint::Make(0.0f, {118.0f, 92.0f}, ZCurveMode::kDisconnected, {118.0f, 36.0f},
-                         true, true, {82.0f, 88.0f}),
+        ZPathPoint::Make(0.0f, {118.0f, 92.0f}, ZCurveMode::kDisconnected, {118.0f, 36.0f}, true,
+                         true, {82.0f, 88.0f}),
         ZPathPoint::Make(0.0f, {-8.0f, 82.0f}, ZCurveMode::kDisconnected, {40.0f, 116.0f}, true,
                          true, {18.0f, 74.0f}),
     };
@@ -80,8 +80,7 @@ ZPathDataArray makeDefaultVectorPaths() {
 }  // namespace
 
 ZDrawLayerHandle::ZDrawLayerHandle(const ZHandlerType type, const ZUIHandleState& state,
-                                   ZEditorContext* context,
-                                   const ZDrawLayerType drawType)
+                                   ZEditorContext* context, const ZDrawLayerType drawType)
     : ZUIHandleEvent(type, state, context), zDrawType(drawType) {
 }
 

@@ -12,6 +12,17 @@ const mappings = [
   },
 ];
 
+const enumSyncMappings = [
+  {
+    enumName: "ZCommandType",
+    input: "z-editor/include/command/z-command-type.h",
+    outputs: [
+      "z-types/core-api.ts",
+      "../design-web/src/types/design-core/core-api.ts",
+    ],
+  },
+];
+
 const typeMap = new Map([
   ["bool", "boolean"],
   ["char", "number"],
@@ -135,6 +146,15 @@ function emitTs(enums, structs, input) {
   return `${lines.join("\n").trimEnd()}\n`;
 }
 
+function emitEnum(enumItem) {
+  const lines = [`export enum ${enumItem.name} {`];
+  enumItem.values.forEach((value, index) => {
+    lines.push(`  ${value} = ${index},`);
+  });
+  lines.push("}");
+  return lines.join("\n");
+}
+
 function generate(mapping) {
   const inputPath = path.resolve(rootDir, mapping.input);
   const outputPath = path.resolve(rootDir, mapping.output);
@@ -148,6 +168,39 @@ function generate(mapping) {
   console.log(`${mapping.input} -> ${mapping.output}`);
 }
 
+function syncEnum(mapping) {
+  const inputPath = path.resolve(rootDir, mapping.input);
+  const source = stripComments(fs.readFileSync(inputPath, "utf8"));
+  const enums = parseEnumClasses(source);
+  const enumItem = enums.find((item) => item.name === mapping.enumName);
+
+  if (!enumItem) {
+    throw new Error(`Cannot find enum ${mapping.enumName} in ${mapping.input}`);
+  }
+
+  const enumOutput = emitEnum(enumItem);
+  const enumRegex = new RegExp(
+    `export\\s+enum\\s+${mapping.enumName}\\s*\\{[\\s\\S]*?\\}`,
+    "m",
+  );
+
+  for (const output of mapping.outputs) {
+    const outputPath = path.resolve(rootDir, output);
+    const content = fs.readFileSync(outputPath, "utf8");
+
+    if (!enumRegex.test(content)) {
+      throw new Error(`Cannot find enum ${mapping.enumName} in ${output}`);
+    }
+
+    fs.writeFileSync(outputPath, content.replace(enumRegex, enumOutput));
+    console.log(`${mapping.input} -> ${output}#${mapping.enumName}`);
+  }
+}
+
 for (const mapping of mappings) {
   generate(mapping);
+}
+
+for (const mapping of enumSyncMappings) {
+  syncEnum(mapping);
 }
