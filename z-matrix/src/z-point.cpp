@@ -10,6 +10,7 @@ float ZPoint::Distance(const ZPoint& p1, const ZPoint& p2) {
 
 ZPoint::ZPoint(const float x, const float y) : zX(x), zY(y) {
 }
+
 void ZPoint::set(const float x, const float y) {
     zX = x;
     zY = y;

@@ -50,7 +50,6 @@ void ZCollector::recordAddChild(const z_sp<ZComponent>& comp) {
 }
 
 void ZCollector::recordRemoveChild(const z_sp<ZComponent>& comp) {
-    printf("ZCollector::recordRemoveChild\n");
     if (!zEnable || comp == nullptr) {
         return;
     }
