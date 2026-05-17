@@ -37,6 +37,18 @@ void ZDocument::onRemoveChild(const z_sp<ZComponent>& comp) {
     unregisterSubtree(comp);
 }
 
+void ZDocument::removeLayers(const ZLayerBaseArray& layers) {
+    for (const auto& layer : layers) {
+        auto parent = layer->getParent();
+
+        if (parent == nullptr) {
+            continue;
+        }
+
+        parent->removeChild(layer);
+    }
+}
+
 void ZDocument::rebuildIndex() {
     zPages.clear();
     zLayers.clear();

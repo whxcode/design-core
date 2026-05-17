@@ -1,6 +1,7 @@
 #include "z-editor/include/command/z-command.h"
 
 #include "z-document/include/commit/z-commit.h"
+#include "z-document/include/layers/z-document.h"
 #include "z-document/include/layers/z-layerbase.h"
 #include "z-editor/include/selection/z-selection.h"
 #include "z-editor/include/ui-event/z-ui-handle.h"
@@ -76,15 +77,7 @@ void ZCommand::deleteSelectedLayer() {
     auto* selection = zContext->getSelection();
     auto* commit = zContext->getCommit();
 
-    const auto layers = selection->getSelectedLayers();
-    for (const auto& layer : layers) {
-        const auto parent = layer->getParent();
-        if (!parent) {
-            continue;
-        }
-
-        parent->removeChild(layer);
-    }
+    zContext->getDocument()->removeLayers(selection->getSelectedLayers());
 
     selection->clear();
     commit->commit();

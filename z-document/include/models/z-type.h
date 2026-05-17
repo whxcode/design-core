@@ -10,3 +10,4 @@
 using ZModelArray = std::vector<z_sp<ZModel>>;
 using ZComponentArray = std::vector<z_sp<ZComponent>>;
 using ZLayerBaseArray = std::vector<z_sp<ZLayerBase>>;
+using ZGuidArray = std::vector<ZGuid>;

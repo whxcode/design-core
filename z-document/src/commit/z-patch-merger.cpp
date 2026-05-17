@@ -32,7 +32,7 @@ std::vector<z_sp<ZModel>> MakeModels(const std::vector<const ZPatchProps*>& newP
 }  // namespace
 
 void ZPatchMerger::Merge(ZDocument& document, const ZPatches& patches) {
-    std::vector<const ZPatchProps*> newProps;
+    std::vector<const ZPatchProps*> newChildren;
 
     for (const auto& item : patches) {
         switch (item.zType) {
@@ -63,14 +63,14 @@ void ZPatchMerger::Merge(ZDocument& document, const ZPatches& patches) {
             }
 
             case ZPatchType::zAdd: {
-                newProps.push_back(&item.zProps);
+                newChildren.push_back(&item.zProps);
                 break;
             }
         }
     }
 
-    if (!newProps.empty()) {
-        const auto& layers = ZLoader::MakeViews(MakeModels(newProps));
+    if (!newChildren.empty()) {
+        const auto& layers = ZLoader::MakeViews(MakeModels(newChildren));
         for (auto& layer : layers) {
             auto& pid = layer->getModel()->getParentId();
             auto parent = document.findKey(pid);

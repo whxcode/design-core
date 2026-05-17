@@ -13,6 +13,7 @@
 ZTrace::ZTrace(ZEditorContext* context, ZAppEvent* appEvent, RedrawCallback redrawCallback)
     : zContext(context), zAppEvent(appEvent), zRedrawCallback(std::move(redrawCallback)) {
     zHoverShape = MakeShape<ZHoverShape>(nullptr);
+
     addChild(zHoverShape);
     zSelectShape = MakeShape<ZSelectShape>();
     addChild(zSelectShape);

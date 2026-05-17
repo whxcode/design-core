@@ -1,9 +1,12 @@
 #include "z-editor/include/selection/z-selection.h"
 
+#include <ranges>
+
 #include "z-app/include/ZAppEvent.h"
 #include "z-document/include/layers/z-document.h"
 #include "z-document/include/layers/z-layerbase.h"
 #include "z-document/include/layers/z-page.h"
+#include "z-document/include/models/z-type.h"
 #include "z-editor/include/z-editor-context.h"
 
 ZSelection::ZSelection(ZEditorContext* context) : zContext(context) {
@@ -66,7 +69,17 @@ void ZSelection::clear() {
     }
 
     zSelectedLayers.clear();
-    emitSelectedChanged();
+    notice();
+}
+
+void ZSelection::select(const ZGuidArray& guids) {
+    auto document = zContext->getDocument();
+    const auto& layers = guids | std::ranges::views::transform([document](const ZGuid& guid) {
+                             return document->findKey<ZLayerBase>(guid);
+                         }) |
+                         std::ranges::to<std::vector>();
+
+    select(layers);
 }
 
 void ZSelection::select(const z_sp<ZLayerBase>& layer) {
@@ -79,7 +92,7 @@ void ZSelection::select(const z_sp<ZLayerBase>& layer) {
     emitSelectedChanged();
 }
 
-void ZSelection::select(const std::vector<z_sp<ZLayerBase>>& layers) {
+void ZSelection::select(const ZLayerBaseArray& layers) {
     const auto hadSelectedLayers = !zSelectedLayers.empty();
     zSelectedLayers.clear();
     append(layers);
@@ -102,7 +115,7 @@ void ZSelection::append(const z_sp<ZLayerBase>& layer) {
     emitSelectedChanged();
 }
 
-void ZSelection::append(const std::vector<z_sp<ZLayerBase>>& layers) {
+void ZSelection::append(const ZLayerBaseArray& layers) {
     auto changed = false;
 
     for (const auto& layer : layers) {
@@ -198,6 +211,11 @@ void ZSelection::emitSelectedChanged() const {
     }
 
     zContext->getAppEvent()->emit(ZAppEventType::zSelectedLayerChanged);
+}
+
+void ZSelection::notice() const {
+    emitHoverChanged();
+    emitSelectedChanged();
 }
 
 bool ZSelection::containsSelectedLayer(const ZGuid& id) const {

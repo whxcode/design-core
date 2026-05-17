@@ -45,26 +45,21 @@ void ZCollector::recordAddChild(const z_sp<ZComponent>& comp) {
         return;
     }
 
-    // printf("ZCollector::recordAddChild[添加]\n");
+    zDiscardChild.erase(comp);
     zNewChild.insert(comp);
 }
 
 void ZCollector::recordRemoveChild(const z_sp<ZComponent>& comp) {
+    printf("ZCollector::recordRemoveChild\n");
     if (!zEnable || comp == nullptr) {
         return;
     }
 
     zNewChild.erase(comp);
+    zDiscardChild.insert(comp);
 }
 
-std::optional<ZPatch> ZCollector::commit() {
-    if (zCollectItems.empty() &&  //
-        zNewChild.empty()) {
-        printf("empty patch\n");
-        return std::nullopt;
-    }
-
-    ZPatch patch;
+void ZCollector::collectorNewChild(ZPatch& patch) {
     ZComponentArray comps;
 
     for (const auto& comp : zNewChild) {
@@ -88,6 +83,46 @@ std::optional<ZPatch> ZCollector::commit() {
             .zProps = ZPropCodec::MakeProps(model),
         });
     });
+}
+
+void ZCollector::collectorDiscardChild(ZPatch& patch) {
+    ZComponentArray comps;
+
+    for (const auto& comp : zDiscardChild) {
+        comps.push_back(comp);
+
+        const auto& model = comp->getModel();
+
+        patch.zRedo.push_back({
+            .zId = model->getId(),
+            .zType = ZPatchType::zRemove,
+            .zProps = {},
+        });
+    }
+
+    ZPropCodec::DeepBST(comps, [&patch](const z_sp<ZComponent>& comp) {
+        const auto& model = comp->getModel();
+
+        patch.zUndo.push_back({
+            .zId = model->getId(),
+            .zType = ZPatchType::zAdd,
+            .zProps = ZPropCodec::MakeProps(model),
+        });
+    });
+}
+
+std::optional<ZPatch> ZCollector::commit(ZPatchHandler&& handler) {
+    if (zCollectItems.empty() &&  //
+        zNewChild.empty() &&      //
+        zDiscardChild.empty()) {
+        printf("empty patch\n");
+        return std::nullopt;
+    }
+
+    ZPatch patch;
+
+    collectorNewChild(patch);
+    collectorDiscardChild(patch);
 
     for (const auto& [_, item] : zCollectItems) {
         patch.zUndo.push_back({
@@ -108,9 +143,14 @@ std::optional<ZPatch> ZCollector::commit() {
     return patch;
 }
 
+std::optional<ZPatch> ZCollector::commit() {
+    return commit(nullptr);
+}
+
 void ZCollector::clear() {
     zCollectItems.clear();
     zNewChild.clear();
+    zDiscardChild.clear();
 }
 
 bool ZCollector::empty() const {
