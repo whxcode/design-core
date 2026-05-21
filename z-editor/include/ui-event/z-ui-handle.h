@@ -22,6 +22,7 @@ public:
 public:
     void switchCommonHandler();
     void switchDrawPathHandler(ZDrawLayerType type = ZDrawLayerType::zRectangle);
+    void switchVectorEditorHandler();
     void switchSelectFrameHandler();
     void switchDragHandler();
 

@@ -1,24 +1,24 @@
 #include "z-editor/include/handlers/z-draw-layer-handle.h"
 
-#include <cstdint>
-#include <iostream>
+#include <cmath>
 #include <string>
 
 #include "z-document/include/commit/z-commit.h"
 #include "z-document/include/creator/create-model.h"
 #include "z-document/include/creator/loader.h"
 #include "z-document/include/layers/z-document.h"
+#include "z-document/include/layers/z-layerbase.h"
+#include "z-document/include/layers/z-page.h"
+#include "z-document/include/models/z-layer-model.h"
 #include "z-document/include/models/z-vector-model.h"
 #include "z-editor/include/ui-event/z-ui-event.h"
 #include "z-editor/include/ui-event/z-ui-handle.h"
 #include "z-editor/include/z-editor-context.h"
+#include "z-matrix/include/z-matrix.h"
 
 namespace {
 
-constexpr float kDefaultLayerX = 100.0f;
-constexpr float kDefaultLayerY = 100.0f;
-constexpr float kDefaultLayerW = 100.0f;
-constexpr float kDefaultLayerH = 100.0f;
+constexpr float kMinDrawingSize = 0.0f;
 
 ZModelType toModelType(const ZDrawLayerType drawType) {
     switch (drawType) {
@@ -77,6 +77,10 @@ ZPathDataArray makeDefaultVectorPaths() {
     return {path};
 }
 
+float directionScale(const float delta) {
+    return delta < 0.0f ? -1.0f : 1.0f;
+}
+
 }  // namespace
 
 ZDrawLayerHandle::ZDrawLayerHandle(const ZHandlerType type, const ZUIHandleState& state,
@@ -85,57 +89,120 @@ ZDrawLayerHandle::ZDrawLayerHandle(const ZHandlerType type, const ZUIHandleState
 }
 
 bool ZDrawLayerHandle::onMouseDown(const ZUIEvent& event) {
-    std::cout << "ZDrawPathHandle::onMouseDown" << std::endl;
+    if (event.button != MouseButton::zLeft) {
+        return false;
+    }
+
+    cancelDrawingLayer();
+    zDrawingLayer = createDrawingLayer();
+    updateDrawingLayer(getMouseDownPoint());
+    getContext().requestRedraw();
+
     return true;
 }
 
-bool ZDrawLayerHandle::onMouseMove(const ZUIEvent& event) {
-    // std::cout << "ZDrawLayerHandle::onMouseMove" << event.x << ", " << event.y << std::endl;
+bool ZDrawLayerHandle::onMouseMove(const ZUIEvent&) {
+    if (!zDrawingLayer) {
+        return false;
+    }
+
+    updateDrawingLayer(getCurrentPoint());
+
     return true;
 }
 
-bool ZDrawLayerHandle::onMouseUp(const ZUIEvent& event) {
-    std::cout << "ZDrawPathHandle::onMouseUp" << std::endl;
-    auto parent = zContext->getDocument()->getActivePage();
+bool ZDrawLayerHandle::onMouseUp(const ZUIEvent&) {
+    if (!zDrawingLayer) {
+        getHandle().switchCommonHandler();
+        return false;
+    }
 
-    auto model = ZCreatorModel::MakeLayerModel(toModelType(zDrawType));
+    updateDrawingLayer(getMouseUpPoint());
 
-    model->setParentId(parent->getModel()->getId());
-    model->setSize({kDefaultLayerW, kDefaultLayerH});
+    const auto model = zDrawingLayer->getModel<ZLayerModel>();
+    const auto size = model->getSize();
+    if (size.width() <= kMinDrawingSize || size.height() <= kMinDrawingSize) {
+        cancelDrawingLayer();
+        getHandle().switchCommonHandler();
+        getContext().requestRedraw();
+        return true;
+    }
+
+    zDrawingParent = nullptr;
+    zDrawingLayer = nullptr;
+
+    getCommit().commit();
+    getHandle().switchCommonHandler();
+    return true;
+}
+
+bool ZDrawLayerHandle::onMouseWheel(const ZUIEvent&) {
+    return false;
+}
+
+bool ZDrawLayerHandle::onKeyDown(const ZUIEvent&) {
+    return false;
+}
+
+bool ZDrawLayerHandle::onKeyUp(const ZUIEvent& event) {
+    if (event.keyCode == KeyCode::zEscape && zContext && zContext->getHandle()) {
+        cancelDrawingLayer();
+        zContext->getHandle()->switchCommonHandler();
+        return true;
+    }
+
+    return false;
+}
+
+z_sp<ZLayerBase> ZDrawLayerHandle::createDrawingLayer() {
+    zDrawingParent = getDocument().getActivePage();
+    if (!zDrawingParent) {
+        return nullptr;
+    }
+
+    const auto model = ZCreatorModel::MakeLayerModel(toModelType(zDrawType));
+    model->setParentId(zDrawingParent->getModel()->getId());
+    model->setSize(ZSize::MakeEmpty());
     model->setName(makeLayerName(zDrawType));
     model->setFillColor(makeFillColor(zDrawType));
-    model->setTransform(ZMatrix::Translate(kDefaultLayerX, kDefaultLayerY));
+    model->setTransform(ZMatrix::Translate(getMouseDownPoint().x(), getMouseDownPoint().y()));
 
     if (zDrawType == ZDrawLayerType::zVector) {
         model->as<ZVectorModel>()->setPaths(makeDefaultVectorPaths());
     }
 
     const auto views = ZLoader::MakeViews({model});
-    const auto layer = views.front();
-
-    parent->addChild(layer);
-
-    zContext->getCommit()->commit();
-    zContext->getHandle()->switchCommonHandler();
-    // std::cout << "MouseUp: " << event.x << ", " << event.y << std::endl;
-    return true;
-}
-
-bool ZDrawLayerHandle::onMouseWheel(const ZUIEvent& event) {
-    // std::cout << "MouseWheel: " << event.deltaX << ", " << event.deltaY << std::endl;
-    return false;
-}
-
-bool ZDrawLayerHandle::onKeyDown(const ZUIEvent& event) {
-    // std::cout << "KeyDown: " << static_cast<int>(event.keyCode) << std::endl;
-    return false;
-}
-
-bool ZDrawLayerHandle::onKeyUp(const ZUIEvent& event) {
-    if (event.keyCode == KeyCode::zEscape && zContext && zContext->getHandle()) {
-        zContext->getHandle()->switchCommonHandler();
-        return true;
+    if (views.empty()) {
+        return nullptr;
     }
 
-    return false;
+    const auto layer = views.front();
+    zDrawingParent->addChild(layer);
+    return layer;
+}
+
+void ZDrawLayerHandle::updateDrawingLayer(const ZPoint& point) {
+    if (!zDrawingLayer) {
+        return;
+    }
+
+    const auto startPoint = getMouseDownPoint();
+    const float dx{point.x() - startPoint.x()};
+    const float dy{point.y() - startPoint.y()};
+    const float width{std::abs(dx)};
+    const float height{std::abs(dy)};
+
+    auto model = zDrawingLayer->getModel<ZLayerModel>();
+    model->setSize(ZSize::Make(width, height));
+    model->setTransform(ZMatrix::Translate(startPoint.x(), startPoint.y())
+                            .preScale(directionScale(dx), directionScale(dy)));
+}
+
+void ZDrawLayerHandle::cancelDrawingLayer() {
+    if (zDrawingParent && zDrawingLayer) {
+        zDrawingParent->removeChild(zDrawingLayer);
+    }
+
+    zDrawingParent = nullptr;
+    zDrawingLayer = nullptr;
 }

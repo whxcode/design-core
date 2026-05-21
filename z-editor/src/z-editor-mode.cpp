@@ -28,9 +28,11 @@ void ZEditorMode::setMode(const ZEditorModeType mode) {
             break;
         case ZEditorModeType::zDrawRectangle:
         case ZEditorModeType::zDrawOval:
-        case ZEditorModeType::zDrawVector:
             // 绘制类工具底层复用 ZDrawLayerHandle，具体绘制类型由 ZEditorMode 统一映射。
             handle->switchDrawPathHandler(toDrawLayerType(mode));
+            break;
+        case ZEditorModeType::zDrawVector:
+            handle->switchVectorEditorHandler();
             break;
     }
 

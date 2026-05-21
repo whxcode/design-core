@@ -1,6 +1,10 @@
 #pragma once
 
 #include "z-editor/include/ui-event/z-ui-handle-event.h"
+#include "z-tools/include/z-type.h"
+
+class ZLayerBase;
+class ZPage;
 
 class ZDrawLayerHandle : public ZUIHandleEvent {
 public:
@@ -16,5 +20,12 @@ public:
     bool onKeyUp(const ZUIEvent& event) override;
 
 private:
+    z_sp<ZLayerBase> createDrawingLayer();
+    void updateDrawingLayer(const ZPoint& point);
+    void cancelDrawingLayer();
+
+private:
     ZDrawLayerType zDrawType{ZDrawLayerType::zRectangle};
+    z_sp<ZPage> zDrawingParent{nullptr};
+    z_sp<ZLayerBase> zDrawingLayer{nullptr};
 };

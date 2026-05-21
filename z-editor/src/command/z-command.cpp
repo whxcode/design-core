@@ -42,7 +42,6 @@ void ZCommand::execute(const ZCommandType type) {
     switch (type) {
         case ZCommandType::zEscape:
             escape();
-            // zContext->getEditorMode()->setMode(ZEditorModeType::zCursor);
             return;
         case ZCommandType::zSwitchToCommonHandler:
             zContext->getEditorMode()->setMode(ZEditorModeType::zCursor);
@@ -83,7 +82,14 @@ bool ZCommand::canDeleteSelectedLayer() const {
 }
 
 void ZCommand::escape() {
-    printf("ZCommand::escape\n");
+    const auto& mode = zContext->getEditorMode();
+
+    if (mode->getMode() != ZEditorModeType::zCursor) {
+        mode->setMode(ZEditorModeType::zCursor);
+        return;
+    }
+
+    zContext->getSelection()->clear();
 }
 
 void ZCommand::deleteSelectedLayer() {

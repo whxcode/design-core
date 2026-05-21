@@ -7,6 +7,7 @@
 #include "z-editor/include/handlers/z-drag-handler.h"
 #include "z-editor/include/handlers/z-draw-layer-handle.h"
 #include "z-editor/include/handlers/z-select-frame-handler.h"
+#include "z-editor/include/handlers/z-vector-editor-handler.h"
 #include "z-editor/include/handlers/z-viewport-handler.h"
 #include "z-editor/include/z-editor-context.h"
 
@@ -78,6 +79,11 @@ void ZUIHandle::switchDrawPathHandler(const ZDrawLayerType type) {
         zContext,
         type
     ));
+}
+
+void ZUIHandle::switchVectorEditorHandler() {
+    setActiveHandler(
+        std::make_shared<ZVectorEditorHandler>(ZHandlerType::zDrawLayer, zState, zContext));
 }
 
 void ZUIHandle::switchSelectFrameHandler() {
