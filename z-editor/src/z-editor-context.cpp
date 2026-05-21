@@ -103,3 +103,11 @@ void ZEditorContext::setCommit(ZCommit* commit) {
 ZCommit* ZEditorContext::getCommit() const {
     return zCommit;
 }
+
+void ZEditorContext::setEditorMode(ZEditorMode* editorMode) {
+    zEditorMode = editorMode;
+}
+
+ZEditorMode* ZEditorContext::getEditorMode() const {
+    return zEditorMode;
+}

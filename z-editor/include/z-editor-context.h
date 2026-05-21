@@ -11,6 +11,7 @@ class ZTrace;
 class ZUIHandle;
 class ZWindow;
 class ZAppEvent;
+class ZEditorMode;
 
 class ZEditorContext {
 public:
@@ -33,6 +34,8 @@ public:
     ZTrace* getTrace() const;
     void setCommit(ZCommit* commit);
     ZCommit* getCommit() const;
+    void setEditorMode(ZEditorMode* editorMode);
+    ZEditorMode* getEditorMode() const;
 
 private:
     ZDocument* zDocument{nullptr};
@@ -42,4 +45,5 @@ private:
     ZSelection* zSelection{nullptr};
     ZTrace* zTrace{nullptr};
     ZCommit* zCommit{nullptr};
+    ZEditorMode* zEditorMode{nullptr};
 };

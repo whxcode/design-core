@@ -11,6 +11,7 @@
 #include "z-editor/include/selection/z-selection.h"
 #include "z-editor/include/ui-event/z-ui-handle.h"
 #include "z-editor/include/z-editor-context.h"
+#include "z-editor/include/z-editor-mode.h"
 #include "z-engine/include/z-engine.h"
 #include "z-paint/include/z-trace.h"
 #include "z-tools/include/z-editor-theme.h"
@@ -57,6 +58,7 @@ public:
     ZDocument& getDocument() const;
     ViewportData getViewportData() const;
     ZHandlerType getHandlerType() const;
+    ZEditorModeType getEditorModeType() const;
     void switchHandler(ZHandlerType type);
     ZAppEvent& getAppEvent() const;
     void setTheme(ZEditorThemeType type);
@@ -82,6 +84,7 @@ private:
     std::unique_ptr<ZTrace> zTrace{nullptr};
     z_sp<ZDocument> zDocument{nullptr};
     z_sp<ZCommit> zCommit{nullptr};
+    std::unique_ptr<ZEditorMode> zEditorMode{nullptr};
     std::unique_ptr<ZCommand> zCommand{nullptr};
     std::vector<ZImagePayload> zImages;
 };

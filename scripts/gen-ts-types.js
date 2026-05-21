@@ -21,6 +21,14 @@ const enumSyncMappings = [
       "../design-web/src/types/design-core/core-api.ts",
     ],
   },
+  {
+    enumName: "ZEditorModeType",
+    input: "z-editor/include/z-editor-mode.h",
+    outputs: [
+      "z-types/core-api.ts",
+      "../design-web/src/types/design-core/core-api.ts",
+    ],
+  },
 ];
 
 const typeMap = new Map([

@@ -4,13 +4,14 @@
 #include "z-document/include/layers/z-document.h"
 #include "z-document/include/layers/z-layerbase.h"
 #include "z-editor/include/selection/z-selection.h"
-#include "z-editor/include/ui-event/z-ui-handle.h"
 #include "z-editor/include/z-editor-context.h"
+#include "z-editor/include/z-editor-mode.h"
 #include "z-tools/include/z-assert.h"
 
 ZCommand::ZCommand(ZEditorContext* context) : zContext(context) {
     Z_ASSERT(zContext != nullptr, "ZCommand requires ZEditorContext");
     Z_ASSERT(zContext->getHandle() != nullptr, "ZCommand requires ZUIHandle");
+    Z_ASSERT(zContext->getEditorMode() != nullptr, "ZCommand requires ZEditorMode");
     Z_ASSERT(zContext->getSelection() != nullptr, "ZCommand requires ZSelection");
     Z_ASSERT(zContext->getCommit() != nullptr, "ZCommand requires ZCommit");
 }
@@ -39,17 +40,21 @@ void ZCommand::execute(const ZCommandType type) {
     }
 
     switch (type) {
+        case ZCommandType::zEscape:
+            escape();
+            // zContext->getEditorMode()->setMode(ZEditorModeType::zCursor);
+            return;
         case ZCommandType::zSwitchToCommonHandler:
-            zContext->getHandle()->switchCommonHandler();
+            zContext->getEditorMode()->setMode(ZEditorModeType::zCursor);
             return;
         case ZCommandType::zDrawRectangle:
-            zContext->getHandle()->switchDrawPathHandler(ZDrawLayerType::zRectangle);
+            zContext->getEditorMode()->setMode(ZEditorModeType::zDrawRectangle);
             return;
         case ZCommandType::zDrawEllipse:
-            zContext->getHandle()->switchDrawPathHandler(ZDrawLayerType::zEllipse);
+            zContext->getEditorMode()->setMode(ZEditorModeType::zDrawOval);
             return;
         case ZCommandType::zDrawVector:
-            zContext->getHandle()->switchDrawPathHandler(ZDrawLayerType::zVector);
+            zContext->getEditorMode()->setMode(ZEditorModeType::zDrawVector);
             return;
         case ZCommandType::zUndoDocumentHistory:
             zContext->getCommit()->undo();
@@ -75,6 +80,10 @@ bool ZCommand::canDeleteSelectedLayer() const {
     }
 
     return false;
+}
+
+void ZCommand::escape() {
+    printf("ZCommand::escape\n");
 }
 
 void ZCommand::deleteSelectedLayer() {

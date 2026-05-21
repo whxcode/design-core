@@ -14,6 +14,7 @@ enum class ZAppEventType : uint32_t {
     zHoverLayerChanged = 5,
     zSelectedLayerChanged = 6,
     zTraceChanged = 7,
+    zEditorModeChanged = 8,
 };
 
 class ZAppEvent {

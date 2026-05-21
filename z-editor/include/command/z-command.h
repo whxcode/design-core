@@ -14,6 +14,7 @@ public:
 private:
     bool canDeleteSelectedLayer() const;
     void deleteSelectedLayer();
+    void escape();
 
 private:
     ZEditorContext* zContext{nullptr};

@@ -57,6 +57,14 @@ ZHandlerType ZApp::getHandlerType() const {
     return zUIHandle->activeHandlerType();
 }
 
+ZEditorModeType ZApp::getEditorModeType() const {
+    if (!zEditorMode) {
+        return ZEditorModeType::zCursor;
+    }
+
+    return zEditorMode->getMode();
+}
+
 void ZApp::switchHandler(const ZHandlerType type) {
     if (!zUIHandle) {
         return;
@@ -98,6 +106,8 @@ void ZApp::startup() {
 
     zUIHandle = std::make_unique<ZUIHandle>(zEditorContext.get());
     zEditorContext->setHandle(zUIHandle.get());
+    zEditorMode = std::make_unique<ZEditorMode>(zEditorContext.get());
+    zEditorContext->setEditorMode(zEditorMode.get());
     zCommand = std::make_unique<ZCommand>(zEditorContext.get());
 
     this->zWindow->setEditorContext(zEditorContext.get());

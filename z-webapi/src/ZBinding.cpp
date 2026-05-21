@@ -84,6 +84,10 @@ EMSCRIPTEN_BINDINGS(core_api) {
                       return static_cast<int>(self.getHandlerType());
                   }))
 
+        .function("editorMode", optional_override([](ZApp& self) -> int {
+                      return static_cast<int>(self.getEditorModeType());
+                  }))
+
         .function("onUIEvent", optional_override([](ZApp& self, const val& event) -> void {
                       self.onUIEvent(wasm::cpp::GetValue(event, static_cast<ZUIEvent*>(nullptr)));
                   }))
