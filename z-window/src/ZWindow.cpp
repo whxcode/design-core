@@ -4,6 +4,7 @@
 #include <SDL2/SDL_opengl.h>  // 建议加上，确保 GL 宏定义完整
 #include <SDL2/SDL_video.h>   // 必须加上这个，它定义了 GLContext 和相关的操作函数
 
+#include <algorithm>
 #include <iostream>
 #include <thread>
 #include <utility>
@@ -16,6 +17,7 @@
 
 #ifdef __EMSCRIPTEN__
 #include <GLES3/gl3.h>
+#include <emscripten/val.h>
 #else
 #include <GL/glew.h>
 #endif
@@ -34,6 +36,56 @@ uint32_t makeSampleChecksum(const std::vector<uint8_t>& pixels) {
 
     return checksum;
 }
+
+#ifdef __EMSCRIPTEN__
+void showBitmapDebugCanvas(const std::vector<uint8_t>& pixels, const int width, const int height) {
+    if (pixels.empty() || width <= 0 || height <= 0) {
+        return;
+    }
+
+    constexpr int kPreviewScale{10};
+    const int previewWidth{std::max(1, width / kPreviewScale)};
+    const int previewHeight{std::max(1, height / kPreviewScale)};
+
+    auto document = emscripten::val::global("document");
+    auto canvas = document.call<emscripten::val>("getElementById", std::string("bitmap-preview"));
+
+    if (canvas.isNull() || canvas.isUndefined()) {
+        canvas = document.call<emscripten::val>("createElement", std::string("canvas"));
+        canvas.set("id", std::string("bitmap-preview"));
+
+        auto style = canvas["style"];
+        style.set("position", std::string("fixed"));
+        style.set("right", std::string("12px"));
+        style.set("bottom", std::string("12px"));
+        style.set("zIndex", std::string("9999"));
+        style.set("border", std::string("1px solid rgba(0, 0, 0, 0.35)"));
+        style.set("background", std::string("#fff"));
+        style.set("imageRendering", std::string("pixelated"));
+
+        document["body"].call<void>("appendChild", canvas);
+    }
+
+    canvas.set("width", width);
+    canvas.set("height", height);
+    canvas["style"].set("width", std::to_string(previewWidth) + "px");
+    canvas["style"].set("height", std::to_string(previewHeight) + "px");
+
+    std::vector<uint8_t> flipped(pixels.size());
+    const size_t rowSize{static_cast<size_t>(width) * 4};
+    for (int y{0}; y < height; ++y) {
+        const size_t sourceOffset{static_cast<size_t>(height - 1 - y) * rowSize};
+        const size_t targetOffset{static_cast<size_t>(y) * rowSize};
+        std::copy_n(pixels.data() + sourceOffset, rowSize, flipped.data() + targetOffset);
+    }
+
+    auto uint8Array = emscripten::val::global("Uint8ClampedArray")
+                          .new_(emscripten::typed_memory_view(flipped.size(), flipped.data()));
+    auto imageData = emscripten::val::global("ImageData").new_(uint8Array, width, height);
+    auto context = canvas.call<emscripten::val>("getContext", std::string("2d"));
+    context.call<void>("putImageData", imageData, 0, 0);
+}
+#endif
 
 }  // namespace
 
@@ -65,8 +117,10 @@ void ZWindow::draw() {
     zEngine->endFrame();
 
     const auto pixels = bitmapSurface.readPixels();
-    printf("ZBitmapSurface readPixels size[%zu], checksum[%u]\n", pixels.size(),
-           makeSampleChecksum(pixels));
+    bitmapSurface.destroy();
+#ifdef __EMSCRIPTEN__
+    showBitmapDebugCanvas(pixels, zWidth, zHeight);
+#endif
 
     zSurface->makeCurrent();
     zEngine->beginFrame(zCssWidth, zCssHeight, zDpr, zWidth, zHeight);

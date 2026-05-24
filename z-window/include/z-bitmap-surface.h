@@ -17,7 +17,6 @@ public:
 public:
     std::vector<uint8_t> readPixels();
 
-private:
     void destroy();
 
 private:
