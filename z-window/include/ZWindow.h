@@ -3,6 +3,7 @@
 #include <functional>
 
 #include "z-tools/include/z-type.h"
+#include "z-window/include/z-surface.h"
 
 class IZEngine;
 class ZDocumentPainter;
@@ -11,6 +12,7 @@ class ZOverlayPainter;
 class ZPage;
 class ZShape;
 class ZTrace;
+class ZSurface;
 
 struct WindowContext {
     size_t zWidth{0};
@@ -49,4 +51,5 @@ private:
     std::shared_ptr<ZOverlayPainter> zOverlayPainter{nullptr};
     ZEditorContext* zEditorContext{nullptr};
     OverlayDrawer zOverlayDrawer{nullptr};
+    std::unique_ptr<ZSurface> zSurface{nullptr};
 };

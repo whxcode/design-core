@@ -40,7 +40,7 @@ void applyFillAndStroke(NVGcontext* vg, const ZStyle& zStyle) {
 
 }  // namespace
 
-ZVgEngine::ZVgEngine(int w, int h, float dpr) : zWidth(w), zHeight(h), zDpr(dpr) {
+ZVgEngine::ZVgEngine() {
     init();
 };
 
@@ -60,15 +60,10 @@ void ZVgEngine::init() {
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
     // ... 获取宽高的代码 ...
-
-    sWindow =
-        SDL_CreateWindow("DesignCore", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, zWidth,
-                         zHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
-
-    zGlContext = SDL_GL_CreateContext(sWindow);
-
-    // 核心动作：必须激活上下文
-    SDL_GL_MakeCurrent(sWindow, zGlContext);
+    // sWindow = SDL_CreateWindow("DesignCore", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+    // zWidth, zHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI); zGlContext
+    // = SDL_GL_CreateContext(sWindow); 核心动作：必须激活上下文 SDL_GL_MakeCurrent(sWindow,
+    // zGlContext);
 
     printf("C++: GL Context created. Testing Native GL...\n");
 
@@ -238,8 +233,7 @@ void ZVgEngine::beginFrame(float zWidth, float zHeight, float zDpr, const int zP
     glViewport(0, 0, zPixelWidth, zPixelHeight);
     const auto backgroundColor = ZEditorTheme::GetColor(ZEditorThemeToken::zCanvasBackground);
     glClearColor(((backgroundColor >> 16) & 0xFF) / 255.0f,
-                 ((backgroundColor >> 8) & 0xFF) / 255.0f,
-                 (backgroundColor & 0xFF) / 255.0f, 1.0f);
+                 ((backgroundColor >> 8) & 0xFF) / 255.0f, (backgroundColor & 0xFF) / 255.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // NanoVG 的标准入口
@@ -249,8 +243,4 @@ void ZVgEngine::beginFrame(float zWidth, float zHeight, float zDpr, const int zP
 void ZVgEngine::endFrame() {
     // 强制 GPU 提交渲染指令
     nvgEndFrame(zVg);
-}
-
-void ZVgEngine::flush() {
-    SDL_GL_SwapWindow(sWindow);
 }

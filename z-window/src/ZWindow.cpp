@@ -11,6 +11,8 @@
 #include "z-engine/libs/nanovg/nanovg.h"
 #include "z-paint/include/z-document-painter.h"
 #include "z-paint/include/z-overlay-painter.h"
+#include "z-window/include/z-bitmap-surface.h"
+#include "z-window/include/z-canvas-surface.h"
 
 #ifdef __EMSCRIPTEN__
 #include <GLES3/gl3.h>
@@ -20,33 +22,53 @@
 
 #include "z-engine/include/z-vgengine.h"
 
+namespace {
+
+uint32_t makeSampleChecksum(const std::vector<uint8_t>& pixels) {
+    uint32_t checksum{0};
+    constexpr size_t kSampleStep{1024};
+
+    for (size_t index{0}; index < pixels.size(); index += kSampleStep) {
+        checksum = checksum * 131u + pixels[index];
+    }
+
+    return checksum;
+}
+
+}  // namespace
+
 // 构造函数：初始化指针和基础数值
 ZWindow::ZWindow() : zEngine(nullptr), zWidth(800), zHeight(600), zDpr(1.0f) {
     init();
 }
 
 void ZWindow::init() {
-    zEngine = new ZVgEngine(static_cast<int>(zCssWidth), static_cast<int>(zCssHeight), zDpr);
+    zSurface = std::make_unique<ZCanvasSurface>(zWidth, zHeight);
+    zEngine = new ZVgEngine();
+
     zDocumentPainter = std::make_shared<ZDocumentPainter>();
     zOverlayPainter = std::make_shared<ZOverlayPainter>(zEditorContext);
 }
 
 void ZWindow::draw() {
-// Emscripten 环境下，使用这个函数代替 while(true)
-#ifdef __EMSCRIPTEN__
-    // 0 表示使用浏览器默认的 60FPS
-    // true 表示模拟无限循环
-    // emscripten_set_main_loop_arg(main_loop_callback, this, 0, true);
-#else
-    // 原生环境（Windows/Linux）可以保留类似的循环
-    while (true) {
-        render_frame();
-        SDL_Delay(16);  // 约 60 FPS
+    ZBitmapSurface bitmapSurface(zWidth, zHeight);
+    bitmapSurface.makeCurrent();
+
+    zEngine->beginFrame(zCssWidth, zCssHeight, zDpr, zWidth, zHeight);
+    zDocumentPainter->draw(zEngine);
+    zOverlayPainter->draw(zEngine);
+
+    if (zOverlayDrawer) {
+        zOverlayDrawer(zEngine);
     }
-#endif
 
-    // printf("[%d],[%d]\n", zWidth, zHeight);
+    zEngine->endFrame();
 
+    const auto pixels = bitmapSurface.readPixels();
+    printf("ZBitmapSurface readPixels size[%zu], checksum[%u]\n", pixels.size(),
+           makeSampleChecksum(pixels));
+
+    zSurface->makeCurrent();
     zEngine->beginFrame(zCssWidth, zCssHeight, zDpr, zWidth, zHeight);
     zDocumentPainter->draw(zEngine);
     zOverlayPainter->draw(zEngine);
@@ -56,7 +78,7 @@ void ZWindow::draw() {
         zOverlayDrawer(zEngine);
     }
     zEngine->endFrame();
-    zEngine->flush();
+    zSurface->present();
 }
 
 void ZWindow::setPage(const z_sp<ZPage>& page) {
