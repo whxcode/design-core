@@ -36,7 +36,8 @@ public:
     void transform(const ZMatrix& matrix) override;
     void restore() override;
 
-    void beginFrame(float zWidth, float zHeight, float zDpr) override;
+    void beginFrame(float zWidth, float zHeight, float zDpr, int zPixelWidth,
+                    int zPixelHeight) override;
     void endFrame() override;
     void flush() override;
 

@@ -233,8 +233,9 @@ void ZVgEngine::transform(const ZMatrix& matrix) {
     // nvgRestore(zVg);
 }
 
-void ZVgEngine::beginFrame(float zWidth, float zHeight, float zDpr) {
-    glViewport(0, 0, static_cast<int>(zWidth * zDpr), static_cast<int>(zHeight * zDpr));
+void ZVgEngine::beginFrame(float zWidth, float zHeight, float zDpr, const int zPixelWidth,
+                           const int zPixelHeight) {
+    glViewport(0, 0, zPixelWidth, zPixelHeight);
     const auto backgroundColor = ZEditorTheme::GetColor(ZEditorThemeToken::zCanvasBackground);
     glClearColor(((backgroundColor >> 16) & 0xFF) / 255.0f,
                  ((backgroundColor >> 8) & 0xFF) / 255.0f,

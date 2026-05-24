@@ -12,13 +12,21 @@ class ZPage;
 class ZShape;
 class ZTrace;
 
+struct WindowContext {
+    size_t zWidth{0};
+    size_t zHeight{0};
+    size_t zPixelWidth{0};
+    size_t zPixelHeight{0};
+    float zDpr{0};
+};
+
 class ZWindow {
 public:
     using OverlayDrawer = std::function<void(IZEngine*)>;
 
     ZWindow();
     void draw();
-    void setTitle();
+    void setContext(const WindowContext& context);
     void setPage(const z_sp<ZPage>& page);
     void setEditorContext(ZEditorContext* context);
     void setOverlayRoot(z_sp<ZShape> root);

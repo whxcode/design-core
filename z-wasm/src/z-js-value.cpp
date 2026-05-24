@@ -1,5 +1,7 @@
 #include "z-wasm/include/z-wasm/z-js-value.h"
 
+#include <cstddef>
+
 namespace {
 
 template <typename T>
@@ -34,6 +36,18 @@ ZUIEvent GetValue(const emscripten::val& source, ZUIEvent*) {
     target.shiftKey = readOptional<bool>(source, "shiftKey", false);
 
     return target;
+}
+
+WindowContext GetValue(const emscripten::val& source, WindowContext*) {
+    WindowContext context;
+
+    context.zWidth = readOptional<size_t>(source, "width", size_t{1});
+    context.zHeight = readOptional<size_t>(source, "height", size_t{1});
+    context.zPixelWidth = readOptional<size_t>(source, "pixelWidth", size_t{1});
+    context.zPixelHeight = readOptional<size_t>(source, "pixelHeight", size_t{1});
+    context.zDpr = readOptional<float>(source, "dpr", 1.0f);
+
+    return context;
 }
 
 }  // namespace wasm::cpp

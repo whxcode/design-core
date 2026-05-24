@@ -1,17 +1,25 @@
 CompileFlags:
-  # 1. 踢掉干扰项，但不开启 QueryDriverDatabase，防止它弄丢系统头文件
+  # 1. 踢掉 em++ 传给真实编译器的 wasm/linker 参数，clangd 只做语义解析
   Remove: [-s*, -m*, -f*, --sysroot*]
 
   Add: [
       "-std=c++23",
-      # "-stdlib=libc++",
       "-xc++",
       "-D__EMSCRIPTEN__",
-      # 2. 精准补丁：只把 emscripten.h 所在的路径喂给它
-      # 这个路径是给 LSP 看的，不会影响你的编译（build.sh 不看这里）
+      "-target",
+      "wasm32-unknown-emscripten",
+      # 2. 精准补丁：把当前 WSL emsdk 的 sysroot 喂给 clangd
+      # 这个路径是给 LSP 用的，不影响实际编译（build.sh 不看这里）
       "-isystem",
-
-      "/home/whx/emsdk/upstream/emscripten/system/include",
+      "/home/whx/webProject/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1",
+      "-isystem",
+      "/home/whx/webProject/emsdk/upstream/emscripten/cache/sysroot/include/fakesdl",
+      "-isystem",
+      "/home/whx/webProject/emsdk/upstream/emscripten/cache/sysroot/include/compat",
+      "-isystem",
+      "/home/whx/webProject/design/design-core/build_wasm/.emscripten_cache/sysroot/include",
+      "-isystem",
+      "/home/whx/webProject/emsdk/upstream/emscripten/cache/sysroot/include",
       # 3. 屏蔽假报错
       "-Wno-nullability-completeness",
       "-Wno-unknown-argument",

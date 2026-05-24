@@ -47,8 +47,11 @@ EMSCRIPTEN_BINDINGS(core_api) {
 
     // 绑定 Window
     class_<ZWindow>("Window")
-        .function("setTitle", &ZWindow::setTitle)
-        .function("dump", &ZWindow::dump);
+        .function("dump", &ZWindow::dump)
+        .function("setContext", optional_override([](ZWindow& self, const val& value) {
+                      self.setContext(
+                          wasm::cpp::GetValue(value, static_cast<WindowContext*>(nullptr)));
+                  }));
 
     // 绑定 Document
     class_<ZDocument>("Document").function("setName", &ZDocument::setName);

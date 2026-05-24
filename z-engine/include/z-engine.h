@@ -30,7 +30,8 @@ public:
     virtual void transform(const ZMatrix& matrix) = 0;
     virtual void restore() = 0;
 
-    virtual void beginFrame(float zWidth, float zHeight, float zDpr) = 0;
+    virtual void beginFrame(float zWidth, float zHeight, float zDpr, int zPixelWidth,
+                            int zPixelHeight) = 0;
     virtual void endFrame() = 0;
     virtual void flush() = 0;
 

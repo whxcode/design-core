@@ -32,7 +32,7 @@ export enum ZEditorModeType {
 }
 
 export interface CoreWindow {
-  setTitle(): void;
+  setContext(context: WindowContext): void;
   dump(): void;
 }
 
@@ -49,6 +49,14 @@ export interface ViewportData {
   offsetX: number;
   offsetY: number;
   scale: number;
+}
+
+export interface WindowContext {
+  width: number;
+  height: number;
+  pixelWidth: number;
+  pixelHeight: number;
+  dpr: number;
 }
 
 export enum ZAppEventType {
