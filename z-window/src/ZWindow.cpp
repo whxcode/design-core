@@ -103,24 +103,26 @@ void ZWindow::init() {
 }
 
 void ZWindow::draw() {
-    ZBitmapSurface bitmapSurface(zWidth, zHeight);
-    bitmapSurface.makeCurrent();
+    {
+        // ZBitmapSurface bitmapSurface(zWidth, zHeight);
+        // bitmapSurface.makeCurrent();
 
-    zEngine->beginFrame(zCssWidth, zCssHeight, zDpr, zWidth, zHeight);
-    zDocumentPainter->draw(zEngine);
-    zOverlayPainter->draw(zEngine);
+        zEngine->beginFrame(zCssWidth, zCssHeight, zDpr, zWidth, zHeight);
+        zDocumentPainter->draw(zEngine);
+        zOverlayPainter->draw(zEngine);
 
-    if (zOverlayDrawer) {
-        zOverlayDrawer(zEngine);
-    }
+        if (zOverlayDrawer) {
+            zOverlayDrawer(zEngine);
+        }
 
-    zEngine->endFrame();
+        zEngine->endFrame();
 
-    const auto pixels = bitmapSurface.readPixels();
-    bitmapSurface.destroy();
+        // const auto pixels = bitmapSurface.readPixels();
+        // bitmapSurface.destroy();
 #ifdef __EMSCRIPTEN__
-    showBitmapDebugCanvas(pixels, zWidth, zHeight);
+        // showBitmapDebugCanvas(pixels, zWidth, zHeight);
 #endif
+    }
 
     zSurface->makeCurrent();
     zEngine->beginFrame(zCssWidth, zCssHeight, zDpr, zWidth, zHeight);
