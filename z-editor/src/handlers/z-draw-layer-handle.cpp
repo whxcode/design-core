@@ -11,6 +11,7 @@
 #include "z-document/include/layers/z-page.h"
 #include "z-document/include/models/z-layer-model.h"
 #include "z-document/include/models/z-vector-model.h"
+#include "z-editor/include/selection/z-selection.h"
 #include "z-editor/include/ui-event/z-ui-event.h"
 #include "z-editor/include/ui-event/z-ui-handle.h"
 #include "z-editor/include/z-editor-context.h"
@@ -178,6 +179,8 @@ z_sp<ZLayerBase> ZDrawLayerHandle::createDrawingLayer() {
 
     const auto layer = views.front();
     zDrawingParent->addChild(layer);
+    getSelection().select(layer);
+
     return layer;
 }
 
