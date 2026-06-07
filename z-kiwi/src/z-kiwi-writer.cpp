@@ -11,17 +11,17 @@
 
 namespace {
 
-void fillGuid(schema::Guid* g, const ZGuid& src) {
+void getKiwiValue(schema::Guid* g, const ZGuid& src) {
     g->set_low(static_cast<uint64_t>(src.zSessionId));
     g->set_high(static_cast<uint64_t>(src.zClientId));
 }
 
-void fillSize(schema::Size* s, const ZSize& src) {
+void getKiwiValue(schema::Size* s, const ZSize& src) {
     s->set_width(src.width());
     s->set_height(src.height());
 }
 
-void fillMatrix(schema::Matrix* m, const ZMatrix& src) {
+void getKiwiValue(schema::Matrix* m, const ZMatrix& src) {
     m->set_m0(src.get(0));
     m->set_m1(src.get(1));
     m->set_m2(src.get(2));
@@ -30,7 +30,7 @@ void fillMatrix(schema::Matrix* m, const ZMatrix& src) {
     m->set_m5(src.get(5));
 }
 
-void fillPoint(schema::Point* p, const ZPoint& src) {
+void getKiwiValue(schema::Point* p, const ZPoint& src) {
     p->set_x(src.x());
     p->set_y(src.y());
 }
@@ -52,13 +52,13 @@ void addPaints(kiwi::MemoryPool& pool, schema::ModelNode& node, const ZPaintArra
 
 void fillModelNode(kiwi::MemoryPool& pool, schema::ModelNode& node, const z_sp<ZModel>& model) {
     auto* id = pool.allocate<schema::Guid>();
-    fillGuid(id, model->getId());
+    getKiwiValue(id, model->getId());
     node.set_id(id);
 
     node.set_type(static_cast<schema::ModelType>(static_cast<int>(model->getType())));
 
     auto* pid = pool.allocate<schema::Guid>();
-    fillGuid(pid, model->getParentId());
+    getKiwiValue(pid, model->getParentId());
     node.set_parentId(pid);
 
     node.set_name(pool.string(model->getName().c_str()));
@@ -67,11 +67,11 @@ void fillModelNode(kiwi::MemoryPool& pool, schema::ModelNode& node, const z_sp<Z
     if (!layer) return;
 
     auto* sz = pool.allocate<schema::Size>();
-    fillSize(sz, layer->getSize());
+    getKiwiValue(sz, layer->getSize());
     node.set_size(sz);
 
     auto* mat = pool.allocate<schema::Matrix>();
-    fillMatrix(mat, layer->getTransform());
+    getKiwiValue(mat, layer->getTransform());
     node.set_transform(mat);
 
     addPaints(pool, node, layer->getFills(), false);
@@ -104,15 +104,15 @@ void fillModelNode(kiwi::MemoryPool& pool, schema::ModelNode& node, const z_sp<Z
             ptArr[j].set_cornerRadius(sp.cornerRadius);
 
             auto* cf = pool.allocate<schema::Point>();
-            fillPoint(cf, sp.curveFrom);
+            getKiwiValue(cf, sp.curveFrom);
             ptArr[j].set_curveFrom(cf);
 
             auto* ct = pool.allocate<schema::Point>();
-            fillPoint(ct, sp.curveTo);
+            getKiwiValue(ct, sp.curveTo);
             ptArr[j].set_curveTo(ct);
 
             auto* pt = pool.allocate<schema::Point>();
-            fillPoint(pt, sp.point);
+            getKiwiValue(pt, sp.point);
             ptArr[j].set_point(pt);
 
             ptArr[j].set_hasCurveFrom(sp.hasCurveFrom);

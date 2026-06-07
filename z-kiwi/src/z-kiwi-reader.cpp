@@ -13,17 +13,17 @@
 
 namespace {
 
-ZGuid toZGuid(const schema::Guid* g) {
+ZGuid getValue(const schema::Guid* g) {
     if (!g) return ZGuid();
     return ZGuid(static_cast<size_t>(*g->low()), static_cast<size_t>(*g->high()));
 }
 
-ZSize toZSize(const schema::Size* s) {
+ZSize getValue(const schema::Size* s) {
     if (!s) return ZSize();
     return ZSize(*s->width(), *s->height());
 }
 
-ZMatrix toZMatrix(const schema::Matrix* m) {
+ZMatrix getValue(const schema::Matrix* m) {
     if (!m) return ZMatrix();
     ZMatrix mat;
     mat.set(0, *m->m0());
@@ -35,7 +35,7 @@ ZMatrix toZMatrix(const schema::Matrix* m) {
     return mat;
 }
 
-ZPaintArray toPaintArray(const kiwi::Array<schema::Paint>* arr) {
+ZPaintArray getValue(const kiwi::Array<schema::Paint>* arr) {
     if (!arr || arr->size() == 0) return nullptr;
 
     auto paints = std::make_shared<std::vector<ZPaint>>();
@@ -52,7 +52,7 @@ ZPaintArray toPaintArray(const kiwi::Array<schema::Paint>* arr) {
     return paints;
 }
 
-ZPathDataArray toPathArray(kiwi::MemoryPool& pool,
+ZPathDataArray getValue(kiwi::MemoryPool& pool,
                            const kiwi::Array<schema::PathData>* arr) {
     ZPathDataArray result;
     if (!arr || arr->size() == 0) return result;
@@ -94,10 +94,10 @@ ZPathDataArray toPathArray(kiwi::MemoryPool& pool,
 }
 
 z_sp<ZModel> createModel(const schema::ModelNode& node) {
-    auto id = toZGuid(node.id());
+    auto id = getValue(node.id());
     auto rawType = static_cast<int>(node.type() ? *node.type() : schema::ModelType::Document);
     auto type = static_cast<ZModelType>(rawType);
-    auto parentId = toZGuid(node.parentId());
+    auto parentId = getValue(node.parentId());
 
     z_sp<ZModel> model;
     switch (type) {
@@ -129,10 +129,10 @@ z_sp<ZModel> createModel(const schema::ModelNode& node) {
     auto layer = std::dynamic_pointer_cast<ZLayerModel>(model);
     if (!layer) return model;
 
-    if (auto* s = node.size()) layer->setSize(toZSize(s));
-    if (auto* m = node.transform()) layer->setTransform(toZMatrix(m));
-    if (auto* f = node.fills()) layer->setFills(toPaintArray(f));
-    if (auto* s = node.strokes()) layer->setStrokes(toPaintArray(s));
+    if (auto* s = node.size()) layer->setSize(getValue(s));
+    if (auto* m = node.transform()) layer->setTransform(getValue(m));
+    if (auto* f = node.fills()) layer->setFills(getValue(f));
+    if (auto* s = node.strokes()) layer->setStrokes(getValue(s));
 
     auto oval = std::dynamic_pointer_cast<ZOvalModel>(model);
     if (oval) {
@@ -173,7 +173,7 @@ ZModelArray ZKiwiReader::decode(kiwi::ByteBuffer& bb) {
         auto vec = std::dynamic_pointer_cast<ZVectorModel>(model);
         if (vec) {
             if (auto* paths = child.paths()) {
-                vec->setPaths(toPathArray(pool, paths));
+                vec->setPaths(getValue(pool, paths));
             }
         }
 
