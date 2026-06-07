@@ -54,9 +54,9 @@ void ZHoverShape::render(IZEngine* engine, ZEditorContext* context) {
     const auto lineWidth = viewport.scale == 0.0f ? 1.0f : 1.0f / viewport.scale;
     const auto strokeColor = ZEditorTheme::GetColor(ZEditorThemeToken::zHoverStroke);
     const ZStyle style{
-        .zFillColor = strokeColor,
-        .zStrokeColor = strokeColor,
-        .zStrokeWidth = 0.0f,
+        .color = strokeColor,
+        .alpha = 1.0f,
+        .isStroke = false,
     };
 
     engine->save();

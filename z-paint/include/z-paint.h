@@ -1,17 +1,18 @@
 #pragma once
 
+#include "z-document/include/layers/z-layerbase.h"
+#include "z-engine/include/z-engine.h"
 #include "z-tools/include/z-type.h"
 
 class IZEngine;
 class ZLayerBase;
 
-class ZPaint {
+class ZPainterBase {
 public:
-    ZPaint(IZEngine* engine);
+    ZPainterBase(IZEngine* engine);
 
 public:
     void draw();
-
     void setComponent(const z_sp<ZLayerBase>& comp);
 
 private:

@@ -5,7 +5,8 @@
 #include <string>
 
 #include "z-document/include/prop/z-prop-key.h"
-#include "z-document/include/models/z-path-data.h"
+#include "z-document/include/types/z-path-data.h"
+#include "z-document/include/types/z-paint.h"
 #include "z-document/include/z-model-type.h"
 #include "z-matrix/include/z-matrix.h"
 #include "z-matrix/include/z-size.h"
@@ -40,7 +41,8 @@ DEFINE_DEFAULT_VALUE(std::string, Name);
 DEFINE_DEFAULT_VALUE(ZModelType, Type);
 DEFINE_DEFAULT_VALUE(ZSize, Size);
 DEFINE_DEFAULT_VALUE(ZMatrix, Transform);
-DEFINE_DEFAULT_VALUE(uint32_t, FillColor);
+DEFINE_DEFAULT_VALUE(ZPaintArray, Fills);
+DEFINE_DEFAULT_VALUE(ZPaintArray, Strokes);
 DEFINE_DEFAULT_VALUE(float, StartAngle);
 DEFINE_DEFAULT_VALUE(float, EndAngle);
 DEFINE_DEFAULT_VALUE(float, InnerRadius);

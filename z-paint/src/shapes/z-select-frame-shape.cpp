@@ -40,16 +40,14 @@ void ZSelectFrameShape::render(IZEngine* engine, ZEditorContext* context) {
     const auto lineWidth = viewport.scale == 0.0f ? 1.0f : 1.0f / viewport.scale;
     const auto strokeColor = ZEditorTheme::GetColor(ZEditorThemeToken::zSelectionStroke);
     const ZStyle fillStyle{
-        .zFillColor = strokeColor,
-        .zStrokeColor = strokeColor,
-        .zFillAlpha = 0.18f,
-        .zStrokeWidth = 0.0f,
+        .color = strokeColor,
+        .alpha = 0.18f,
+        .isStroke = false,
     };
     const ZStyle style{
-        .zFillColor = strokeColor,
-        .zStrokeColor = strokeColor,
-        .zFillAlpha = 1.0f,
-        .zStrokeWidth = 0.0f,
+        .color = strokeColor,
+        .alpha = 1.0f,
+        .isStroke = false,
     };
 
     engine->save();

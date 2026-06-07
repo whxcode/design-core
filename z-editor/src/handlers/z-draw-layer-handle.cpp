@@ -165,7 +165,7 @@ z_sp<ZLayerBase> ZDrawLayerHandle::createDrawingLayer() {
     model->setParentId(zDrawingParent->getModel()->getId());
     model->setSize(ZSize::MakeEmpty());
     model->setName(makeLayerName(zDrawType));
-    model->setFillColor(makeFillColor(zDrawType));
+    // model->setFillColor(makeFillColor(zDrawType));
     model->setTransform(ZMatrix::Translate(getMouseDownPoint().x(), getMouseDownPoint().y()));
 
     if (zDrawType == ZDrawLayerType::zVector) {

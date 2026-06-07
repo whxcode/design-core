@@ -29,30 +29,68 @@ void ZDocumentPainter::draw(IZEngine* engine) {
         [&engine, &render](const ZLayerBaseArray& layers) {
             for (auto layer : layers) {
                 engine->save();
-                const auto& model = layer->getModel<ZLayerModel>();
+                const auto model = layer->getModel<ZLayerModel>();
                 const auto size = model->getSize();
 
                 engine->transform(model->getTransform());
-                const ZStyle style{
-                    .zFillColor = model->getFillColor(),
-                };
 
-                switch (model->getType()) {
-                    case ZModelType::zRectangle:
-                        engine->drawRect(size.width(), size.height(), style);
-                        break;
-                    case ZModelType::zOval:
-                        engine->drawOval(size.width(), size.height(), style);
-                        break;
-                    case ZModelType::zVector: {
-                        const auto vectorModel = model->as<ZVectorModel>();
-                        engine->drawPath(vectorModel->getPaths(), vectorModel->getWindingRule(),
-                                         style);
-                        break;
+                // 先画所有 fills（填充）
+                if (auto fills = model->getFills()) {
+                    for (const auto& paint : *fills) {
+                        if (!paint.visible) continue;
+
+                        ZStyle style;
+                        style.color = paint.color;
+                        style.alpha = paint.opacity;
+                        style.isStroke = false;
+
+                        switch (model->getType()) {
+                            case ZModelType::zRectangle:
+                                engine->drawRect(size.width(), size.height(), style);
+                                break;
+                            case ZModelType::zOval:
+                                engine->drawOval(size.width(), size.height(), style);
+                                break;
+                            case ZModelType::zVector: {
+                                const auto vectorModel = model->as<ZVectorModel>();
+                                engine->drawPath(vectorModel->getPaths(),
+                                                 vectorModel->getWindingRule(), style);
+                                break;
+                            }
+                            default:
+                                break;
+                        }
                     }
-                    case ZModelType::zDocument:
-                    case ZModelType::zPage:
-                        break;
+                }
+
+                // 再画所有 strokes（描边，叠在 fills 之上）
+                if (auto strokes = model->getStrokes()) {
+                    for (const auto& paint : *strokes) {
+                        if (!paint.visible) continue;
+
+                        ZStyle style;
+                        style.color = paint.color;
+                        style.alpha = paint.opacity;
+                        style.isStroke = true;
+                        style.strokeWidth = paint.strokeWidth;
+
+                        switch (model->getType()) {
+                            case ZModelType::zRectangle:
+                                engine->drawRect(size.width(), size.height(), style);
+                                break;
+                            case ZModelType::zOval:
+                                engine->drawOval(size.width(), size.height(), style);
+                                break;
+                            case ZModelType::zVector: {
+                                const auto vectorModel = model->as<ZVectorModel>();
+                                engine->drawPath(vectorModel->getPaths(),
+                                                 vectorModel->getWindingRule(), style);
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+                    }
                 }
 
                 render(layer->getChildren<ZLayerBase>());

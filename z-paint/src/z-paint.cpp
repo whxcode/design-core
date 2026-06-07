@@ -1,7 +1,6 @@
 #include "z-paint/include/z-paint.h"
 
 #include <functional>
-#include <iostream>
 
 #include "z-document/include/layers/z-component.h"
 #include "z-document/include/layers/z-layerbase.h"
@@ -10,45 +9,70 @@
 #include "z-engine/include/z-engine.h"
 #include "z-tools/include/z-assert.h"
 
-ZPaint::ZPaint(IZEngine* engine) : zEngine(engine) {
+namespace {
+
+void drawType(IZEngine* engine, ZModelType type, const ZSize& size, const ZStyle& style,
+              const z_sp<ZVectorModel>& vectorModel) {
+    switch (type) {
+        case ZModelType::zRectangle:
+            engine->drawRect(size.width(), size.height(), style);
+            break;
+        case ZModelType::zOval:
+            engine->drawOval(size.width(), size.height(), style);
+            break;
+        case ZModelType::zVector:
+            if (vectorModel) {
+                engine->drawPath(vectorModel->getPaths(), vectorModel->getWindingRule(), style);
+            }
+            break;
+        default:
+            break;
+    }
 }
 
-void ZPaint::draw() {
+}  // namespace
+
+ZPainterBase::ZPainterBase(IZEngine* engine) : zEngine(engine) {
+}
+
+void ZPainterBase::draw() {
     std::function<void(const ZLayerBaseArray& layers)> render =
         [this, &render](const ZLayerBaseArray& layers) {
             for (auto layer : layers) {
-                // std::cout << "layer:" << layer->getModel()->getName() << std::endl;
-
                 zEngine->save();
-                const auto& model = layer->getModel<ZLayerModel>();
-
-                auto size = model->getSize();
+                const auto model = layer->getModel<ZLayerModel>();
+                const auto size = model->getSize();
 
                 zEngine->transform(model->getTransform());
-                const ZStyle style{
-                    .zFillColor = model->getFillColor(),
-                };
 
-                switch (model->getType()) {
-                    case ZModelType::zRectangle:
-                        zEngine->drawRect(size.width(), size.height(), style);
-                        break;
-                    case ZModelType::zOval:
-                        zEngine->drawOval(size.width(), size.height(), style);
-                        break;
-                    case ZModelType::zVector: {
-                        const auto vectorModel = model->as<ZVectorModel>();
-                        zEngine->drawPath(vectorModel->getPaths(), vectorModel->getWindingRule(),
-                                          style);
-                        break;
+                // 绘制 fills
+                if (auto fills = model->getFills()) {
+                    for (const auto& paint : *fills) {
+                        if (!paint.visible) continue;
+                        ZStyle style;
+                        style.color = paint.color;
+                        style.alpha = paint.opacity;
+                        style.isStroke = false;
+                        drawType(zEngine, model->getType(), size, style,
+                                 model->as<ZVectorModel>());
                     }
-                    case ZModelType::zDocument:
-                    case ZModelType::zPage:
-                        break;
+                }
+
+                // 绘制 strokes
+                if (auto strokes = model->getStrokes()) {
+                    for (const auto& paint : *strokes) {
+                        if (!paint.visible) continue;
+                        ZStyle style;
+                        style.color = paint.color;
+                        style.alpha = paint.opacity;
+                        style.isStroke = true;
+                        style.strokeWidth = paint.strokeWidth;
+                        drawType(zEngine, model->getType(), size, style,
+                                 model->as<ZVectorModel>());
+                    }
                 }
 
                 render(layer->getChildren<ZLayerBase>());
-
                 zEngine->restore();
             }
         };
@@ -59,6 +83,6 @@ void ZPaint::draw() {
     render(fComponent->getChildren<ZLayerBase>());
 }
 
-void ZPaint::setComponent(const z_sp<ZLayerBase>& comp) {
+void ZPainterBase::setComponent(const z_sp<ZLayerBase>& comp) {
     fComponent = comp;
 }

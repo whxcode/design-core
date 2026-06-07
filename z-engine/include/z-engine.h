@@ -6,12 +6,12 @@
 #include "z-matrix/include/z-matrix.h"
 #include "z-matrix/include/z-rect.h"
 
+// 单次绘制属性：一个 ZPaint 对应一次 draw 调用
 struct ZStyle {
-    uint32_t zFillColor{0x000000FF};
-    uint32_t zStrokeColor{0x000000FF};
-    float zFillAlpha{1.0f};
-    float zStrokeWidth{0};
-    // 后期扩展：zGradient, zShadow...
+    uint32_t color{0x000000FF};
+    float alpha{1.0f};
+    bool isStroke{false};    // true=描边, false=填充
+    float strokeWidth{1.0f}; // 仅 isStroke=true 生效
 };
 
 class IZEngine {

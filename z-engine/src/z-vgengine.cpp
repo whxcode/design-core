@@ -23,18 +23,19 @@
 namespace {
 
 void applyFillAndStroke(NVGcontext* vg, const ZStyle& zStyle) {
-    const auto fillAlpha =
-        static_cast<unsigned char>(std::clamp(zStyle.zFillAlpha, 0.0f, 1.0f) * 255.0f);
-    nvgFillColor(vg, nvgRGBA((zStyle.zFillColor >> 16) & 0xFF, (zStyle.zFillColor >> 8) & 0xFF,
-                             zStyle.zFillColor & 0xFF, fillAlpha));
-    nvgFill(vg);
+    const auto alpha =
+        static_cast<unsigned char>(std::clamp(zStyle.alpha, 0.0f, 1.0f) * 255.0f);
+    const auto r = (zStyle.color >> 16) & 0xFF;
+    const auto g = (zStyle.color >> 8) & 0xFF;
+    const auto b = zStyle.color & 0xFF;
 
-    if (zStyle.zStrokeWidth > 0) {
-        nvgStrokeColor(
-            vg, nvgRGBA((zStyle.zStrokeColor >> 16) & 0xFF, (zStyle.zStrokeColor >> 8) & 0xFF,
-                        zStyle.zStrokeColor & 0xFF, 255));
-        nvgStrokeWidth(vg, zStyle.zStrokeWidth);
+    if (zStyle.isStroke) {
+        nvgStrokeColor(vg, nvgRGBA(r, g, b, alpha));
+        nvgStrokeWidth(vg, zStyle.strokeWidth);
         nvgStroke(vg);
+    } else {
+        nvgFillColor(vg, nvgRGBA(r, g, b, alpha));
+        nvgFill(vg);
     }
 }
 
