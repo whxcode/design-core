@@ -23,10 +23,11 @@ fi
 
 echo ">>>> 模式: ${BUILD_TYPE} | 源码: $CORE_DIR <<<<"
 
-# --- 3. 生成 TypeScript 类型 ---
-node "$CORE_DIR/scripts/gen-ts-types.js"
+# echo "生成 kiwi schema..."
+#bash "$CORE_DIR/z-kiwi/gen.sh"
 
-# --- 4. 准备构建环境 ---
+# --- 4. 生成 TypeScript 类型 ---
+node "$CORE_DIR/scripts/gen-ts-types.js"
 # 不再暴力删除整个目录，而是清理上次的缓存，这样增量编译会快一点
 if [ -d "$BUILD_DIR" ]; then
   echo "清理旧缓存..."
@@ -44,7 +45,6 @@ else
   JOBS=4
 fi
 
-# --- 5. 运行 CMake 编译 ---
 cd "$BUILD_DIR"
 
 # 注入 CMAKE_BUILD_TYPE，并生成 LSP 用的 JSON
@@ -56,7 +56,6 @@ emcmake cmake "$CORE_DIR" \
 echo "编译中..."
 make -j"$JOBS"
 
-# --- 6. 同步产物至前端 ---
 if [ -d "$WEB_DIST_DIR" ]; then
   echo "检测到前端仓库，正在同步产物..."
   mkdir -p "$WEB_DIST_DIR"

@@ -1,0 +1,48 @@
+// ==================== 基础类型 ====================
+struct Guid {
+    uint low;
+    uint high;
+}
+
+struct Size {
+    float width;
+    float height;
+}
+
+struct Matrix {
+    float m0;
+    float m1;
+    float m2;
+    float m3;
+    float m4;
+    float m5;
+}
+
+struct Point {
+    float x;
+    float y;
+}
+
+enum ModelType {
+    Document = 0;
+    Page = 1;
+    Rectangle = 2;
+    Oval = 3;
+    Vector = 4;
+}
+
+struct PathPoint {
+    float cornerRadius;
+    Point curveFrom;
+    Point curveTo;
+    Point point;
+    bool hasCurveFrom;
+    bool hasCurveTo;
+    bool fixed;
+    uint curveMode;
+}
+
+struct PathData {
+    PathPoint[] points;
+    bool isClosed;
+}

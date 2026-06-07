@@ -1,0 +1,30 @@
+message Paint {
+    uint color = 1;
+    float opacity = 2;
+    bool visible = 3;
+    float strokeWidth = 4;
+}
+
+message ModelNode {
+    Guid id = 1;
+    ModelType type = 2;
+    Guid parentId = 3;
+    string name = 4;
+
+    Size size = 5;
+    Matrix transform = 6;
+    Paint[] fills = 7;
+    Paint[] strokes = 8;
+
+    float startAngle = 9;
+    float endAngle = 10;
+    float innerRadius = 11;
+
+    uint windingRule = 12;
+    PathData[] paths = 13;
+}
+
+message DocumentFile {
+    uint version = 1;
+    ModelNode[] children = 2;
+}

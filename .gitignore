@@ -3,3 +3,4 @@ addon/build
 compile_commands.json
 .cache
 build.log
+z-kiwi/node_modules

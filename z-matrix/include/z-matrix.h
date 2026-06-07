@@ -62,6 +62,10 @@ public:
         return fMat[i];
     }
 
+    void set(const size_t i, float v) {
+        fMat[i] = v;
+    }
+
 private:
     float fMat[9];
 };
