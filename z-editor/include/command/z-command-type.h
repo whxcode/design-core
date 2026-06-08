@@ -12,4 +12,5 @@ enum class ZCommandType : uint8_t {
     zRedoDocumentHistory,
     zDeleteSelectedLayer,
     zCancelCurrentInteraction,
+    zDownloadFile,
 };

@@ -15,4 +15,4 @@ target_include_directories(z_webapi
         "${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
 
-target_link_libraries(z_webapi PUBLIC z_wasm)
+target_link_libraries(z_webapi PUBLIC z_wasm z_kiwi)

@@ -1,3 +1,6 @@
+#define IMPLEMENT_KIWI_H
+#define IMPLEMENT_SCHEMA_H
+
 #include "z-kiwi/include/z-kiwi-writer.h"
 
 #include "z-document/include/models/z-document-model.h"

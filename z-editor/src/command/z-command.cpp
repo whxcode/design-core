@@ -31,6 +31,8 @@ bool ZCommand::canExecute(const ZCommandType type) const {
             return canDeleteSelectedLayer();
         case ZCommandType::zCancelCurrentInteraction:
             return false;
+        case ZCommandType::zDownloadFile:
+            return true;
     }
 }
 
@@ -65,6 +67,8 @@ void ZCommand::execute(const ZCommandType type) {
             deleteSelectedLayer();
             return;
         case ZCommandType::zCancelCurrentInteraction:
+            return;
+        case ZCommandType::zDownloadFile:
             return;
     }
 }

@@ -22,6 +22,7 @@ export enum ZCommandType {
   RedoDocumentHistory = 6,
   DeleteSelectedLayer = 7,
   CancelCurrentInteraction = 8,
+  DownloadFile = 9,
 }
 
 export enum ZEditorModeType {

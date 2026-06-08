@@ -61,6 +61,13 @@ public:
 public:
     void setName() {};
 
+    struct ZPageExportData {
+        std::string pageId;
+        ZModelArray models;
+    };
+
+    void collectPageExportData(std::vector<ZPageExportData>& out) const;
+
 private:
     void registerSubtree(const z_sp<ZComponent>& node);
     void unregisterSubtree(const z_sp<ZComponent>& node);

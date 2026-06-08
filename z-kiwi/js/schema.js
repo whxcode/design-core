@@ -1,5 +1,5 @@
-var schema = exports || schema || {}, exports;
-schema.ByteBuffer = schema.ByteBuffer || require("kiwi-schema").ByteBuffer;
+import { ByteBuffer } from "kiwi-schema";
+var schema = { ByteBuffer };
 
 schema["decodeGuid"] = function (bb) {
   var result = {};
@@ -584,3 +584,5 @@ schema["encodeDocumentFile"] = function (message, bb) {
 
   if (isTopLevel) return bb.toUint8Array();
 };
+
+export { schema };

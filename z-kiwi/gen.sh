@@ -15,15 +15,22 @@ files=$(find schema -name "*.kiwi")
 cat $files >tmp/schema.kiwi
 sed -i '1i package schema;' tmp/schema.kiwi
 
-# 4. 生成代码
+# 4. 生成 C++ 头文件
 npx kiwic --schema tmp/schema.kiwi --cpp include/schema.h
+sed -i '1s/^/#pragma once\n\n/' include/schema.h
 echo "✅ include/schema.h"
 
+# 5. 生成 JS 解码器（并转为 ESM 去掉 require）
+npx kiwic --schema tmp/schema.kiwi --js js/schema.js
+sed -i '1s/.*/import { ByteBuffer } from "kiwi-schema";/' js/schema.js
+sed -i '2s/.*/var schema = { ByteBuffer };/' js/schema.js
+echo '' >> js/schema.js
+echo 'export { schema };' >> js/schema.js
+echo "✅ js/schema.js (ESM)"
+
+# 6. 生成 TS 类型
 npx kiwic --schema tmp/schema.kiwi --ts js/schema.d.ts
 echo "✅ js/schema.d.ts"
 
-npx kiwic --schema tmp/schema.kiwi --js js/schema.js
-echo "✅ js/schema.js"
-
-# 5. 清理
+# 7. 清理
 rm -rf tmp

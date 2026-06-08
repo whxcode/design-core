@@ -141,3 +141,26 @@ z_sp<ZComponent> ZDocument::findKey(const ZUniqueId id) const {
 void ZDocument::setActivePage(const ZUniqueId id) {
     zActivePageId = id;
 }
+
+namespace {
+
+void collectDescendantModels(const z_sp<ZComponent>& comp, ZModelArray& models) {
+    auto model = comp->getModel();
+    if (model) {
+        models.push_back(std::move(model));
+    }
+    for (const auto& child : comp->getChildren<ZComponent>()) {
+        collectDescendantModels(child, models);
+    }
+}
+
+}  // namespace
+
+void ZDocument::collectPageExportData(std::vector<ZPageExportData>& out) const {
+    for (const auto& [id, page] : zPages) {
+        ZPageExportData data;
+        data.pageId = page->getModel()->getId().toString();
+        collectDescendantModels(page, data.models);
+        out.push_back(std::move(data));
+    }
+}

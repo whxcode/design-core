@@ -10,6 +10,7 @@
 #include "z-document/include/commit/z-commit.h"
 #include "z-document/include/layers/z-document.h"
 #include "z-editor/include/command/z-command.h"
+#include "z-kiwi/include/z-kiwi-writer.h"
 #include "z-tools/include/z-editor-theme.h"
 #include "z-wasm/include/z-wasm/z-js-value.h"
 
@@ -48,10 +49,10 @@ EMSCRIPTEN_BINDINGS(core_api) {
     // 绑定 Window
     class_<ZWindow>("Window")
         .function("dump", &ZWindow::dump)
-        .function("setContext", optional_override([](ZWindow& self, const val& value) {
-                      self.setContext(
-                          wasm::cpp::GetValue(value, static_cast<WindowContext*>(nullptr)));
-                  }));
+        .function(
+            "setContext", optional_override([](ZWindow& self, const val& value) {
+                self.setContext(wasm::cpp::GetValue(value, static_cast<WindowContext*>(nullptr)));
+            }));
 
     // 绑定 Document
     class_<ZDocument>("Document").function("setName", &ZDocument::setName);
@@ -116,7 +117,41 @@ EMSCRIPTEN_BINDINGS(core_api) {
         .function("document", optional_override([](ZApp& self) {
                       return &self.getDocument();
                   }),
-                  allow_raw_pointers());
+                  allow_raw_pointers())
+
+        .function("exportFile", optional_override([](ZApp& self) -> val {
+                      auto& doc = self.getDocument();
+
+                      // 1. Document manifest: version only
+                      schema::DocumentFile manifest;
+                      manifest.set_version(1);
+                      kiwi::ByteBuffer manifestBB;
+                      manifest.encode(manifestBB);
+
+                      auto view = typed_memory_view(manifestBB.size(), manifestBB.data());
+                      auto docArr = val::global("Uint8Array").new_(manifestBB.size());
+                      docArr.call<void>("set", view);
+
+                      auto result = val::object();
+                      result.set("document", docArr);
+
+                      // 2. Collect and encode each page (page model + all descendants)
+                      std::vector<ZDocument::ZPageExportData> pages;
+                      doc.collectPageExportData(pages);
+
+                      for (const auto& pageData : pages) {
+                          kiwi::ByteBuffer bb;
+                          if (!ZKiwiWriter::encode(pageData.models, bb)) continue;
+
+                          auto pageView = typed_memory_view(bb.size(), bb.data());
+                          auto pageArr = val::global("Uint8Array").new_(bb.size());
+                          pageArr.call<void>("set", pageView);
+
+                          result.set("page-" + pageData.pageId, pageArr);
+                      }
+
+                      return result;
+                  }));
 
     // 暴力入口
     // 修改这里：调用辅助函数返回指针
