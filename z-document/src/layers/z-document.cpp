@@ -144,23 +144,24 @@ void ZDocument::setActivePage(const ZUniqueId id) {
 
 namespace {
 
-void collectDescendantModels(const z_sp<ZComponent>& comp, ZModelArray& models) {
+void collectModels(const z_sp<ZComponent>& comp, ZModelArray& models) {
     auto model = comp->getModel();
     if (model) {
-        models.push_back(std::move(model));
+        models.push_back(model);
     }
     for (const auto& child : comp->getChildren<ZComponent>()) {
-        collectDescendantModels(child, models);
+        collectModels(child, models);
     }
 }
 
 }  // namespace
 
-void ZDocument::collectPageExportData(std::vector<ZPageExportData>& out) const {
-    for (const auto& [id, page] : zPages) {
-        ZPageExportData data;
-        data.pageId = page->getModel()->getId().toString();
-        collectDescendantModels(page, data.models);
-        out.push_back(std::move(data));
+void ZDocument::collectExportModels(ZModelArray& out) const {
+    auto model = getModel();
+    if (model) {
+        out.push_back(model);
+    }
+    for (const auto& child : getChildren<ZComponent>()) {
+        collectModels(child, out);
     }
 }

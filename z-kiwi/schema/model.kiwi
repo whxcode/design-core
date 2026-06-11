@@ -25,6 +25,8 @@ message ModelNode {
 }
 
 message DocumentFile {
-    uint version = 1;
-    ModelNode[] children = 2;
+    Guid id =  1;
+    uint version = 2;
+    string name = 3;
+    ModelNode[] children = 4;
 }

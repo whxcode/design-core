@@ -119,37 +119,42 @@ EMSCRIPTEN_BINDINGS(core_api) {
                   }),
                   allow_raw_pointers())
 
-        .function("exportFile", optional_override([](ZApp& self) -> val {
+        .function("exportDocument", optional_override([](ZApp& self) -> val {
                       auto& doc = self.getDocument();
-
-                      // 1. Document manifest: version only
-                      schema::DocumentFile manifest;
-                      manifest.set_version(1);
-                      kiwi::ByteBuffer manifestBB;
-                      manifest.encode(manifestBB);
-
-                      auto view = typed_memory_view(manifestBB.size(), manifestBB.data());
-                      auto docArr = val::global("Uint8Array").new_(manifestBB.size());
-                      docArr.call<void>("set", view);
-
                       auto result = val::object();
-                      result.set("document", docArr);
 
-                      // 2. Collect and encode each page (page model + all descendants)
-                      std::vector<ZDocument::ZPageExportData> pages;
-                      doc.collectPageExportData(pages);
+                      ZModelArray models;
+                      doc.collectExportModels(models);
 
-                      for (const auto& pageData : pages) {
-                          kiwi::ByteBuffer bb;
-                          if (!ZKiwiWriter::encode(pageData.models, bb)) continue;
-
-                          auto pageView = typed_memory_view(bb.size(), bb.data());
-                          auto pageArr = val::global("Uint8Array").new_(bb.size());
-                          pageArr.call<void>("set", pageView);
-
-                          result.set("page-" + pageData.pageId, pageArr);
+                      kiwi::ByteBuffer bb;
+                      if (ZKiwiWriter::encode(models, bb)) {
+                          auto view = typed_memory_view(bb.size(), bb.data());
+                          auto docArr = val::global("Uint8Array").new_(bb.size());
+                          docArr.call<void>("set", view);
+                          result.set("document", docArr);
                       }
 
+                      return result;
+                  }))
+
+        .function("loadDocument", optional_override([](ZApp& self, val bytes) -> val {
+                      auto length = bytes["length"].as<size_t>();
+                      std::vector<uint8_t> buffer(length);
+
+                      /*
+                                      val memoryView = val::global("Uint8Array")
+                                                           .new_(val::module_property("HEAPU8").call<val>(
+                                                               "subarray", bytes["byteOffset"],
+                                                               bytes["byteOffset"].as<size_t>() +
+                         length)); memoryView.call<void>("set",
+                                                            val::global("Uint8Array").new_(buffer.data(),
+                         length));
+                      */
+
+                      printf("size(%d)\n", buffer.size());
+
+                      auto result = val::object();
+                      result.set("success", true);  // 假设加载成功
                       return result;
                   }));
 

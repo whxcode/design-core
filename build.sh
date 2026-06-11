@@ -73,13 +73,15 @@ if [ -d "$WEB_DIST_DIR" ]; then
     cp -rv "$CORE_TYPES_DIR"/. "$WEB_TYPES_DIR"/
   fi
 
-  # 同步 z-kiwi/js 到前端 kiwi 类型目录
+  # 同步 z-kiwi TS 运行时和类型到前端 kiwi 目录
   KIWI_JS_SRC="$CORE_DIR/z-kiwi/js"
   KIWI_JS_DST="$CORE_DIR/../design-web/src/kiwi"
   if [ -d "$KIWI_JS_SRC" ]; then
     mkdir -p "$KIWI_JS_DST"
-    cp -rv "$KIWI_JS_SRC"/* "$KIWI_JS_DST"/
-    echo "kiwi js 已同步到 $KIWI_JS_DST"
+    rm -f "$KIWI_JS_DST"/schema.js "$KIWI_JS_DST"/schema.ts "$KIWI_JS_DST"/schema.d.ts
+    cp -v "$KIWI_JS_SRC"/schema.ts "$KIWI_JS_DST"/
+    cp -v "$KIWI_JS_SRC"/schema.d.ts "$KIWI_JS_DST"/
+    echo "kiwi ts 已同步到 $KIWI_JS_DST"
   fi
 
   # 更新根目录的 LSP 配置文件

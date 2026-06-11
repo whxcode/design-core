@@ -94,6 +94,8 @@ export interface CoreApp {
   command(): CoreCommand;
   window(): CoreWindow;
   document(): CoreDocument;
+  exportDocument(): any;
+  loadDocument(byte: Uint8Array): any;
 }
 
 export interface CreateCoreOptions {

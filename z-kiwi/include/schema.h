@@ -327,9 +327,17 @@ class DocumentFile {
 public:
   DocumentFile() { (void)_flags; }
 
+  Guid *id();
+  const Guid *id() const;
+  void set_id(Guid *value);
+
   uint32_t *version();
   const uint32_t *version() const;
   void set_version(const uint32_t &value);
+
+  kiwi::String *name();
+  const kiwi::String *name() const;
+  void set_name(const kiwi::String &value);
 
   kiwi::Array<ModelNode> *children();
   const kiwi::Array<ModelNode> *children() const;
@@ -340,6 +348,8 @@ public:
 
 private:
   uint32_t _flags[1] = {};
+  Guid *_data_id = {};
+  kiwi::String _data_name = {};
   kiwi::Array<ModelNode> _data_children = {};
   uint32_t _data_version = {};
 };
@@ -1170,37 +1180,69 @@ bool ModelNode::decode(kiwi::ByteBuffer &_bb, kiwi::MemoryPool &_pool, const Bin
   }
 }
 
+Guid *DocumentFile::id() {
+  return _data_id;
+}
+
+const Guid *DocumentFile::id() const {
+  return _data_id;
+}
+
+void DocumentFile::set_id(Guid *value) {
+  _data_id = value;
+}
+
 uint32_t *DocumentFile::version() {
-  return _flags[0] & 1 ? &_data_version : nullptr;
+  return _flags[0] & 2 ? &_data_version : nullptr;
 }
 
 const uint32_t *DocumentFile::version() const {
-  return _flags[0] & 1 ? &_data_version : nullptr;
+  return _flags[0] & 2 ? &_data_version : nullptr;
 }
 
 void DocumentFile::set_version(const uint32_t &value) {
-  _flags[0] |= 1; _data_version = value;
+  _flags[0] |= 2; _data_version = value;
+}
+
+kiwi::String *DocumentFile::name() {
+  return _flags[0] & 4 ? &_data_name : nullptr;
+}
+
+const kiwi::String *DocumentFile::name() const {
+  return _flags[0] & 4 ? &_data_name : nullptr;
+}
+
+void DocumentFile::set_name(const kiwi::String &value) {
+  _flags[0] |= 4; _data_name = value;
 }
 
 kiwi::Array<ModelNode> *DocumentFile::children() {
-  return _flags[0] & 2 ? &_data_children : nullptr;
+  return _flags[0] & 8 ? &_data_children : nullptr;
 }
 
 const kiwi::Array<ModelNode> *DocumentFile::children() const {
-  return _flags[0] & 2 ? &_data_children : nullptr;
+  return _flags[0] & 8 ? &_data_children : nullptr;
 }
 
 kiwi::Array<ModelNode> &DocumentFile::set_children(kiwi::MemoryPool &pool, uint32_t count) {
-  _flags[0] |= 2; return _data_children = pool.array<ModelNode>(count);
+  _flags[0] |= 8; return _data_children = pool.array<ModelNode>(count);
 }
 
 bool DocumentFile::encode(kiwi::ByteBuffer &_bb) {
-  if (version() != nullptr) {
+  if (id() != nullptr) {
     _bb.writeVarUint(1);
+    if (!_data_id->encode(_bb)) return false;
+  }
+  if (version() != nullptr) {
+    _bb.writeVarUint(2);
     _bb.writeVarUint(_data_version);
   }
+  if (name() != nullptr) {
+    _bb.writeVarUint(3);
+    _bb.writeString(_data_name.c_str());
+  }
   if (children() != nullptr) {
-    _bb.writeVarUint(2);
+    _bb.writeVarUint(4);
     _bb.writeVarUint(_data_children.size());
     for (ModelNode &_it : _data_children) if (!_it.encode(_bb)) return false;
   }
@@ -1217,11 +1259,21 @@ bool DocumentFile::decode(kiwi::ByteBuffer &_bb, kiwi::MemoryPool &_pool, const 
       case 0:
         return true;
       case 1: {
+        _data_id = _pool.allocate<Guid>();
+        if (!_data_id->decode(_bb, _pool, _schema)) return false;
+        break;
+      }
+      case 2: {
         if (!_bb.readVarUint(_data_version)) return false;
         set_version(_data_version);
         break;
       }
-      case 2: {
+      case 3: {
+        if (!_bb.readString(_data_name, _pool)) return false;
+        set_name(_data_name);
+        break;
+      }
+      case 4: {
         if (!_bb.readVarUint(_count)) return false;
         for (ModelNode &_it : set_children(_pool, _count)) if (!_it.decode(_bb, _pool, _schema)) return false;
         break;

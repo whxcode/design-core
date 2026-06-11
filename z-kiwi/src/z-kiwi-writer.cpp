@@ -14,28 +14,29 @@
 
 namespace {
 
-void getKiwiValue(schema::Guid* g, const ZGuid& src) {
-    g->set_low(static_cast<uint64_t>(src.zSessionId));
-    g->set_high(static_cast<uint64_t>(src.zClientId));
-}
-
-void getKiwiValue(schema::Size* s, const ZSize& src) {
+schema::Size* getKiwiValue(kiwi::MemoryPool& pool, const ZSize& src) {
+    auto* s = pool.allocate<schema::Size>();
     s->set_width(src.width());
     s->set_height(src.height());
+    return s;
 }
 
-void getKiwiValue(schema::Matrix* m, const ZMatrix& src) {
+schema::Matrix* getKiwiValue(kiwi::MemoryPool& pool, const ZMatrix& src) {
+    auto* m = pool.allocate<schema::Matrix>();
     m->set_m0(src.get(0));
     m->set_m1(src.get(1));
     m->set_m2(src.get(2));
     m->set_m3(src.get(3));
     m->set_m4(src.get(4));
     m->set_m5(src.get(5));
+    return m;
 }
 
-void getKiwiValue(schema::Point* p, const ZPoint& src) {
+schema::Point* getKiwiValue(kiwi::MemoryPool& pool, const ZPoint& src) {
+    auto* p = pool.allocate<schema::Point>();
     p->set_x(src.x());
     p->set_y(src.y());
+    return p;
 }
 
 void addPaints(kiwi::MemoryPool& pool, schema::ModelNode& node, const ZPaintArray& paints,
@@ -53,29 +54,17 @@ void addPaints(kiwi::MemoryPool& pool, schema::ModelNode& node, const ZPaintArra
     }
 }
 
-void fillModelNode(kiwi::MemoryPool& pool, schema::ModelNode& node, const z_sp<ZModel>& model) {
-    auto* id = pool.allocate<schema::Guid>();
-    getKiwiValue(id, model->getId());
-    node.set_id(id);
-
+void fillKiwiValue(kiwi::MemoryPool& pool, schema::ModelNode& node, const z_sp<ZModel>& model) {
+    node.set_id(ZKiwiWriter::getKiwiValue(pool, model->getId()));
     node.set_type(static_cast<schema::ModelType>(static_cast<int>(model->getType())));
-
-    auto* pid = pool.allocate<schema::Guid>();
-    getKiwiValue(pid, model->getParentId());
-    node.set_parentId(pid);
-
+    node.set_parentId(ZKiwiWriter::getKiwiValue(pool, model->getParentId()));
     node.set_name(pool.string(model->getName().c_str()));
 
     auto layer = std::dynamic_pointer_cast<ZLayerModel>(model);
     if (!layer) return;
 
-    auto* sz = pool.allocate<schema::Size>();
-    getKiwiValue(sz, layer->getSize());
-    node.set_size(sz);
-
-    auto* mat = pool.allocate<schema::Matrix>();
-    getKiwiValue(mat, layer->getTransform());
-    node.set_transform(mat);
+    node.set_size(getKiwiValue(pool, layer->getSize()));
+    node.set_transform(getKiwiValue(pool, layer->getTransform()));
 
     addPaints(pool, node, layer->getFills(), false);
     addPaints(pool, node, layer->getStrokes(), true);
@@ -106,18 +95,9 @@ void fillModelNode(kiwi::MemoryPool& pool, schema::ModelNode& node, const z_sp<Z
             const auto& sp = src.points[j];
             ptArr[j].set_cornerRadius(sp.cornerRadius);
 
-            auto* cf = pool.allocate<schema::Point>();
-            getKiwiValue(cf, sp.curveFrom);
-            ptArr[j].set_curveFrom(cf);
-
-            auto* ct = pool.allocate<schema::Point>();
-            getKiwiValue(ct, sp.curveTo);
-            ptArr[j].set_curveTo(ct);
-
-            auto* pt = pool.allocate<schema::Point>();
-            getKiwiValue(pt, sp.point);
-            ptArr[j].set_point(pt);
-
+            ptArr[j].set_curveFrom(getKiwiValue(pool, sp.curveFrom));
+            ptArr[j].set_curveTo(getKiwiValue(pool, sp.curveTo));
+            ptArr[j].set_point(getKiwiValue(pool, sp.point));
             ptArr[j].set_hasCurveFrom(sp.hasCurveFrom);
             ptArr[j].set_hasCurveTo(sp.hasCurveTo);
             ptArr[j].set_fixed(sp.fixed);
@@ -126,18 +106,41 @@ void fillModelNode(kiwi::MemoryPool& pool, schema::ModelNode& node, const z_sp<Z
     }
 }
 
+void fillKiwiValues(kiwi::MemoryPool& pool, kiwi::Array<schema::ModelNode>& arr,
+                    const ZModelArray& models) {
+    for (uint32_t i = 0; i < models.size(); i++) {
+        fillKiwiValue(pool, arr[i], models[i]);
+    }
+}
+
 }  // namespace
+
+schema::Guid* ZKiwiWriter::getKiwiValue(kiwi::MemoryPool& pool, const ZGuid& src) {
+    auto* g = pool.allocate<schema::Guid>();
+    g->set_low(static_cast<uint64_t>(src.zSessionId));
+    g->set_high(static_cast<uint64_t>(src.zClientId));
+    return g;
+}
+
+kiwi::Array<schema::ModelNode> ZKiwiWriter::encode(kiwi::MemoryPool& pool,
+                                                   const ZModelArray& models) {
+    auto arr = pool.array<schema::ModelNode>((uint32_t)models.size());
+    fillKiwiValues(pool, arr, models);
+    return arr;
+}
 
 bool ZKiwiWriter::encode(const ZModelArray& models, kiwi::ByteBuffer& bb) {
     kiwi::MemoryPool pool;
     schema::DocumentFile doc;
 
     doc.set_version(1);
-    auto& children = doc.set_children(pool, (uint32_t)models.size());
-
-    for (uint32_t i = 0; i < models.size(); i++) {
-        fillModelNode(pool, children[i], models[i]);
+    if (!models.empty() && models.front()) {
+        doc.set_id(getKiwiValue(pool, models.front()->getId()));
+        doc.set_name(pool.string(models.front()->getName().c_str()));
     }
+
+    auto& children = doc.set_children(pool, (uint32_t)models.size());
+    fillKiwiValues(pool, children, models);
 
     return doc.encode(bb);
 }

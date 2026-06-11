@@ -1,7 +1,112 @@
+// @ts-nocheck
+/* eslint-disable */
 import { ByteBuffer } from "kiwi-schema";
-var schema = { ByteBuffer };
 
-schema["decodeGuid"] = function (bb) {
+export namespace schema {
+  export type ModelType =
+    "Document" |
+    "Page" |
+    "Rectangle" |
+    "Oval" |
+    "Vector";
+
+  export interface Guid {
+    low: number;
+    high: number;
+  }
+
+  export interface Size {
+    width: number;
+    height: number;
+  }
+
+  export interface Matrix {
+    m0: number;
+    m1: number;
+    m2: number;
+    m3: number;
+    m4: number;
+    m5: number;
+  }
+
+  export interface Point {
+    x: number;
+    y: number;
+  }
+
+  export interface PathPoint {
+    cornerRadius: number;
+    curveFrom: Point;
+    curveTo: Point;
+    point: Point;
+    hasCurveFrom: boolean;
+    hasCurveTo: boolean;
+    fixed: boolean;
+    curveMode: number;
+  }
+
+  export interface PathData {
+    points: PathPoint[];
+    isClosed: boolean;
+  }
+
+  export interface Paint {
+    color?: number;
+    opacity?: number;
+    visible?: boolean;
+    strokeWidth?: number;
+  }
+
+  export interface ModelNode {
+    id?: Guid;
+    type?: ModelType;
+    parentId?: Guid;
+    name?: string;
+    size?: Size;
+    transform?: Matrix;
+    fills?: Paint[];
+    strokes?: Paint[];
+    startAngle?: number;
+    endAngle?: number;
+    innerRadius?: number;
+    windingRule?: number;
+    paths?: PathData[];
+  }
+
+  export interface DocumentFile {
+    id?: Guid;
+    version?: number;
+    name?: string;
+    children?: ModelNode[];
+  }
+
+  export interface Schema {
+    encodeGuid(message: Guid): Uint8Array;
+    decodeGuid(buffer: Uint8Array): Guid;
+    encodeSize(message: Size): Uint8Array;
+    decodeSize(buffer: Uint8Array): Size;
+    encodeMatrix(message: Matrix): Uint8Array;
+    decodeMatrix(buffer: Uint8Array): Matrix;
+    encodePoint(message: Point): Uint8Array;
+    decodePoint(buffer: Uint8Array): Point;
+    ModelType: any;
+    encodePathPoint(message: PathPoint): Uint8Array;
+    decodePathPoint(buffer: Uint8Array): PathPoint;
+    encodePathData(message: PathData): Uint8Array;
+    decodePathData(buffer: Uint8Array): PathData;
+    encodePaint(message: Paint): Uint8Array;
+    decodePaint(buffer: Uint8Array): Paint;
+    encodeModelNode(message: ModelNode): Uint8Array;
+    decodeModelNode(buffer: Uint8Array): ModelNode;
+    encodeDocumentFile(message: DocumentFile): Uint8Array;
+    decodeDocumentFile(buffer: Uint8Array): DocumentFile;
+  }
+}
+
+
+const schemaRuntime = { ByteBuffer } as unknown as schema.Schema & { ByteBuffer: typeof ByteBuffer };
+
+schemaRuntime["decodeGuid"] = function (bb) {
   var result = {};
   if (!(bb instanceof this.ByteBuffer)) {
     bb = new this.ByteBuffer(bb);
@@ -12,7 +117,7 @@ schema["decodeGuid"] = function (bb) {
   return result;
 };
 
-schema["encodeGuid"] = function (message, bb) {
+schemaRuntime["encodeGuid"] = function (message, bb) {
   var isTopLevel = !bb;
   if (isTopLevel) bb = new this.ByteBuffer();
 
@@ -33,7 +138,7 @@ schema["encodeGuid"] = function (message, bb) {
   if (isTopLevel) return bb.toUint8Array();
 };
 
-schema["decodeSize"] = function (bb) {
+schemaRuntime["decodeSize"] = function (bb) {
   var result = {};
   if (!(bb instanceof this.ByteBuffer)) {
     bb = new this.ByteBuffer(bb);
@@ -44,7 +149,7 @@ schema["decodeSize"] = function (bb) {
   return result;
 };
 
-schema["encodeSize"] = function (message, bb) {
+schemaRuntime["encodeSize"] = function (message, bb) {
   var isTopLevel = !bb;
   if (isTopLevel) bb = new this.ByteBuffer();
 
@@ -65,7 +170,7 @@ schema["encodeSize"] = function (message, bb) {
   if (isTopLevel) return bb.toUint8Array();
 };
 
-schema["decodeMatrix"] = function (bb) {
+schemaRuntime["decodeMatrix"] = function (bb) {
   var result = {};
   if (!(bb instanceof this.ByteBuffer)) {
     bb = new this.ByteBuffer(bb);
@@ -80,7 +185,7 @@ schema["decodeMatrix"] = function (bb) {
   return result;
 };
 
-schema["encodeMatrix"] = function (message, bb) {
+schemaRuntime["encodeMatrix"] = function (message, bb) {
   var isTopLevel = !bb;
   if (isTopLevel) bb = new this.ByteBuffer();
 
@@ -129,7 +234,7 @@ schema["encodeMatrix"] = function (message, bb) {
   if (isTopLevel) return bb.toUint8Array();
 };
 
-schema["decodePoint"] = function (bb) {
+schemaRuntime["decodePoint"] = function (bb) {
   var result = {};
   if (!(bb instanceof this.ByteBuffer)) {
     bb = new this.ByteBuffer(bb);
@@ -140,7 +245,7 @@ schema["decodePoint"] = function (bb) {
   return result;
 };
 
-schema["encodePoint"] = function (message, bb) {
+schemaRuntime["encodePoint"] = function (message, bb) {
   var isTopLevel = !bb;
   if (isTopLevel) bb = new this.ByteBuffer();
 
@@ -160,7 +265,7 @@ schema["encodePoint"] = function (message, bb) {
 
   if (isTopLevel) return bb.toUint8Array();
 };
-schema["ModelType"] = {
+schemaRuntime["ModelType"] = {
   "0": "Document",
   "1": "Page",
   "2": "Rectangle",
@@ -173,7 +278,7 @@ schema["ModelType"] = {
   "Vector": 4
 };
 
-schema["decodePathPoint"] = function (bb) {
+schemaRuntime["decodePathPoint"] = function (bb) {
   var result = {};
   if (!(bb instanceof this.ByteBuffer)) {
     bb = new this.ByteBuffer(bb);
@@ -190,7 +295,7 @@ schema["decodePathPoint"] = function (bb) {
   return result;
 };
 
-schema["encodePathPoint"] = function (message, bb) {
+schemaRuntime["encodePathPoint"] = function (message, bb) {
   var isTopLevel = !bb;
   if (isTopLevel) bb = new this.ByteBuffer();
 
@@ -253,7 +358,7 @@ schema["encodePathPoint"] = function (message, bb) {
   if (isTopLevel) return bb.toUint8Array();
 };
 
-schema["decodePathData"] = function (bb) {
+schemaRuntime["decodePathData"] = function (bb) {
   var result = {};
   if (!(bb instanceof this.ByteBuffer)) {
     bb = new this.ByteBuffer(bb);
@@ -266,7 +371,7 @@ schema["decodePathData"] = function (bb) {
   return result;
 };
 
-schema["encodePathData"] = function (message, bb) {
+schemaRuntime["encodePathData"] = function (message, bb) {
   var isTopLevel = !bb;
   if (isTopLevel) bb = new this.ByteBuffer();
 
@@ -292,7 +397,7 @@ schema["encodePathData"] = function (message, bb) {
   if (isTopLevel) return bb.toUint8Array();
 };
 
-schema["decodePaint"] = function (bb) {
+schemaRuntime["decodePaint"] = function (bb) {
   var result = {};
   if (!(bb instanceof this.ByteBuffer)) {
     bb = new this.ByteBuffer(bb);
@@ -325,7 +430,7 @@ schema["decodePaint"] = function (bb) {
   }
 };
 
-schema["encodePaint"] = function (message, bb) {
+schemaRuntime["encodePaint"] = function (message, bb) {
   var isTopLevel = !bb;
   if (isTopLevel) bb = new this.ByteBuffer();
 
@@ -357,7 +462,7 @@ schema["encodePaint"] = function (message, bb) {
   if (isTopLevel) return bb.toUint8Array();
 };
 
-schema["decodeModelNode"] = function (bb) {
+schemaRuntime["decodeModelNode"] = function (bb) {
   var result = {};
   if (!(bb instanceof this.ByteBuffer)) {
     bb = new this.ByteBuffer(bb);
@@ -432,7 +537,7 @@ schema["decodeModelNode"] = function (bb) {
   }
 };
 
-schema["encodeModelNode"] = function (message, bb) {
+schemaRuntime["encodeModelNode"] = function (message, bb) {
   var isTopLevel = !bb;
   if (isTopLevel) bb = new this.ByteBuffer();
 
@@ -533,7 +638,7 @@ schema["encodeModelNode"] = function (message, bb) {
   if (isTopLevel) return bb.toUint8Array();
 };
 
-schema["decodeDocumentFile"] = function (bb) {
+schemaRuntime["decodeDocumentFile"] = function (bb) {
   var result = {};
   if (!(bb instanceof this.ByteBuffer)) {
     bb = new this.ByteBuffer(bb);
@@ -568,7 +673,7 @@ schema["decodeDocumentFile"] = function (bb) {
   }
 };
 
-schema["encodeDocumentFile"] = function (message, bb) {
+schemaRuntime["encodeDocumentFile"] = function (message, bb) {
   var isTopLevel = !bb;
   if (isTopLevel) bb = new this.ByteBuffer();
 
@@ -605,4 +710,5 @@ schema["encodeDocumentFile"] = function (message, bb) {
   if (isTopLevel) return bb.toUint8Array();
 };
 
-export { schema };
+
+export { schemaRuntime as schema };

@@ -24,13 +24,34 @@ echo "✅ include/schema.h"
 npx kiwic --schema tmp/schema.kiwi --js js/schema.js
 sed -i '1s/.*/import { ByteBuffer } from "kiwi-schema";/' js/schema.js
 sed -i '2s/.*/var schema = { ByteBuffer };/' js/schema.js
-echo '' >> js/schema.js
-echo 'export { schema };' >> js/schema.js
+echo '' >>js/schema.js
+echo 'export { schema };' >>js/schema.js
 echo "✅ js/schema.js (ESM)"
 
 # 6. 生成 TS 类型
 npx kiwic --schema tmp/schema.kiwi --ts js/schema.d.ts
+echo '' >>js/schema.d.ts
+echo 'export const schema: schema.Schema;' >>js/schema.d.ts
 echo "✅ js/schema.d.ts"
 
-# 7. 清理
+# 7. 生成 TS 运行时
+{
+    echo '// @ts-nocheck'
+    echo '/* eslint-disable */'
+    echo 'import { ByteBuffer } from "kiwi-schema";'
+    echo ''
+    sed '/^export const schema:/d' js/schema.d.ts
+    echo ''
+    sed \
+        -e '1d' \
+        -e 's/^var schema = { ByteBuffer };/const schemaRuntime = { ByteBuffer } as unknown as schema.Schema \& { ByteBuffer: typeof ByteBuffer };/g' \
+        -e 's/schema\[/schemaRuntime[/g' \
+        -e '/^export { schema };$/d' \
+        js/schema.js
+    echo ''
+    echo 'export { schemaRuntime as schema };'
+} >js/schema.ts
+echo "✅ js/schema.ts"
+
+# 8. 清理
 rm -rf tmp

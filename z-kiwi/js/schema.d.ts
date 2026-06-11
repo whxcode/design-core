@@ -70,7 +70,9 @@ export namespace schema {
   }
 
   export interface DocumentFile {
+    id?: Guid;
     version?: number;
+    name?: string;
     children?: ModelNode[];
   }
 
@@ -96,3 +98,5 @@ export namespace schema {
     decodeDocumentFile(buffer: Uint8Array): DocumentFile;
   }
 }
+
+export const schema: schema.Schema;

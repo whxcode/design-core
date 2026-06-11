@@ -26,7 +26,17 @@ public:
         return zModel->as<T>();
     }
 
+    template <typename T>
+        requires std::derived_from<T, ZModel>
+    z_sp<T> getModel() const {
+        return zModel->as<T>();
+    }
+
     z_sp<ZModel> getModel() {
+        return getModel<ZModel>();
+    }
+
+    z_sp<ZModel> getModel() const {
         return getModel<ZModel>();
     }
 
