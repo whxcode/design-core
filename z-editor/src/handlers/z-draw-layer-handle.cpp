@@ -47,17 +47,21 @@ std::string makeLayerName(const ZDrawLayerType drawType) {
     return "图层";
 }
 
-uint32_t makeFillColor(const ZDrawLayerType drawType) {
+ZPaintArray makeFills(const ZDrawLayerType drawType) {
+    auto fills = std::make_shared<std::vector<ZPaint>>();
     switch (drawType) {
         case ZDrawLayerType::zRectangle:
-            return 0x00ff00;
+            fills->push_back({0x00ff00, 0.5f, true});  // 底色黑
+            break;
         case ZDrawLayerType::zEllipse:
-            return 0x2563eb;
+            fills->push_back({0x33ff00, 0.5f, true});  // 底色黑
+            break;
         case ZDrawLayerType::zVector:
-            return 0xf97316;
+            fills->push_back({0xaaff44, 0.5f, true});  // 底色黑
+            break;
     }
 
-    return 0x00ff00;
+    return fills;
 }
 
 ZPathDataArray makeDefaultVectorPaths() {
@@ -90,6 +94,7 @@ ZDrawLayerHandle::ZDrawLayerHandle(const ZHandlerType type, const ZUIHandleState
 }
 
 bool ZDrawLayerHandle::onMouseDown(const ZUIEvent& event) {
+    printf("ZDrawLayerHandle::onMouseDown\n");
     if (event.button != MouseButton::zLeft) {
         return false;
     }
@@ -97,7 +102,6 @@ bool ZDrawLayerHandle::onMouseDown(const ZUIEvent& event) {
     cancelDrawingLayer();
     zDrawingLayer = createDrawingLayer();
     updateDrawingLayer(getMouseDownPoint());
-    getContext().requestRedraw();
 
     return true;
 }
@@ -125,7 +129,6 @@ bool ZDrawLayerHandle::onMouseUp(const ZUIEvent&) {
     if (size.width() <= kMinDrawingSize || size.height() <= kMinDrawingSize) {
         cancelDrawingLayer();
         getHandle().switchCommonHandler();
-        getContext().requestRedraw();
         return true;
     }
 
@@ -165,13 +168,14 @@ z_sp<ZLayerBase> ZDrawLayerHandle::createDrawingLayer() {
     model->setParentId(zDrawingParent->getModel()->getId());
     model->setSize(ZSize::MakeEmpty());
     model->setName(makeLayerName(zDrawType));
-    // model->setFillColor(makeFillColor(zDrawType));
+    model->setFills(makeFills(zDrawType));
     model->setTransform(ZMatrix::Translate(getMouseDownPoint().x(), getMouseDownPoint().y()));
 
     if (zDrawType == ZDrawLayerType::zVector) {
         model->as<ZVectorModel>()->setPaths(makeDefaultVectorPaths());
     }
 
+    printf("model[%d]\n", model.get());
     const auto views = ZLoader::MakeViews({model});
     if (views.empty()) {
         return nullptr;
