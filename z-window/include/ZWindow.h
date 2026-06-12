@@ -27,6 +27,7 @@ public:
     using OverlayDrawer = std::function<void(IZEngine*)>;
 
     ZWindow();
+    ~ZWindow();
     void draw();
     void setContext(const WindowContext& context);
     void setPage(const z_sp<ZPage>& page);

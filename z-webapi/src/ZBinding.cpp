@@ -4,12 +4,18 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <string>
+#include <vector>
 
 #include "z-app/include/ZApp.h"
 #include "z-app/include/ZAppEvent.h"
 #include "z-document/include/commit/z-commit.h"
+#include "z-document/include/layers/z-component.h"
 #include "z-document/include/layers/z-document.h"
+#include "z-document/include/z-model-type.h"
 #include "z-editor/include/command/z-command.h"
+#include "z-kiwi/include/kiwi.h"
+#include "z-kiwi/include/z-kiwi-reader.h"
 #include "z-kiwi/include/z-kiwi-writer.h"
 #include "z-tools/include/z-editor-theme.h"
 #include "z-wasm/include/z-wasm/z-js-value.h"
@@ -26,6 +32,76 @@ using namespace emscripten;
 static ZApp* getAppInstance() {
     return &ZApp::Get();
 }
+
+namespace {
+
+void collectModels(const z_sp<ZComponent>& comp, ZModelArray& models) {
+    auto model = comp->getModel();
+    if (model) {
+        models.push_back(model);
+    }
+
+    for (const auto& child : comp->getChildren<ZComponent>()) {
+        collectModels(child, models);
+    }
+}
+
+val encodeModels(const ZModelArray& models) {
+    kiwi::ByteBuffer bb;
+    if (!ZKiwiWriter::encode(models, bb)) {
+        return val::undefined();
+    }
+
+    auto view = typed_memory_view(bb.size(), bb.data());
+    auto bytes = val::global("Uint8Array").new_(bb.size());
+    bytes.call<void>("set", view);
+    return bytes;
+}
+
+bool copyUint8Array(const val& src, std::vector<uint8_t>& out) {
+    if (src.isNull() || src.isUndefined()) {
+        return false;
+    }
+
+    auto byteArray = val::global("Uint8Array").new_(src);
+    auto length = byteArray["length"].as<size_t>();
+    if (length == 0) {
+        return false;
+    }
+
+    out.resize(length);
+    val bufferView = val(typed_memory_view(out.size(), out.data()));
+    bufferView.call<void>("set", byteArray);
+    return true;
+}
+
+bool appendDecodedModels(const val& src, ZModelArray& out) {
+    std::vector<uint8_t> buffer;
+    if (!copyUint8Array(src, buffer)) {
+        return false;
+    }
+
+    kiwi::ByteBuffer bb(buffer.data(), buffer.size());
+    auto models = ZKiwiReader::decode(bb);
+    if (models.empty()) {
+        return false;
+    }
+
+    out.insert(out.end(), models.begin(), models.end());
+    return true;
+}
+
+bool hasPageModel(const ZModelArray& models) {
+    for (const auto& model : models) {
+        if (model && model->getType() == ZModelType::zPage) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+}  // namespace
 
 EMSCRIPTEN_BINDINGS(core_api) {
     class_<ZAppEvent>("AppEvent")
@@ -123,38 +199,108 @@ EMSCRIPTEN_BINDINGS(core_api) {
                       auto& doc = self.getDocument();
                       auto result = val::object();
 
-                      ZModelArray models;
-                      doc.collectExportModels(models);
-
-                      kiwi::ByteBuffer bb;
-                      if (ZKiwiWriter::encode(models, bb)) {
-                          auto view = typed_memory_view(bb.size(), bb.data());
-                          auto docArr = val::global("Uint8Array").new_(bb.size());
-                          docArr.call<void>("set", view);
-                          result.set("document", docArr);
+                      ZModelArray documentModels;
+                      if (auto model = doc.getModel()) {
+                          documentModels.push_back(model);
+                          result.set("name", model->getName());
                       }
+
+                      auto documentBytes = encodeModels(documentModels);
+                      if (!documentBytes.isUndefined()) {
+                          result.set("document", documentBytes);
+                      }
+
+                      auto pages = val::array();
+                      size_t pageIndex{0};
+                      for (const auto& child : doc.getChildren<ZComponent>()) {
+                          if (!child || child->getType() != ZModelType::zPage) {
+                              continue;
+                          }
+
+                          ZModelArray pageModels;
+                          collectModels(child, pageModels);
+                          auto pageBytes = encodeModels(pageModels);
+                          if (pageBytes.isUndefined()) {
+                              continue;
+                          }
+
+                          auto page = val::object();
+                          page.set("id", child->getModel()->getId().toString());
+                          page.set("document", pageBytes);
+                          pages.set(pageIndex++, page);
+                      }
+                      result.set("pages", pages);
 
                       return result;
                   }))
 
-        .function("loadDocument", optional_override([](ZApp& self, val bytes) -> val {
-                      auto length = bytes["length"].as<size_t>();
-                      std::vector<uint8_t> buffer(length);
-
-                      /*
-                                      val memoryView = val::global("Uint8Array")
-                                                           .new_(val::module_property("HEAPU8").call<val>(
-                                                               "subarray", bytes["byteOffset"],
-                                                               bytes["byteOffset"].as<size_t>() +
-                         length)); memoryView.call<void>("set",
-                                                            val::global("Uint8Array").new_(buffer.data(),
-                         length));
-                      */
-
-                      printf("size(%d)\n", buffer.size());
-
+        .function("loadDocument", optional_override([](ZApp& self, val payload) -> val {
                       auto result = val::object();
-                      result.set("success", true);  // 假设加载成功
+
+                      if (payload.isNull() || payload.isUndefined()) {
+                          result.set("success", false);
+                          result.set("message", std::string("document bytes is empty"));
+                          return result;
+                      }
+
+                      auto documentBytes = payload["document"];
+                      if (documentBytes.isNull() || documentBytes.isUndefined()) {
+                          ZModelArray models;
+                          if (!appendDecodedModels(payload, models)) {
+                              result.set("success", false);
+                              result.set("message", std::string("document kiwi is invalid"));
+                              return result;
+                          }
+
+                          if (!hasPageModel(models)) {
+                              result.set("success", false);
+                              result.set("message", std::string("page kiwi is empty"));
+                              return result;
+                          }
+
+                          self.openDocument(models);
+
+                          result.set("success", true);
+                          result.set("models", models.size());
+                          return result;
+                      }
+
+                      ZModelArray models;
+                      if (!appendDecodedModels(documentBytes, models)) {
+                          result.set("success", false);
+                          result.set("message", std::string("document.kiwi is invalid"));
+                          return result;
+                      }
+
+                      auto pages = payload["pages"];
+                      size_t pageCount{0};
+                      if (!pages.isNull() && !pages.isUndefined()) {
+                          const auto length = pages["length"].as<size_t>();
+                          for (size_t i = 0; i < length; i++) {
+                              auto page = pages[i];
+                              auto pageBytes = page["document"];
+                              if (pageBytes.isNull() || pageBytes.isUndefined()) {
+                                  pageBytes = page;
+                              }
+                              if (!appendDecodedModels(pageBytes, models)) {
+                                  result.set("success", false);
+                                  result.set("message", std::string("page kiwi is invalid"));
+                                  return result;
+                              }
+                              pageCount++;
+                          }
+                      }
+
+                      if (pageCount == 0) {
+                          result.set("success", false);
+                          result.set("message", std::string("page kiwi is empty"));
+                          return result;
+                      }
+
+                      self.openDocument(models);
+
+                      result.set("success", true);
+                      result.set("models", models.size());
                       return result;
                   }));
 

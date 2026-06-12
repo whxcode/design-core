@@ -94,6 +94,11 @@ ZWindow::ZWindow() : zEngine(nullptr), zWidth(800), zHeight(600), zDpr(1.0f) {
     init();
 }
 
+ZWindow::~ZWindow() {
+    delete zEngine;
+    zEngine = nullptr;
+}
+
 void ZWindow::init() {
     zSurface = std::make_unique<ZCanvasSurface>(zWidth, zHeight);
     zEngine = new ZVgEngine();

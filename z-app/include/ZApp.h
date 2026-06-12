@@ -64,6 +64,16 @@ public:
     void setTheme(ZEditorThemeType type);
 
 public:
+    // 用户可以将使用 exportDocument 导出的文件再次打开
+    void openDocument(const std::vector<uint8_t>& document);
+    // 打开测试文档
+    void openDocument(const ZModelArray& documents);
+
+private:
+    // 重载所有状态 ZApp::startup
+    void flusDocument();
+
+public:
     void addImage(uintptr_t ptr, size_t size, float x = 0.0f, float y = 0.0f, float width = 0.0f,
                   float height = 0.0f);
     void clearImages();

@@ -16,6 +16,8 @@ struct ZStyle {
 
 class IZEngine {
 public:
+    virtual ~IZEngine() = default;
+
     virtual void drawRect(float zX, float zY, float zW, float zH, const ZStyle& zStyle) = 0;
     virtual void drawRect(float zW, float zH, const ZStyle& zStyle) = 0;
     virtual void drawRect(const ZRect& rect, const ZStyle& zStyle) = 0;

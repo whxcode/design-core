@@ -82,6 +82,11 @@ export interface CoreAppEvent {
   off(type: ZAppEventType, id: number): void;
 }
 
+export interface CoreDocumentPayload {
+  document: Uint8Array;
+  pages: Uint8Array[];
+}
+
 export interface CoreApp {
   putImage(size: SizeT, width: SizeT, height: SizeT): WasmPtr;
   draw(): void;
@@ -95,7 +100,7 @@ export interface CoreApp {
   window(): CoreWindow;
   document(): CoreDocument;
   exportDocument(): any;
-  loadDocument(byte: Uint8Array): any;
+  loadDocument(byte: Uint8Array | CoreDocumentPayload): any;
 }
 
 export interface CreateCoreOptions {

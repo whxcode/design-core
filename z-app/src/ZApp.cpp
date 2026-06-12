@@ -17,6 +17,8 @@
 #include "z-document/include/layers/z-page.h"
 #include "z-document/include/models/z-layer-model.h"
 #include "z-document/include/z-model-type.h"
+#include "z-kiwi/include/kiwi.h"
+#include "z-kiwi/include/z-kiwi-reader.h"
 #include "z-editor/include/command/z-command.h"
 #include "z-matrix/include/z-matrix.h"
 #include "z-paint/include/z-shape.h"
@@ -85,10 +87,38 @@ void ZApp::setTheme(const ZEditorThemeType type) {
 
 void ZApp::startup() {
     auto futureR = DoTask([]() {
-        return ZLoader::MakeDocument(ZTestDoc::MakeDoc());
+        return ZTestDoc::MakeDoc();
     });
 
-    zDocument = futureR.get();
+    openDocument(futureR.get());
+}
+
+void ZApp::openDocument(const std::vector<uint8_t>& document) {
+    if (document.empty()) {
+        return;
+    }
+
+    kiwi::ByteBuffer bb(document.data(), document.size());
+    auto models = ZKiwiReader::decode(bb);
+    if (models.empty()) {
+        return;
+    }
+
+    openDocument(models);
+}
+
+void ZApp::openDocument(const ZModelArray& documents) {
+    if (documents.empty()) {
+        return;
+    }
+
+    auto nextDocument = ZLoader::MakeDocument(ZModelArray(documents));
+    if (!nextDocument) {
+        return;
+    }
+
+    flusDocument();
+    zDocument = std::move(nextDocument);
 
     auto page = zDocument->getActivePage();
 
@@ -114,6 +144,23 @@ void ZApp::startup() {
     this->zWindow->setTrace(zTrace.get());
     this->zWindow->setPage(page);
     this->zWindow->draw();
+}
+
+void ZApp::flusDocument() {
+    if (zWindow) {
+        zWindow->setTrace(nullptr);
+        zWindow->setEditorContext(nullptr);
+        zWindow->setPage(nullptr);
+    }
+
+    zCommand.reset();
+    zEditorMode.reset();
+    zUIHandle.reset();
+    zCommit.reset();
+    zTrace.reset();
+    zSelection.reset();
+    zEditorContext.reset();
+    zDocument.reset();
 }
 
 void ZApp::onUIEvent(const ZUIEvent& event) {
