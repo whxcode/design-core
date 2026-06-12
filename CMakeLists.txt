@@ -70,12 +70,13 @@ add_subdirectory(z-matrix)
 add_subdirectory(z-engine)
 add_subdirectory(z-document)
 add_subdirectory(z-kiwi)
+add_subdirectory(z-app-service)
 add_subdirectory(z-paint)
 add_subdirectory(z-window)
 add_subdirectory(z-editor)
 add_subdirectory(z-wasm)
 add_subdirectory(z-app)
-add_subdirectory(z-webapi)
+add_subdirectory(z-wasmapi)
 
 # --- 5. 创建主程序目标 ---
 add_executable(DesignCore main.cpp)
@@ -90,7 +91,7 @@ target_include_directories(DesignCore SYSTEM PRIVATE
 )
 
 # --- 7. 链接与输出配置 ---
-target_link_libraries(DesignCore PRIVATE z_webapi z_app z_engine)
+target_link_libraries(DesignCore PRIVATE z_wasmapi z_app z_engine)
 
 # target_link_libraries(DesignCore PRIVATE z_document z_window)
 target_compile_options(DesignCore PRIVATE ${COMMON_COMPILE_OPTIONS})

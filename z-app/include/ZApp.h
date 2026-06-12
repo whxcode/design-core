@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "z-app/include/ZAppEvent.h"
+#include "z-app-service/include/z-document-io.h"
 #include "z-document/include/layers/z-document.h"
 #include "z-document/include/viewport/z-viewport.h"
 #include "z-editor/include/command/z-command.h"
@@ -66,8 +67,12 @@ public:
 public:
     // 用户可以将使用 exportDocument 导出的文件再次打开
     void openDocument(const std::vector<uint8_t>& document);
+    void openDocument(const ZDocumentPackage& document);
+    ZDocumentIOResult openLegacyDocument(const std::vector<uint8_t>& document);
+    ZDocumentIOResult openDocumentPackage(const ZDocumentPackage& document);
     // 打开测试文档
     void openDocument(const ZModelArray& documents);
+    ZDocumentPackage exportDocumentPackage() const;
 
 private:
     // 重载所有状态 ZApp::startup

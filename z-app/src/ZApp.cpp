@@ -17,8 +17,6 @@
 #include "z-document/include/layers/z-page.h"
 #include "z-document/include/models/z-layer-model.h"
 #include "z-document/include/z-model-type.h"
-#include "z-kiwi/include/kiwi.h"
-#include "z-kiwi/include/z-kiwi-reader.h"
 #include "z-editor/include/command/z-command.h"
 #include "z-matrix/include/z-matrix.h"
 #include "z-paint/include/z-shape.h"
@@ -94,17 +92,35 @@ void ZApp::startup() {
 }
 
 void ZApp::openDocument(const std::vector<uint8_t>& document) {
-    if (document.empty()) {
-        return;
+    openLegacyDocument(document);
+}
+
+void ZApp::openDocument(const ZDocumentPackage& document) {
+    openDocumentPackage(document);
+}
+
+ZDocumentPackage ZApp::exportDocumentPackage() const {
+    return ZDocumentIO::ExportDocument(*zDocument);
+}
+
+ZDocumentIOResult ZApp::openLegacyDocument(const std::vector<uint8_t>& document) {
+    auto result = ZDocumentIO::ReadLegacyDocument(document);
+    if (!result.success) {
+        return result;
     }
 
-    kiwi::ByteBuffer bb(document.data(), document.size());
-    auto models = ZKiwiReader::decode(bb);
-    if (models.empty()) {
-        return;
+    openDocument(result.models);
+    return result;
+}
+
+ZDocumentIOResult ZApp::openDocumentPackage(const ZDocumentPackage& document) {
+    auto result = ZDocumentIO::ReadDocument(document);
+    if (!result.success) {
+        return result;
     }
 
-    openDocument(models);
+    openDocument(result.models);
+    return result;
 }
 
 void ZApp::openDocument(const ZModelArray& documents) {

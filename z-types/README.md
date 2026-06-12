@@ -1,6 +1,6 @@
 # z-types
 
-本目录维护由 `design-core/z-webapi/src/ZBinding.cpp` 导出的 TypeScript 类型定义。
+本目录维护由 `design-core/z-wasmapi/src/ZBinding.cpp` 导出的 TypeScript 类型定义。
 
 当前文件：
 
