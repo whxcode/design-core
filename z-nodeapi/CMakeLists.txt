@@ -1,11 +1,17 @@
+# z-nodeapi/CMakeLists.txt — Addon 构建入口
+# include 核心模块 + Node-API 配置
+
 cmake_minimum_required(VERSION 3.20)
-project(DesignCoreNodeApi LANGUAGES CXX)
+project(DesignCoreAddon LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(NOT DEFINED NODEAPI_OUTPUT_DIR)
-  set(NODEAPI_OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../design-addon/dist/native")
+# ============================================================
+# 1. Node-API 环境配置
+# ============================================================
+if(NOT DEFINED ADDON_OUTPUT_DIR)
+  set(ADDON_OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../design-desktop-electron/dist/native")
 endif()
 
 execute_process(
@@ -19,29 +25,39 @@ get_filename_component(NODE_ROOT_DIR "${NODE_BIN_DIR}/.." ABSOLUTE)
 
 set(NODE_INCLUDE_DIR "${NODE_ROOT_DIR}/include/node" CACHE PATH "Node or Electron headers directory")
 
-add_library(z_nodeapi MODULE
+# ============================================================
+# 2. 核心模块（include 根 CMakeLists）
+# ============================================================
+include(${CMAKE_CURRENT_SOURCE_DIR}/../CMakeLists.txt)
+
+# ============================================================
+# 3. Addon 目标
+# ============================================================
+add_library(addonkit MODULE
   src/ZNodeBinding.cpp
   src/z-node-document-adapter.cpp
 )
 
-target_include_directories(z_nodeapi
+target_include_directories(addonkit
   PRIVATE
     "${NODE_INCLUDE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
 
-set_target_properties(z_nodeapi PROPERTIES
+target_link_libraries(addonkit PRIVATE z_app)
+
+set_target_properties(addonkit PROPERTIES
   PREFIX ""
   SUFFIX ".node"
-  LIBRARY_OUTPUT_DIRECTORY "${NODEAPI_OUTPUT_DIR}"
-  RUNTIME_OUTPUT_DIRECTORY "${NODEAPI_OUTPUT_DIR}"
-  ARCHIVE_OUTPUT_DIRECTORY "${NODEAPI_OUTPUT_DIR}"
+  LIBRARY_OUTPUT_DIRECTORY "${ADDON_OUTPUT_DIR}"
+  RUNTIME_OUTPUT_DIRECTORY "${ADDON_OUTPUT_DIR}"
+  ARCHIVE_OUTPUT_DIRECTORY "${ADDON_OUTPUT_DIR}"
 )
 
 if(APPLE)
-  set_target_properties(z_nodeapi PROPERTIES
+  set_target_properties(addonkit PROPERTIES
     LINK_FLAGS "-undefined dynamic_lookup"
   )
 elseif(UNIX)
-  target_link_options(z_nodeapi PRIVATE "-Wl,--unresolved-symbols=ignore-all")
+  target_link_options(addonkit PRIVATE "-Wl,--unresolved-symbols=ignore-all")
 endif()

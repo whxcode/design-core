@@ -51,7 +51,7 @@ public:
     ZPatchProps zProps{};
 };
 
-using ZPatches = struct {
+struct ZPatches {
     std::vector<ZPatchItem> zPatches;
     std::vector<ZGuid> zSelectedLayers{};
 };

@@ -12,18 +12,18 @@
 #include "z-tools/include/z-guid.h"
 
 z_sp<ZDocument> ZLoader::MakeDocument(ZModelArray&& models) {
-    auto view = models |  //
-                std::views::transform([](auto model) {
-                    return ZCreatorLayer::Make(model);
-                }) |
-                std::ranges::to<std::vector>();
+    std::vector<z_sp<ZComponent>> layers;
+    layers.reserve(models.size());
+    for (auto& model : models) {
+        layers.push_back(ZCreatorLayer::Make(model));
+    }
 
     std::unordered_map<size_t, z_sp<ZComponent>> treeMap;
     std::vector<std::function<void()>> func{};
 
     z_sp<ZDocument> result{nullptr};
 
-    std::for_each(view.begin(), view.end(),
+    std::for_each(layers.begin(), layers.end(),
                   [&treeMap, &func, &result](const z_sp<ZComponent>& layer) {
                       // printf("type[%d],id[%d]\n", layer->getType(), layer->getUnique());
 
@@ -67,17 +67,17 @@ z_sp<ZDocument> ZLoader::MakeDocument(ZModelArray&& models) {
 }
 
 ZLayerBaseArray ZLoader::MakeViews(ZModelArray&& models) {
-    auto view = models |  //
-                std::views::transform([](auto model) {
-                    return ZCreatorLayer::Make(model);
-                }) |
-                std::ranges::to<std::vector>();
+    std::vector<z_sp<ZComponent>> layers;
+    layers.reserve(models.size());
+    for (auto& model : models) {
+        layers.push_back(ZCreatorLayer::Make(model));
+    }
 
     std::unordered_map<size_t, z_sp<ZComponent>> treeMap;
     std::vector<std::function<void()>> func{};
     ZLayerBaseArray result;
 
-    std::for_each(view.begin(), view.end(),
+    std::for_each(layers.begin(), layers.end(),
                   [&treeMap, &func, &result](const z_sp<ZComponent>& layer) {
                       // printf("type[%d],id[%d]\n", layer->getType(), layer->getUnique());
 

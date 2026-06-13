@@ -1,5 +1,5 @@
 build_wasm
-addon/build
+z-nodeapi/build
 compile_commands.json
 .cache
 build.log

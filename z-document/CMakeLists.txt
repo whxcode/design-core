@@ -11,5 +11,3 @@ target_link_libraries(z_document PRIVATE z_tools)
 # 将路径改为当前目录（即 document 的上一层），这样编译器才能看到 document/include/...
 target_include_directories(z_document PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
 
-# 应用公共编译参数
-target_compile_options(z_document PRIVATE ${COMMON_COMPILE_OPTIONS})

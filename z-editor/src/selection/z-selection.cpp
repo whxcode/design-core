@@ -74,10 +74,11 @@ void ZSelection::clear() {
 
 void ZSelection::select(const ZGuidArray& guids) {
     auto document = zContext->getDocument();
-    const auto& layers = guids | std::ranges::views::transform([document](const ZGuid& guid) {
-                             return document->findKey<ZLayerBase>(guid);
-                         }) |
-                         std::ranges::to<std::vector>();
+    std::vector<z_sp<ZLayerBase>> layers;
+    layers.reserve(guids.size());
+    for (const auto& guid : guids) {
+        layers.push_back(document->findKey<ZLayerBase>(guid));
+    }
 
     select(layers);
 }
@@ -161,10 +162,12 @@ void ZSelection::refreshSelectedLayers() {
 }
 
 ZGuidArray ZSelection::getSelectedLayerGuids() const {
-    return zSelectedLayers | std::ranges::views::transform([](const auto& layer) {
-               return layer->getModel()->getId();
-           }) |
-           std::ranges::to<std::vector>();
+    ZGuidArray result;
+    result.reserve(zSelectedLayers.size());
+    for (const auto& layer : zSelectedLayers) {
+        result.push_back(layer->getModel()->getId());
+    }
+    return result;
 }
 
 z_sp<ZLayerBase> ZSelection::hitTest(const ZPoint& worldPoint) const {

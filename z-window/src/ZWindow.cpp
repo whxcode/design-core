@@ -1,5 +1,12 @@
 #include "z-window/include/ZWindow.h"
 
+// GLEW 必须在任何 OpenGL/SDL 头文件之前包含
+#ifdef __EMSCRIPTEN__
+#include <GLES3/gl3.h>
+#else
+#include <GL/glew.h>
+#endif
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>  // 建议加上，确保 GL 宏定义完整
 #include <SDL2/SDL_video.h>   // 必须加上这个，它定义了 GLContext 和相关的操作函数
@@ -14,13 +21,6 @@
 #include "z-paint/include/z-overlay-painter.h"
 #include "z-window/include/z-bitmap-surface.h"
 #include "z-window/include/z-canvas-surface.h"
-
-#ifdef __EMSCRIPTEN__
-#include <GLES3/gl3.h>
-#include <emscripten/val.h>
-#else
-#include <GL/glew.h>
-#endif
 
 #include "z-engine/include/z-vgengine.h"
 

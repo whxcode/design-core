@@ -1,5 +1,76 @@
-# wasmapi/CMakeLists.txt
+# z-wasmapi/CMakeLists.txt — Wasm 构建入口
+# include 核心模块 + wasm 专用配置
 
+cmake_minimum_required(VERSION 3.10)
+project(DesignCoreWasm LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# ============================================================
+# 1. Wasm 环境配置
+# ============================================================
+
+# 路径定义
+if(CMAKE_SYSROOT)
+  set(EM_SYSROOT "${CMAKE_SYSROOT}")
+elseif(DEFINED ENV{EM_CACHE})
+  set(EM_SYSROOT "$ENV{EM_CACHE}/sysroot")
+else()
+  message(FATAL_ERROR "Unable to resolve Emscripten sysroot. Run this project through emcmake.")
+endif()
+
+# 基础编译选项
+set(COMMON_COMPILE_OPTIONS
+    "-pthread"
+    "-sUSE_SDL=2"
+)
+
+set(COMMON_LINK_OPTIONS
+    "-pthread"
+    "-sPTHREAD_POOL_SIZE=10"
+    "-sALLOW_MEMORY_GROWTH=1"
+    "-sUSE_PTHREADS=1"
+    "-sUSE_SDL=2"
+    "-sMODULARIZE=1"
+    "-sEXPORT_NAME='createCore'"
+    "-sFULL_ES3=1"
+    "-sUSE_WEBGL2=1"
+    "-sMAX_WEBGL_VERSION=2"
+    "-sMIN_WEBGL_VERSION=2"
+    "--bind"
+)
+
+set(WASM_EXPORT_FLAGS
+    "-sEXPORTED_FUNCTIONS=_malloc,_free,_main"
+    "-sEXPORTED_RUNTIME_METHODS=HEAPU8"
+)
+
+# Debug/Release
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  message(STATUS "Configuring for DEBUG mode...")
+  list(APPEND COMMON_COMPILE_OPTIONS "-g" "-sASSERTIONS=2")
+  list(APPEND COMMON_LINK_OPTIONS "-g" "-gsource-map" "-sASSERTIONS=2")
+else()
+  message(STATUS "Configuring for RELEASE mode...")
+  list(APPEND COMMON_COMPILE_OPTIONS "-O3")
+  list(APPEND COMMON_LINK_OPTIONS "-O3" "--closure=1")
+endif()
+
+add_compile_options(${COMMON_COMPILE_OPTIONS})
+add_link_options(${COMMON_LINK_OPTIONS})
+
+# ============================================================
+# 2. 核心模块（include 根 CMakeLists）
+# ============================================================
+include(${CMAKE_CURRENT_SOURCE_DIR}/../CMakeLists.txt)
+
+# ============================================================
+# 3. Wasm 专用模块
+# ============================================================
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../z-wasm z-wasm)
+
+# z_wasmapi
 set(WASMAPI_SOURCES
     src/ZBinding.cpp
     src/z-wasm-document-adapter.cpp
@@ -13,3 +84,24 @@ target_include_directories(z_wasmapi
 )
 
 target_link_libraries(z_wasmapi PUBLIC z_app z_wasm)
+
+# ============================================================
+# 4. 主程序
+# ============================================================
+add_executable(DesignCore ${CMAKE_CURRENT_SOURCE_DIR}/../main.cpp)
+
+target_include_directories(DesignCore SYSTEM PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/.."
+    "${EM_SYSROOT}/include"
+    "${EM_SYSROOT}/include/SDL2"
+)
+
+target_link_libraries(DesignCore PRIVATE z_wasmapi z_app z_engine)
+
+target_compile_options(DesignCore PRIVATE ${COMMON_COMPILE_OPTIONS})
+
+target_link_options(DesignCore PRIVATE
+    ${COMMON_LINK_OPTIONS}
+    ${WASM_EXPORT_FLAGS}
+    "-o" "DesignCore.js"
+)

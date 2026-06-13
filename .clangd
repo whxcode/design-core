@@ -20,7 +20,10 @@ CompileFlags:
       "/home/whx/webProject/design/design-core/build_wasm/.emscripten_cache/sysroot/include",
       "-isystem",
       "/home/whx/webProject/emsdk/upstream/emscripten/cache/sysroot/include",
-      # 3. 屏蔽假报错
+      # 3a. Node.js headers（用于 addon/napi 开发，z-nodeapi/ 下的文件）
+      "-isystem",
+      "/home/whx/.nvm/versions/node/v22.22.2/include/node",
+      # 4. 屏蔽假报错
       "-Wno-nullability-completeness",
       "-Wno-unknown-argument",
     ]
