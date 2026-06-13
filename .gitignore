@@ -4,3 +4,4 @@ compile_commands.json
 .cache
 build.log
 z-kiwi/node_modules
+z-nodeapi/node_modules

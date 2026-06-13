@@ -27,7 +27,9 @@ set(NODE_INCLUDE_DIR "${NODE_ROOT_DIR}/include/node" CACHE PATH "Node or Electro
 
 # ============================================================
 # 2. 核心模块（include 根 CMakeLists）
+#    所有静态库需 -fPIC 才能链接到 .node 共享模块
 # ============================================================
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 include(${CMAKE_CURRENT_SOURCE_DIR}/../CMakeLists.txt)
 
 # ============================================================
@@ -41,6 +43,7 @@ add_library(addonkit MODULE
 target_include_directories(addonkit
   PRIVATE
     "${NODE_INCLUDE_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/node_modules/node-addon-api"
     "${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
 
