@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -390,22 +391,66 @@ Napi::Value AppHandle::LoadDocument(const Napi::CallbackInfo& info) {
 }
 
 // ============================================================
-// 入口 — getApp 和 version
+// createCore — 与 wasm 的 window.createCore 签名兼容
+// 返回 CoreModule: { HEAPU8: Buffer, getApp: () => App }
 // ============================================================
 
-Napi::Value GetApp(const Napi::CallbackInfo& info) {
+static std::once_flag gStartupFlag;
+
+Napi::Value CreateCore(const Napi::CallbackInfo& info) {
     auto env = info.Env();
-    auto constructor = AppHandle::GetClass(env);
-    return constructor.New({});
+
+    // 应用初始化（= wasm main.cpp 的 startup，只跑一次）
+    std::call_once(gStartupFlag, []() {
+        printf("--- [Addon Core] Initialization Started ---\n");
+        ZApp::Get().startup();
+        printf("--- [Addon Core] Ready ---\n");
+    });
+
+    auto module = Napi::Object::New(env);
+
+    // HEAPU8: addon 不需要 wasm 线性内存，返回空 buffer 占位
+    auto heap = Napi::Buffer<uint8_t>::New(env, 1);
+    module["HEAPU8"] = heap;
+
+    // getApp(): 每次调用时从 env 获取 ctor（闭包捕获 Napi::Function 可能被 GC）
+    module["getApp"] = Napi::Function::New(env, [](const Napi::CallbackInfo& cbInfo) {
+        return AppHandle::GetClass(cbInfo.Env()).New({});
+    });
+
+    return module;
 }
 
-Napi::Value Version(const Napi::CallbackInfo& info) {
-    return Napi::String::New(info.Env(), "design-core-addon/0.0.0");
+// ============================================================
+// testFrame — 验证 C++→JS 像素链路
+// 用法: addonkit.testFrame(width, height) → Buffer<RGBA>
+// ============================================================
+
+Napi::Value TestFrame(const Napi::CallbackInfo& info) {
+    auto env = info.Env();
+    auto w = info[0].As<Napi::Number>().Int32Value();
+    auto h = info[1].As<Napi::Number>().Int32Value();
+
+    const size_t size = static_cast<size_t>(w) * static_cast<size_t>(h) * 4;
+    auto buf = Napi::Buffer<uint8_t>::New(env, size);
+    auto* px = buf.Data();
+
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            const size_t i = (static_cast<size_t>(y) * static_cast<size_t>(w) + x) * 4;
+            px[i + 0] = static_cast<uint8_t>((x * 255u) / static_cast<unsigned>(w));  // R 横向渐变
+            px[i + 1] = static_cast<uint8_t>((y * 255u) / static_cast<unsigned>(h));  // G 纵向渐变
+            px[i + 2] = static_cast<uint8_t>(128);                                      // B 固定
+            px[i + 3] = 255;                                                            // A 不透明
+        }
+    }
+
+    return buf;
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-    exports["version"] = Napi::Function::New(env, Version);
-    exports["getApp"] = Napi::Function::New(env, GetApp);
+    exports["createCore"] = Napi::Function::New(env, CreateCore);
+    exports["testFrame"] = Napi::Function::New(env, TestFrame);
     return exports;
 }
 

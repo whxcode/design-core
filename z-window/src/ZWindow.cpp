@@ -101,14 +101,18 @@ ZWindow::~ZWindow() {
 }
 
 void ZWindow::init() {
+#if !defined(Z_ADDON_MODE)
     zSurface = std::make_unique<ZCanvasSurface>(zWidth, zHeight);
     zEngine = new ZVgEngine();
+#endif
 
     zDocumentPainter = std::make_shared<ZDocumentPainter>();
     zOverlayPainter = std::make_shared<ZOverlayPainter>(zEditorContext);
 }
 
 void ZWindow::draw() {
+    if (!zEngine) return;  // addon 模式无原生渲染引擎
+
     /*
       {
           ZBitmapSurface bitmapSurface(zWidth, zHeight);

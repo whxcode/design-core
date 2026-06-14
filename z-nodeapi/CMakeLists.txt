@@ -28,8 +28,10 @@ set(NODE_INCLUDE_DIR "${NODE_ROOT_DIR}/include/node" CACHE PATH "Node or Electro
 # ============================================================
 # 2. 核心模块（include 根 CMakeLists）
 #    所有静态库需 -fPIC 才能链接到 .node 共享模块
+#    Z_ADDON_MODE 告诉核心代码：渲染走 Electron WebGL，不创建原生 SDL 窗口
 # ============================================================
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+add_definitions(-DZ_ADDON_MODE)
 include(${CMAKE_CURRENT_SOURCE_DIR}/../CMakeLists.txt)
 
 # ============================================================
@@ -62,5 +64,13 @@ if(APPLE)
     LINK_FLAGS "-undefined dynamic_lookup"
   )
 elseif(UNIX)
-  target_link_options(addonkit PRIVATE "-Wl,--unresolved-symbols=ignore-all")
+  # 用 pkg-config 获取 GLEW + SDL2 及其全部依赖的静态库
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(GLEW REQUIRED IMPORTED_TARGET glew)
+  pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
+
+  target_link_libraries(addonkit PRIVATE PkgConfig::GLEW PkgConfig::SDL2)
+
+  target_link_options(addonkit PRIVATE
+    "-Wl,--unresolved-symbols=ignore-all")
 endif()
