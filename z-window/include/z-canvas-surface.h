@@ -12,6 +12,7 @@ public:
 
     void makeCurrent() override;
     void present() override;
+    void resize(int pixelWidth, int pixelHeight) override;
 
 private:
     SDL_Window* zWindow{nullptr};

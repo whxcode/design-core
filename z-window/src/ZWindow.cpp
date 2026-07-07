@@ -22,6 +22,9 @@
 #include "z-paint/include/z-overlay-painter.h"
 #include "z-window/include/z-bitmap-surface.h"
 #include "z-window/include/z-canvas-surface.h"
+#if defined(Z_ADDON_MODE)
+#include "z-window/include/z-addon-surface.h"
+#endif
 
 namespace {
 
@@ -101,17 +104,19 @@ ZWindow::~ZWindow() {
 }
 
 void ZWindow::init() {
-#if !defined(Z_ADDON_MODE)
+#if defined(Z_ADDON_MODE)
+    zSurface = std::make_unique<ZAddonSurface>(zWidth, zHeight);
+#else
     zSurface = std::make_unique<ZCanvasSurface>(zWidth, zHeight);
-    zEngine = new ZVgEngine();
 #endif
+    zEngine = new ZVgEngine();
 
     zDocumentPainter = std::make_shared<ZDocumentPainter>();
     zOverlayPainter = std::make_shared<ZOverlayPainter>(zEditorContext);
 }
 
 void ZWindow::draw() {
-    if (!zEngine) return;  // addon 模式无原生渲染引擎
+    if (!zEngine || !zSurface) return;
 
     /*
       {
@@ -185,4 +190,8 @@ void ZWindow::setContext(const WindowContext& context) {
     zDpr = context.zDpr;
     zWidth = static_cast<int>(context.zPixelWidth);
     zHeight = static_cast<int>(context.zPixelHeight);
+
+    if (zSurface) {
+        zSurface->resize(zWidth, zHeight);
+    }
 }

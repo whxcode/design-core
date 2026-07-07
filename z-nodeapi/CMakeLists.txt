@@ -2,7 +2,7 @@
 # include 核心模块 + Node-API 配置
 
 cmake_minimum_required(VERSION 3.20)
-project(DesignCoreAddon LANGUAGES CXX)
+project(DesignCoreAddon LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

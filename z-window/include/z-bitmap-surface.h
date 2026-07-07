@@ -13,6 +13,7 @@ public:
 public:
     void makeCurrent() override;
     void present() override;
+    void resize(int pixelWidth, int pixelHeight) override;
 
 public:
     std::vector<uint8_t> readPixels();

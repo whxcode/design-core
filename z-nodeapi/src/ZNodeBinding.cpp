@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -15,6 +16,9 @@
 #include "z-editor/include/ui-event/z-ui-event.h"
 #include "z-tools/include/z-editor-theme.h"
 #include "z-window/include/ZWindow.h"
+#if defined(Z_ADDON_MODE)
+#include "z-window/include/z-addon-surface.h"
+#endif
 #include "z-nodeapi/include/z-node-document-adapter.h"
 
 // ============================================================
@@ -391,6 +395,99 @@ Napi::Value AppHandle::LoadDocument(const Napi::CallbackInfo& info) {
 }
 
 // ============================================================
+// 全局 Napi 环境（供 addon surface 回调访问 DOM）
+// ============================================================
+
+napi_env g_addonNapiEnv = nullptr;
+
+// ── 像素→canvas 回调 ──
+#if defined(Z_ADDON_MODE)
+namespace {
+
+std::shared_ptr<napi_ref> gCanvasContextRef;
+std::shared_ptr<napi_ref> gUint8ClampedArrayRef;
+std::shared_ptr<napi_ref> gImageDataRef;
+
+void PutImageToCanvas(int w, int h, const std::vector<uint8_t>& pixels) {
+    auto env = g_addonNapiEnv;
+    if (!env) return;
+    if (!gCanvasContextRef || !gUint8ClampedArrayRef || !gImageDataRef) return;
+
+    // 构造 ImageData
+    napi_value buffer;
+    if (napi_create_buffer_copy(env, pixels.size(), pixels.data(), nullptr, &buffer) != napi_ok) return;
+
+    napi_value clampedCtor;
+    if (napi_get_reference_value(env, *gUint8ClampedArrayRef, &clampedCtor) != napi_ok) return;
+    napi_value clamped;
+    if (napi_new_instance(env, clampedCtor, 1, &buffer, &clamped) != napi_ok) return;
+
+    napi_value imgCtor;
+    if (napi_get_reference_value(env, *gImageDataRef, &imgCtor) != napi_ok) return;
+    napi_value jsW, jsH;
+    napi_create_uint32(env, static_cast<uint32_t>(w), &jsW);
+    napi_create_uint32(env, static_cast<uint32_t>(h), &jsH);
+    napi_value imgArgs[3] = {clamped, jsW, jsH};
+    napi_value imgData;
+    if (napi_new_instance(env, imgCtor, 3, imgArgs, &imgData) != napi_ok) return;
+
+    // context.putImageData
+    napi_value context;
+    if (napi_get_reference_value(env, *gCanvasContextRef, &context) != napi_ok) return;
+    napi_value putFn;
+    if (napi_get_named_property(env, context, "putImageData", &putFn) != napi_ok) return;
+    napi_value zero;
+    napi_create_uint32(env, 0, &zero);
+    napi_value callArgs[3] = {imgData, zero, zero};
+    napi_call_function(env, context, putFn, 3, callArgs, nullptr);
+}
+
+void SetupAddonSurface(napi_env env) {
+    // 从 DOM 获取 canvas 2d context
+    napi_value global, document, canvas, context;
+    if (napi_get_global(env, &global) != napi_ok) return;
+    if (napi_get_named_property(env, global, "document", &document) != napi_ok) return;
+
+    napi_value getElFn;
+    if (napi_get_named_property(env, document, "getElementById", &getElFn) != napi_ok) return;
+    napi_value arg;
+    napi_create_string_utf8(env, "canvas", NAPI_AUTO_LENGTH, &arg);
+    if (napi_call_function(env, document, getElFn, 1, &arg, &canvas) != napi_ok) return;
+
+    napi_valuetype canvasType;
+    if (napi_typeof(env, canvas, &canvasType) != napi_ok) return;
+    if (canvasType == napi_null || canvasType == napi_undefined) return;
+
+    napi_value getCtxFn;
+    if (napi_get_named_property(env, canvas, "getContext", &getCtxFn) != napi_ok) return;
+    napi_value ctxType;
+    napi_create_string_utf8(env, "2d", NAPI_AUTO_LENGTH, &ctxType);
+    if (napi_call_function(env, canvas, getCtxFn, 1, &ctxType, &context) != napi_ok) return;
+
+    gCanvasContextRef = std::make_shared<napi_ref>();
+    napi_create_reference(env, context, 1, gCanvasContextRef.get());
+    napi_value ctor;
+
+    napi_get_named_property(env, global, "Uint8ClampedArray", &ctor);
+    gUint8ClampedArrayRef = std::make_shared<napi_ref>();
+    napi_create_reference(env, ctor, 1, gUint8ClampedArrayRef.get());
+
+    napi_get_named_property(env, global, "ImageData", &ctor);
+    gImageDataRef = std::make_shared<napi_ref>();
+    napi_create_reference(env, ctor, 1, gImageDataRef.get());
+
+    auto* surface = dynamic_cast<ZAddonSurface*>(ZApp::Get().getWindow().surface());
+    if (!surface) return;
+
+    surface->setOnFrame(PutImageToCanvas);
+
+    printf("Addon canvas bound via napi\n");
+}
+
+}  // namespace
+#endif
+
+// ============================================================
 // createCore — 与 wasm 的 window.createCore 签名兼容
 // 返回 CoreModule: { HEAPU8: Buffer, getApp: () => App }
 // ============================================================
@@ -399,6 +496,7 @@ static std::once_flag gStartupFlag;
 
 Napi::Value CreateCore(const Napi::CallbackInfo& info) {
     auto env = info.Env();
+    g_addonNapiEnv = env;
 
     // 应用初始化（= wasm main.cpp 的 startup，只跑一次）
     std::call_once(gStartupFlag, []() {
@@ -413,7 +511,7 @@ Napi::Value CreateCore(const Napi::CallbackInfo& info) {
     auto heap = Napi::Buffer<uint8_t>::New(env, 1);
     module["HEAPU8"] = heap;
 
-    // getApp(): 每次调用时从 env 获取 ctor（闭包捕获 Napi::Function 可能被 GC）
+    // getApp(): 每次调用时从 env 获取 ctor
     module["getApp"] = Napi::Function::New(env, [](const Napi::CallbackInfo& cbInfo) {
         return AppHandle::GetClass(cbInfo.Env()).New({});
     });
@@ -448,9 +546,27 @@ Napi::Value TestFrame(const Napi::CallbackInfo& info) {
     return buf;
 }
 
+// ============================================================
+// bindCanvas — 将 addon 渲染绑定到 DOM canvas
+// 用法: addonkit.bindCanvas()
+// 由 JS 在 DOM 渲染完成后调用（绕过 CreateCore 时机问题）
+// ============================================================
+
+Napi::Value BindCanvas(const Napi::CallbackInfo& info) {
+    auto env = info.Env();
+#if defined(Z_ADDON_MODE)
+    printf("AddonSurface: BindCanvas...\n");
+    SetupAddonSurface(env);
+    ZApp::Get().requestRedraw();
+    printf("AddonSurface: BindCanvas DONE\n");
+#endif
+    return env.Undefined();
+}
+
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
     exports["createCore"] = Napi::Function::New(env, CreateCore);
     exports["testFrame"] = Napi::Function::New(env, TestFrame);
+    exports["bindCanvas"] = Napi::Function::New(env, BindCanvas);
     return exports;
 }
 

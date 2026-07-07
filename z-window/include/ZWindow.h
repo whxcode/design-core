@@ -36,6 +36,7 @@ public:
     void setTrace(ZTrace* trace);
     void setOverlayDrawer(OverlayDrawer overlayDrawer);
     void dump() const;
+    ZSurface* surface() const { return zSurface.get(); }
 
 private:
     void init();

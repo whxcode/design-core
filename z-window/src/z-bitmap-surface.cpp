@@ -48,6 +48,42 @@ void ZBitmapSurface::makeCurrent() {
 void ZBitmapSurface::present() {
 }
 
+void ZBitmapSurface::resize(const int pixelWidth, const int pixelHeight) {
+    if (pixelWidth == zPixelWidth && pixelHeight == zPixelHeight) {
+        return;
+    }
+
+    destroy();
+    zPixelWidth = pixelWidth;
+    zPixelHeight = pixelHeight;
+
+    glGenFramebuffers(1, &zFramebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, zFramebuffer);
+
+    glGenTextures(1, &zTexture);
+    glBindTexture(GL_TEXTURE_2D, zTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, zPixelWidth, zPixelHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                 nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, zTexture, 0);
+
+    glGenRenderbuffers(1, &zStencilBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, zStencilBuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, zPixelWidth, zPixelHeight);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER,
+                              zStencilBuffer);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        printf("ZBitmapSurface framebuffer is not complete\n");
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 std::vector<uint8_t> ZBitmapSurface::readPixels() {
     std::vector<uint8_t> pixels(static_cast<size_t>(zPixelWidth) *
                                 static_cast<size_t>(zPixelHeight) * 4);

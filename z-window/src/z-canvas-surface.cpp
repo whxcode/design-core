@@ -9,6 +9,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_video.h>
 
+#include <cstdio>
+
 ZCanvasSurface::ZCanvasSurface(const int pixelWidth, const int pixelHeight) {
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -19,12 +21,39 @@ ZCanvasSurface::ZCanvasSurface(const int pixelWidth, const int pixelHeight) {
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
+    auto flags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI;
+#if defined(Z_ADDON_MODE)
+    flags |= SDL_WINDOW_HIDDEN;
+#else
+    flags |= SDL_WINDOW_SHOWN;
+#endif
+
     zWindow = SDL_CreateWindow("DesignCore", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                               pixelWidth, pixelHeight,
-                               SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
+                               pixelWidth, pixelHeight, flags);
+    if (!zWindow) {
+        printf("ZCanvasSurface: SDL_CreateWindow failed: %s\n", SDL_GetError());
+        return;
+    }
 
     zContext = SDL_GL_CreateContext(zWindow);
-    SDL_GL_MakeCurrent(zWindow, zContext);
+    if (!zContext) {
+        printf("ZCanvasSurface: SDL_GL_CreateContext failed: %s\n", SDL_GetError());
+        return;
+    }
+
+    if (SDL_GL_MakeCurrent(zWindow, zContext) != 0) {
+        printf("ZCanvasSurface: SDL_GL_MakeCurrent failed: %s\n", SDL_GetError());
+        return;
+    }
+
+#if !defined(__EMSCRIPTEN__)
+    glewExperimental = GL_TRUE;
+    const auto glewError = glewInit();
+    glGetError();
+    if (glewError != GLEW_OK) {
+        printf("ZCanvasSurface: glewInit failed: %s\n", glewGetErrorString(glewError));
+    }
+#endif
 }
 
 ZCanvasSurface::~ZCanvasSurface() {
@@ -46,4 +75,12 @@ void ZCanvasSurface::makeCurrent() {
 
 void ZCanvasSurface::present() {
     SDL_GL_SwapWindow(zWindow);
+}
+
+void ZCanvasSurface::resize(const int pixelWidth, const int pixelHeight) {
+    if (!zWindow || pixelWidth <= 0 || pixelHeight <= 0) {
+        return;
+    }
+
+    SDL_SetWindowSize(zWindow, pixelWidth, pixelHeight);
 }
