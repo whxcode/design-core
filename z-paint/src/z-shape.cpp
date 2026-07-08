@@ -14,14 +14,14 @@ bool ZShape::getVisible() const {
     return true;
 }
 
-void ZShape::render(IZEngine* engine, ZEditorContext* context) {
-    renderChildren(engine, context);
+void ZShape::render(SkCanvas* canvas, ZEditorContext* context) {
+    renderChildren(canvas, context);
 }
 
-void ZShape::renderChildren(IZEngine* engine, ZEditorContext* context) {
+void ZShape::renderChildren(SkCanvas* canvas, ZEditorContext* context) {
     for (const auto& child : zChildren) {
         if (child && child->getVisible()) {
-            child->render(engine, context);
+            child->render(canvas, context);
         }
     }
 }

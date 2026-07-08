@@ -9,7 +9,7 @@ public:
 
     void setLayer(z_sp<ZLayerBase> layer);
     bool getVisible() const override;
-    void render(IZEngine* engine, ZEditorContext* context) override;
+    void render(SkCanvas* canvas, ZEditorContext* context) override;
 
 private:
     z_sp<ZLayerBase> zLayer{nullptr};

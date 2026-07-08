@@ -8,7 +8,7 @@
 #include "z-tools/include/z-guid.h"
 #include "z-tools/include/z-type.h"
 
-class IZEngine;
+class SkCanvas;
 class ZAppEvent;
 class ZEditorContext;
 class ZHoverShape;
@@ -33,7 +33,7 @@ public:
     void clear();
     void syncHoverLayer();
     void syncSelectedLayers();
-    void render(IZEngine* engine, ZEditorContext* context);
+    void render(SkCanvas* canvas, ZEditorContext* context);
 
 private:
     ZEditorContext* zContext{nullptr};

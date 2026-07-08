@@ -6,6 +6,6 @@
 
 - `core-api.ts`：`Window`、`Document`、`App`、`getApp`、`createCore` 对应类型。
 
-构建脚本 `build.sh` 会在每次编译后自动同步这些类型到：
+wasm 构建脚本会把这些类型打进本地 npm 包：
 
-- `design-web/src/types/design-core`
+- `design-core/modules/wasm/build/types`

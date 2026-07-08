@@ -1,157 +1,171 @@
 #include "z-window/include/ZWindow.h"
 
-// GLEW 必须在任何 OpenGL/SDL 头文件之前包含
-#ifdef __EMSCRIPTEN__
+#include <cstdio>
+
 #include <GLES3/gl3.h>
-#else
-#include <GL/glew.h>
-#endif
+#include <emscripten/html5.h>
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>  // 建议加上，确保 GL 宏定义完整
-#include <SDL2/SDL_video.h>   // 必须加上这个，它定义了 GLContext 和相关的操作函数
-
-#include <algorithm>
-#include <iostream>
-#include <thread>
-#include <utility>
-
-#include "z-engine/include/z-vgengine.h"
-#include "z-engine/libs/nanovg/nanovg.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/ganesh/GrBackendSurface.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
+#include "include/gpu/ganesh/gl/GrGLDirectContext.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/GrGLMakeWebGLInterface.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "z-paint/include/z-document-painter.h"
 #include "z-paint/include/z-overlay-painter.h"
-#include "z-window/include/z-bitmap-surface.h"
-#include "z-window/include/z-canvas-surface.h"
-#if defined(Z_ADDON_MODE)
-#include "z-window/include/z-addon-surface.h"
-#endif
+#include "z-tools/include/z-editor-theme.h"
 
 namespace {
 
-uint32_t makeSampleChecksum(const std::vector<uint8_t>& pixels) {
-    uint32_t checksum{0};
-    constexpr size_t kSampleStep{1024};
-
-    for (size_t index{0}; index < pixels.size(); index += kSampleStep) {
-        checksum = checksum * 131u + pixels[index];
-    }
-
-    return checksum;
-}
-
-#ifdef __EMSCRIPTEN__
-void showBitmapDebugCanvas(const std::vector<uint8_t>& pixels, const int width, const int height) {
-    /*
-      if (pixels.empty() || width <= 0 || height <= 0) {
-          return;
-      }
-
-      constexpr int kPreviewScale{10};
-      const int previewWidth{std::max(1, width / kPreviewScale)};
-      const int previewHeight{std::max(1, height / kPreviewScale)};
-
-      auto document = emscripten::val::global("document");
-      auto canvas = document.call<emscripten::val>("getElementById", std::string("bitmap-preview"));
-
-      if (canvas.isNull() || canvas.isUndefined()) {
-          canvas = document.call<emscripten::val>("createElement", std::string("canvas"));
-          canvas.set("id", std::string("bitmap-preview"));
-
-          auto style = canvas["style"];
-          style.set("position", std::string("fixed"));
-          style.set("right", std::string("12px"));
-          style.set("bottom", std::string("12px"));
-          style.set("zIndex", std::string("9999"));
-          style.set("border", std::string("1px solid rgba(0, 0, 0, 0.35)"));
-          style.set("background", std::string("#fff"));
-          style.set("imageRendering", std::string("pixelated"));
-
-          document["body"].call<void>("appendChild", canvas);
-      }
-
-      canvas.set("width", width);
-      canvas.set("height", height);
-      canvas["style"].set("width", std::to_string(previewWidth) + "px");
-      canvas["style"].set("height", std::to_string(previewHeight) + "px");
-
-      std::vector<uint8_t> flipped(pixels.size());
-      const size_t rowSize{static_cast<size_t>(width) * 4};
-      for (int y{0}; y < height; ++y) {
-          const size_t sourceOffset{static_cast<size_t>(height - 1 - y) * rowSize};
-          const size_t targetOffset{static_cast<size_t>(y) * rowSize};
-          std::copy_n(pixels.data() + sourceOffset, rowSize, flipped.data() + targetOffset);
-      }
-
-      auto uint8Array = emscripten::val::global("Uint8ClampedArray")
-                            .new_(emscripten::typed_memory_view(flipped.size(), flipped.data()));
-      auto imageData = emscripten::val::global("ImageData").new_(uint8Array, width, height);
-      auto context = canvas.call<emscripten::val>("getContext", std::string("2d"));
-      context.call<void>("putImageData", imageData, 0, 0);
-    */
-}
-#endif
+constexpr const char* kCanvasSelector = "#canvas";
 
 }  // namespace
 
-// 构造函数：初始化指针和基础数值
-ZWindow::ZWindow() : zEngine(nullptr), zWidth(800), zHeight(600), zDpr(1.0f) {
+struct ZWindowSkiaState {
+    EMSCRIPTEN_WEBGL_CONTEXT_HANDLE webglContext{0};
+    sk_sp<GrDirectContext> directContext{nullptr};
+    sk_sp<SkSurface> surface{nullptr};
+    int surfaceWidth{0};
+    int surfaceHeight{0};
+};
+
+ZWindow::ZWindow() {
     init();
 }
 
 ZWindow::~ZWindow() {
-    delete zEngine;
-    zEngine = nullptr;
+    destroySurface();
 }
 
 void ZWindow::init() {
-#if defined(Z_ADDON_MODE)
-    zSurface = std::make_unique<ZAddonSurface>(zWidth, zHeight);
-#else
-    zSurface = std::make_unique<ZCanvasSurface>(zWidth, zHeight);
-#endif
-    zEngine = new ZVgEngine();
-
+    zSkia = std::make_unique<ZWindowSkiaState>();
+    ensureSurface();
     zDocumentPainter = std::make_shared<ZDocumentPainter>();
     zOverlayPainter = std::make_shared<ZOverlayPainter>(zEditorContext);
 }
 
-void ZWindow::draw() {
-    if (!zEngine || !zSurface) return;
-
-    /*
-      {
-          ZBitmapSurface bitmapSurface(zWidth, zHeight);
-          bitmapSurface.makeCurrent();
-
-          zEngine->beginFrame(zCssWidth, zCssHeight, zDpr, zWidth, zHeight);
-          zDocumentPainter->draw(zEngine);
-          zOverlayPainter->draw(zEngine);
-
-          if (zOverlayDrawer) {
-              zOverlayDrawer(zEngine);
-          }
-
-          zEngine->endFrame();
-
-          const auto pixels = bitmapSurface.readPixels();
-          bitmapSurface.destroy();
-  #ifdef __EMSCRIPTEN__
-          showBitmapDebugCanvas(pixels, zWidth, zHeight);
-  #endif
-      }
-    */
-
-    zSurface->makeCurrent();
-    zEngine->beginFrame(zCssWidth, zCssHeight, zDpr, zWidth, zHeight);
-    zDocumentPainter->draw(zEngine);
-    zOverlayPainter->draw(zEngine);
-
-    // 绘制图片.
-    if (zOverlayDrawer) {
-        zOverlayDrawer(zEngine);
+void ZWindow::destroySurface() {
+    if (!zSkia) {
+        return;
     }
-    zEngine->endFrame();
-    zSurface->present();
+
+    if (zSkia->directContext) {
+        zSkia->directContext->releaseResourcesAndAbandonContext();
+    }
+    zSkia->surface.reset();
+    zSkia->directContext.reset();
+
+    if (zSkia->webglContext != 0) {
+        emscripten_webgl_destroy_context(zSkia->webglContext);
+        zSkia->webglContext = 0;
+    }
+}
+
+void ZWindow::ensureSurface() {
+    if (zWidth <= 0 || zHeight <= 0) {
+        return;
+    }
+
+    if (!zSkia) {
+        zSkia = std::make_unique<ZWindowSkiaState>();
+    }
+
+    if (zSkia->webglContext == 0) {
+        EmscriptenWebGLContextAttributes attrs;
+        emscripten_webgl_init_context_attributes(&attrs);
+        attrs.alpha = EM_TRUE;
+        attrs.depth = EM_FALSE;
+        attrs.stencil = EM_TRUE;
+        attrs.antialias = EM_TRUE;
+        attrs.majorVersion = 2;
+        attrs.minorVersion = 0;
+        attrs.enableExtensionsByDefault = EM_TRUE;
+
+        zSkia->webglContext = emscripten_webgl_create_context(kCanvasSelector, &attrs);
+        if (zSkia->webglContext <= 0) {
+            printf("ZWindow: emscripten_webgl_create_context failed: %d\n",
+                   static_cast<int>(zSkia->webglContext));
+            zSkia->webglContext = 0;
+            return;
+        }
+    }
+
+    emscripten_webgl_make_context_current(zSkia->webglContext);
+    emscripten_set_canvas_element_size(kCanvasSelector, zWidth, zHeight);
+
+    if (!zSkia->directContext) {
+        auto interface = GrGLInterfaces::MakeWebGL();
+        zSkia->directContext = GrDirectContexts::MakeGL(interface);
+        if (!zSkia->directContext) {
+            printf("ZWindow: GrDirectContexts::MakeGL failed\n");
+            return;
+        }
+    }
+
+    if (zSkia->surface && zSkia->surfaceWidth == zWidth && zSkia->surfaceHeight == zHeight) {
+        return;
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, zWidth, zHeight);
+    zSkia->directContext->resetContext(kRenderTarget_GrGLBackendState | kMisc_GrGLBackendState);
+
+    GrGLFramebufferInfo framebufferInfo;
+    framebufferInfo.fFBOID = 0;
+    framebufferInfo.fFormat = GR_GL_RGBA8;
+
+    auto renderTarget = GrBackendRenderTargets::MakeGL(zWidth, zHeight, 0, 8, framebufferInfo);
+    zSkia->surface = SkSurfaces::WrapBackendRenderTarget(zSkia->directContext.get(), renderTarget,
+                                                         kBottomLeft_GrSurfaceOrigin,
+                                                         kRGBA_8888_SkColorType,
+                                                         SkColorSpace::MakeSRGB(), nullptr);
+    if (!zSkia->surface) {
+        printf("ZWindow: SkSurfaces::WrapBackendRenderTarget failed\n");
+        return;
+    }
+
+    zSkia->surfaceWidth = zWidth;
+    zSkia->surfaceHeight = zHeight;
+}
+
+void ZWindow::draw() {
+    ensureSurface();
+    if (!zSkia || !zSkia->surface || !zSkia->directContext || zSkia->webglContext == 0) {
+        return;
+    }
+
+    emscripten_webgl_make_context_current(zSkia->webglContext);
+    auto* canvas = zSkia->surface->getCanvas();
+
+    const auto backgroundColor = ZEditorTheme::GetColor(ZEditorThemeToken::zCanvasBackground);
+    canvas->clear(SkColorSetRGB((backgroundColor >> 16) & 0xFF, (backgroundColor >> 8) & 0xFF,
+                                backgroundColor & 0xFF));
+
+    if (zDocumentPainter) {
+        zDocumentPainter->draw(canvas);
+    }
+
+    if (zOverlayPainter) {
+        zOverlayPainter->draw(canvas);
+    }
+
+    present();
+}
+
+void ZWindow::present() {
+    if (!zSkia || !zSkia->surface || !zSkia->directContext) {
+        return;
+    }
+
+    skgpu::ganesh::FlushAndSubmit(zSkia->surface);
+    glFlush();
 }
 
 void ZWindow::setPage(const z_sp<ZPage>& page) {
@@ -171,10 +185,6 @@ void ZWindow::setTrace(ZTrace* trace) {
     zOverlayPainter->setTrace(trace);
 }
 
-void ZWindow::setOverlayDrawer(OverlayDrawer overlayDrawer) {
-    zOverlayDrawer = std::move(overlayDrawer);
-}
-
 void ZWindow::dump() const {
     printf("window[%p]\n", this);
 }
@@ -190,8 +200,5 @@ void ZWindow::setContext(const WindowContext& context) {
     zDpr = context.zDpr;
     zWidth = static_cast<int>(context.zPixelWidth);
     zHeight = static_cast<int>(context.zPixelHeight);
-
-    if (zSurface) {
-        zSurface->resize(zWidth, zHeight);
-    }
+    ensureSurface();
 }

@@ -1,7 +1,5 @@
 #include "z-app/include/ZApp.h"
 
-#include <SDL2/SDL.h>
-
 #include <algorithm>
 #include <functional>
 #include <future>

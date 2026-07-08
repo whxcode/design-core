@@ -23,7 +23,6 @@ endif()
 # 基础编译选项
 set(COMMON_COMPILE_OPTIONS
     "-pthread"
-    "-sUSE_SDL=2"
 )
 
 set(COMMON_LINK_OPTIONS
@@ -31,7 +30,6 @@ set(COMMON_LINK_OPTIONS
     "-sPTHREAD_POOL_SIZE=10"
     "-sALLOW_MEMORY_GROWTH=1"
     "-sUSE_PTHREADS=1"
-    "-sUSE_SDL=2"
     "-sMODULARIZE=1"
     "-sEXPORT_NAME='createCore'"
     "-sFULL_ES3=1"
@@ -39,6 +37,30 @@ set(COMMON_LINK_OPTIONS
     "-sMAX_WEBGL_VERSION=2"
     "-sMIN_WEBGL_VERSION=2"
     "--bind"
+)
+
+set(SKIA_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/skia")
+set(SKIA_BUILD_DIR "$ENV{SKIA_BUILD_DIR}")
+if(SKIA_BUILD_DIR STREQUAL "")
+  set(SKIA_BUILD_DIR "${SKIA_ROOT}/out/design_wasm")
+endif()
+
+set(SKIA_WASM_LIBS
+    "${SKIA_BUILD_DIR}/libskia.wasm.a"
+    "${SKIA_BUILD_DIR}/libskcms.wasm.a"
+    "${SKIA_BUILD_DIR}/libpng.wasm.a"
+    "${SKIA_BUILD_DIR}/libjpeg.wasm.a"
+    "${SKIA_BUILD_DIR}/libwebp.wasm.a"
+    "${SKIA_BUILD_DIR}/libwuffs.wasm.a"
+    "${SKIA_BUILD_DIR}/libzlib.wasm.a"
+    "${SKIA_BUILD_DIR}/libraw_ptr.wasm.a"
+    "${SKIA_BUILD_DIR}/liballocator_base.wasm.a"
+    "${SKIA_BUILD_DIR}/liballocator_core.wasm.a"
+    "${SKIA_BUILD_DIR}/liballocator_shim.wasm.a"
+)
+
+set(SKIA_COMPILE_DEFINITIONS
+    "SK_TRIVIAL_ABI=[[clang::trivial_abi]]"
 )
 
 set(WASM_EXPORT_FLAGS
@@ -65,6 +87,14 @@ add_link_options(${COMMON_LINK_OPTIONS})
 # ============================================================
 include(${CMAKE_CURRENT_SOURCE_DIR}/../CMakeLists.txt)
 
+target_compile_definitions(z_paint PUBLIC Z_ENABLE_SKIA=1)
+target_compile_definitions(z_window PUBLIC Z_ENABLE_SKIA=1)
+target_compile_definitions(z_paint PUBLIC ${SKIA_COMPILE_DEFINITIONS})
+target_compile_definitions(z_window PUBLIC ${SKIA_COMPILE_DEFINITIONS})
+
+target_include_directories(z_paint SYSTEM PUBLIC "${SKIA_ROOT}")
+target_include_directories(z_window SYSTEM PUBLIC "${SKIA_ROOT}")
+
 # ============================================================
 # 3. Wasm 专用模块
 # ============================================================
@@ -78,6 +108,8 @@ set(WASMAPI_SOURCES
 
 add_library(z_wasmapi STATIC ${WASMAPI_SOURCES})
 
+target_compile_definitions(z_wasmapi PUBLIC ${SKIA_COMPILE_DEFINITIONS})
+
 target_include_directories(z_wasmapi
     PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/.."
@@ -90,13 +122,15 @@ target_link_libraries(z_wasmapi PUBLIC z_app z_wasm)
 # ============================================================
 add_executable(DesignCore ${CMAKE_CURRENT_SOURCE_DIR}/../main.cpp)
 
+target_compile_definitions(DesignCore PRIVATE ${SKIA_COMPILE_DEFINITIONS})
+
 target_include_directories(DesignCore SYSTEM PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/.."
+    "${SKIA_ROOT}"
     "${EM_SYSROOT}/include"
-    "${EM_SYSROOT}/include/SDL2"
 )
 
-target_link_libraries(DesignCore PRIVATE z_wasmapi z_app z_engine)
+target_link_libraries(DesignCore PRIVATE z_wasmapi z_app ${SKIA_WASM_LIBS})
 
 target_compile_options(DesignCore PRIVATE ${COMMON_COMPILE_OPTIONS})
 

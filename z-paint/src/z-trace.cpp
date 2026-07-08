@@ -84,10 +84,10 @@ void ZTrace::syncHoverLayer() {
 void ZTrace::syncSelectedLayers() {
 }
 
-void ZTrace::render(IZEngine* engine, ZEditorContext* context) {
+void ZTrace::render(SkCanvas* canvas, ZEditorContext* context) {
     for (const auto& shape : zChildren) {
         if (shape && shape->getVisible()) {
-            shape->render(engine, context);
+            shape->render(canvas, context);
         }
     }
 }

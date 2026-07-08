@@ -1,0 +1,32 @@
+{
+  "name": "z-design",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./index.cjs",
+  "module": "./index.ts",
+  "types": "./index.d.ts",
+  "files": [
+    "DesignCore.js",
+    "DesignCore.wasm",
+    "DesignCore.wasm.map",
+    "index.cjs",
+    "index.d.ts",
+    "index.mjs",
+    "index.ts",
+    "types"
+  ],
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.ts",
+      "require": "./index.cjs"
+    },
+    "./DesignCore.js": "./DesignCore.js",
+    "./DesignCore.wasm": "./DesignCore.wasm",
+    "./types/*": {
+      "types": "./types/*.ts",
+      "import": "./types/*.ts",
+      "default": "./types/*.ts"
+    }
+  }
+}

@@ -5,7 +5,7 @@
 #include "z-tools/include/z-guid.h"
 #include "z-tools/include/z-type.h"
 
-class IZEngine;
+class SkCanvas;
 class ZEditorContext;
 
 class ZShape {
@@ -15,10 +15,10 @@ public:
     const ZGuid& getId() const;
     void addChild(z_sp<ZShape> child);
     virtual bool getVisible() const;
-    virtual void render(IZEngine* engine, ZEditorContext* context);
+    virtual void render(SkCanvas* canvas, ZEditorContext* context);
 
 protected:
-    void renderChildren(IZEngine* engine, ZEditorContext* context);
+    void renderChildren(SkCanvas* canvas, ZEditorContext* context);
 
 private:
     ZGuid zId{ZGuid::MakeGuid()};

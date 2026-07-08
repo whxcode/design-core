@@ -5,5 +5,5 @@
 
 class ZSelectShape : public ZShape {
 public:
-    void render(IZEngine* engine, ZEditorContext* context) override;
+    void render(SkCanvas* canvas, ZEditorContext* context) override;
 };

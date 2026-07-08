@@ -1,18 +1,16 @@
 #pragma once
 
-#include <functional>
+#include <memory>
 
 #include "z-tools/include/z-type.h"
-#include "z-window/include/z-surface.h"
 
-class IZEngine;
 class ZDocumentPainter;
 class ZEditorContext;
 class ZOverlayPainter;
 class ZPage;
 class ZShape;
 class ZTrace;
-class ZSurface;
+struct ZWindowSkiaState;
 
 struct WindowContext {
     size_t zWidth{0};
@@ -24,8 +22,6 @@ struct WindowContext {
 
 class ZWindow {
 public:
-    using OverlayDrawer = std::function<void(IZEngine*)>;
-
     ZWindow();
     ~ZWindow();
     void draw();
@@ -34,24 +30,23 @@ public:
     void setEditorContext(ZEditorContext* context);
     void setOverlayRoot(z_sp<ZShape> root);
     void setTrace(ZTrace* trace);
-    void setOverlayDrawer(OverlayDrawer overlayDrawer);
     void dump() const;
-    ZSurface* surface() const { return zSurface.get(); }
 
 private:
     void init();
+    void ensureSurface();
+    void destroySurface();
+    void present();
 
 private:
     int zWidth{800};
     int zHeight{800};
     float zCssWidth{800.0f};
     float zCssHeight{800.0f};
-    float zDpr{0};
+    float zDpr{1.0f};
 
-    IZEngine* zEngine{nullptr};
+    std::unique_ptr<ZWindowSkiaState> zSkia{nullptr};
     std::shared_ptr<ZDocumentPainter> zDocumentPainter{nullptr};
     std::shared_ptr<ZOverlayPainter> zOverlayPainter{nullptr};
     ZEditorContext* zEditorContext{nullptr};
-    OverlayDrawer zOverlayDrawer{nullptr};
-    std::unique_ptr<ZSurface> zSurface{nullptr};
 };

@@ -13,7 +13,6 @@
 #include "z-editor/include/ui-event/z-ui-handle.h"
 #include "z-editor/include/z-editor-context.h"
 #include "z-editor/include/z-editor-mode.h"
-#include "z-engine/include/z-engine.h"
 #include "z-paint/include/z-trace.h"
 #include "z-tools/include/z-editor-theme.h"
 #include "z-window/include/ZWindow.h"

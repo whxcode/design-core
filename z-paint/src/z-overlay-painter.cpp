@@ -1,5 +1,6 @@
 #include "z-paint/include/z-overlay-painter.h"
 
+#include "include/core/SkCanvas.h"
 #include <utility>
 
 #include "z-paint/include/z-shape.h"
@@ -16,9 +17,9 @@ void ZOverlayPainter::setTrace(ZTrace* trace) {
     zTrace = trace;
 }
 
-void ZOverlayPainter::draw(IZEngine* engine) {
+void ZOverlayPainter::draw(SkCanvas* canvas) {
     if (zTrace) {
-        zTrace->render(engine, zContext);
+        zTrace->render(canvas, zContext);
         return;
     }
 
@@ -26,5 +27,5 @@ void ZOverlayPainter::draw(IZEngine* engine) {
         return;
     }
 
-    zRoot->render(engine, zContext);
+    zRoot->render(canvas, zContext);
 }

@@ -16,18 +16,12 @@ const enumSyncMappings = [
   {
     enumName: "ZCommandType",
     input: "z-editor/include/command/z-command-type.h",
-    outputs: [
-      "z-types/core-api.ts",
-      "../design-web/src/types/design-core/core-api.ts",
-    ],
+    outputs: ["z-types/core-api.ts"],
   },
   {
     enumName: "ZEditorModeType",
     input: "z-editor/include/z-editor-mode.h",
-    outputs: [
-      "z-types/core-api.ts",
-      "../design-web/src/types/design-core/core-api.ts",
-    ],
+    outputs: ["z-types/core-api.ts"],
   },
 ];
 

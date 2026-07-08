@@ -1,23 +1,10 @@
 #include "z-paint/include/shapes/z-select-frame-shape.h"
 
+#include "include/core/SkCanvas.h"
 #include "z-editor/include/z-editor-context.h"
-#include "z-engine/include/z-engine.h"
 #include "z-matrix/include/z-matrix.h"
+#include "z-paint/include/z-skia-utils.h"
 #include "z-tools/include/z-editor-theme.h"
-
-namespace {
-
-void drawFrameRect(IZEngine* engine, const ZRect& rect, const float lineWidth,
-                   const ZStyle& style) {
-    engine->drawRect(ZRect::MakeXYWH(rect.left(), rect.top(), rect.width(), lineWidth), style);
-    engine->drawRect(
-        ZRect::MakeXYWH(rect.left(), rect.bottom() - lineWidth, rect.width(), lineWidth), style);
-    engine->drawRect(ZRect::MakeXYWH(rect.left(), rect.top(), lineWidth, rect.height()), style);
-    engine->drawRect(
-        ZRect::MakeXYWH(rect.right() - lineWidth, rect.top(), lineWidth, rect.height()), style);
-}
-
-}  // namespace
 
 void ZSelectFrameShape::setRect(const ZRect& rect) {
     zRect = rect.normalized();
@@ -31,32 +18,38 @@ bool ZSelectFrameShape::getVisible() const {
     return !zRect.isEmpty();
 }
 
-void ZSelectFrameShape::render(IZEngine* engine, ZEditorContext* context) {
-    if (!engine || !context || zRect.isEmpty()) {
+void ZSelectFrameShape::render(SkCanvas* canvas, ZEditorContext* context) {
+    if (!canvas || !context || zRect.isEmpty()) {
         return;
     }
 
     const auto viewport = context->getViewportData();
     const auto lineWidth = viewport.scale == 0.0f ? 1.0f : 1.0f / viewport.scale;
     const auto strokeColor = ZEditorTheme::GetColor(ZEditorThemeToken::zSelectionStroke);
-    const ZStyle fillStyle{
-        .color = strokeColor,
-        .alpha = 0.18f,
-        .isStroke = false,
-    };
-    const ZStyle style{
-        .color = strokeColor,
-        .alpha = 1.0f,
-        .isStroke = false,
-    };
+    SkPaint fillPaint;
+    fillPaint.setAntiAlias(true);
+    fillPaint.setStyle(SkPaint::kFill_Style);
+    fillPaint.setColor(ZSkiaColor(strokeColor, 0.18f));
 
-    engine->save();
-    engine->transform(ZMatrix::Identity()
-                          .preTranslate(viewport.offsetX, viewport.offsetY)
-                          .preScale(viewport.scale, viewport.scale));
+    SkPaint strokePaint;
+    strokePaint.setAntiAlias(true);
+    strokePaint.setStyle(SkPaint::kFill_Style);
+    strokePaint.setColor(ZSkiaColor(strokeColor, 1.0f));
 
-    engine->drawRect(zRect, fillStyle);
-    drawFrameRect(engine, zRect, lineWidth, style);
-
-    engine->restore();
+    canvas->save();
+    canvas->concat(ZSkiaMatrix(ZMatrix::Identity()
+                                   .preTranslate(viewport.offsetX, viewport.offsetY)
+                                   .preScale(viewport.scale, viewport.scale)));
+    canvas->drawRect(ZSkiaRect(zRect), fillPaint);
+    canvas->drawRect(SkRect::MakeXYWH(zRect.left(), zRect.top(), zRect.width(), lineWidth),
+                     strokePaint);
+    canvas->drawRect(SkRect::MakeXYWH(zRect.left(), zRect.bottom() - lineWidth, zRect.width(),
+                                      lineWidth),
+                     strokePaint);
+    canvas->drawRect(SkRect::MakeXYWH(zRect.left(), zRect.top(), lineWidth, zRect.height()),
+                     strokePaint);
+    canvas->drawRect(SkRect::MakeXYWH(zRect.right() - lineWidth, zRect.top(), lineWidth,
+                                      zRect.height()),
+                     strokePaint);
+    canvas->restore();
 }

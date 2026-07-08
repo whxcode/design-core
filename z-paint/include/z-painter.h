@@ -1,10 +1,10 @@
 #pragma once
 
-class IZEngine;
+class SkCanvas;
 
 class ZPainter {
 public:
     virtual ~ZPainter() = default;
 
-    virtual void draw(IZEngine* engine) = 0;
+    virtual void draw(SkCanvas* canvas) = 0;
 };

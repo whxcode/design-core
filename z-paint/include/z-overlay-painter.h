@@ -6,6 +6,7 @@
 class ZEditorContext;
 class ZShape;
 class ZTrace;
+class SkCanvas;
 
 class ZOverlayPainter : public ZPainter {
 public:
@@ -13,7 +14,7 @@ public:
 
     void setRoot(z_sp<ZShape> root);
     void setTrace(ZTrace* trace);
-    void draw(IZEngine* engine) override;
+    void draw(SkCanvas* canvas) override;
 
 private:
     ZEditorContext* zContext{nullptr};
