@@ -1,9 +1,9 @@
 #include "z-window/include/ZWindow.h"
 
-#include <cstdio>
-
 #include <GLES3/gl3.h>
 #include <emscripten/html5.h>
+
+#include <cstdio>
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -122,10 +122,9 @@ void ZWindow::ensureSurface() {
     framebufferInfo.fFormat = GR_GL_RGBA8;
 
     auto renderTarget = GrBackendRenderTargets::MakeGL(zWidth, zHeight, 0, 8, framebufferInfo);
-    zSkia->surface = SkSurfaces::WrapBackendRenderTarget(zSkia->directContext.get(), renderTarget,
-                                                         kBottomLeft_GrSurfaceOrigin,
-                                                         kRGBA_8888_SkColorType,
-                                                         SkColorSpace::MakeSRGB(), nullptr);
+    zSkia->surface = SkSurfaces::WrapBackendRenderTarget(
+        zSkia->directContext.get(), renderTarget, kBottomLeft_GrSurfaceOrigin,
+        kRGBA_8888_SkColorType, SkColorSpace::MakeSRGB(), nullptr);
     if (!zSkia->surface) {
         printf("ZWindow: SkSurfaces::WrapBackendRenderTarget failed\n");
         return;
@@ -148,6 +147,9 @@ void ZWindow::draw() {
     canvas->clear(SkColorSetRGB((backgroundColor >> 16) & 0xFF, (backgroundColor >> 8) & 0xFF,
                                 backgroundColor & 0xFF));
 
+    canvas->save();
+    canvas->scale(zDpr, zDpr);
+
     if (zDocumentPainter) {
         zDocumentPainter->draw(canvas);
     }
@@ -155,6 +157,8 @@ void ZWindow::draw() {
     if (zOverlayPainter) {
         zOverlayPainter->draw(canvas);
     }
+
+    canvas->restore();
 
     present();
 }
